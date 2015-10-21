@@ -9,70 +9,20 @@ var debug = require('debug')('suptracked:server');
 var http = require('http');
 var config = require('../config');
 var sqlite3 = require('sqlite3').verbose();
+var q = require('q');
 startTime = new Date();
 
 /**
  * Ensure database is up and running
  */
-if (process.env.NODE_ENV == "testing") {
+if (process.env.NODE_ENV == "test") {
   db = new sqlite3.Database(':memory:');
 } else {
   db = new sqlite3.Database(config.db.location);
 }
 
-//init the DB with our schema
-db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='experiences'",
-  function(err, rows) {
-    if (err !== null) {
-      console.log(err);
-    } else if (rows === undefined) {
-      console.log("Initializing database...")
-      db.run('CREATE TABLE "users" ' +
-        '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-        'firstmane TEXT, ' +
-        'lastname TEXT, ' +
-        'username TEXT, ' +
-        'email TEXT, ' +
-        'password TEXT, ' +
-        'emergcontact TEXT, ' +
-        'phone TEXT, ' +
-        'daysback INTEGER, ' +
-        'favoritecount INTEGER, ' +
-        'admin INTEGER)');
 
-      db.run('CREATE TABLE "experiences" ' +
-        '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-        'date TEXT, ' +
-        'ttime INTEGER' +
-        'title TEXT, ' +
-        'location TEXT, ' +
-        'notes TEXT, ' +
-        'panicmsg TEXT, ' +
-        'rating_id INTEGER, ' +
-        'owner INTEGER)');
 
-      db.run('CREATE TABLE "consumptions" ' +
-        '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-        'date TEXT, ' +
-        'experience INTEGER' +
-        'count REAL, ' +
-        'drug_id INTEGER, ' +
-        'method_id INTEGER, ' +
-        'owner INTEGER)');
-
-      db.run('CREATE TABLE "drugs" ' +
-        '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-        'drugname TEXT, ' +
-        'unit TEXT, ' +
-        'notes TEXT, ' +
-        'classification TEXT, ' +
-        'family TEXT, ' +
-        'rarity TEXT, ' +
-        'owner INTEGER)');
-    }
-
-    console.log("Database initialized.");
-  });
 
 /**
  * Get port from environment and store in Express.
@@ -88,12 +38,52 @@ app.set('port', port);
 var server = http.createServer(app);
 
 /**
- * Listen on provided port, on all network interfaces.
+ * Set up listeners, then promise through database initialization and launch
  */
 
-server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+q.fcall(
+  db.exec('CREATE TABLE IF NOT EXISTS "users" ' +
+    '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+    'firstmane TEXT, ' +
+    'lastname TEXT, ' +
+    'username TEXT, ' +
+    'email TEXT, ' +
+    'password TEXT, ' +
+    'emergcontact TEXT, ' +
+    'phone TEXT, ' +
+    'daysback INTEGER, ' +
+    'favoritecount INTEGER, ' +
+    'admin INTEGER); ' +
+    'CREATE TABLE IF NOT EXISTS "experiences" ' +
+    '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+    'date TEXT, ' +
+    'ttime INTEGER, ' +
+    'title TEXT, ' +
+    'location TEXT, ' +
+    'notes TEXT, ' +
+    'panicmsg TEXT, ' +
+    'rating_id INTEGER, ' +
+    'owner INTEGER); ' +
+    'CREATE TABLE IF NOT EXISTS "consumptions" ' +
+    '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+    'date TEXT, ' +
+    'experience INTEGER, ' +
+    'count REAL, ' +
+    'drug_id INTEGER, ' +
+    'method_id INTEGER, ' +
+    'owner INTEGER); ' +
+    'CREATE TABLE IF NOT EXISTS "drugs" ' +
+    '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+    'drugname TEXT, ' +
+    'unit TEXT, ' +
+    'notes TEXT, ' +
+    'classification TEXT, ' +
+    'family TEXT, ' +
+    'rarity TEXT, ' +
+    'owner INTEGER)')
+).then(server.listen(port)).then(module.exports = server);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -148,5 +138,14 @@ function onError(error) {
 function onListening() {
   var addr = server.address();
   var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  console.log('SupTracked is listening on ' + bind);
+  log('SupTracked is listening on ' + bind);
+}
+
+/**
+ * create a log function that doesn't poop all over our test output
+ */
+function log(string) {
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(string);
+  }
 }

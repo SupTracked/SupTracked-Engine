@@ -1,6 +1,6 @@
 var express = require('express');
 var path = require('path');
-var logger = require('morgan');
+var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
@@ -8,6 +8,10 @@ var routes = require('./routes/index');
 var status = require('./routes/status');
 
 var app = express();
+
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('combined'));
+}
 
 app.use('/', routes);
 app.use('/status', status);
@@ -19,21 +23,9 @@ app.use(function(req, res, next) {
   next(err);
 });
 
-// error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(500).send(err);
-  });
-}
-
-// production error handler
-// no stacktraces leaked to user
+// error handler
 app.use(function(err, req, res, next) {
   res.status(500).send(err);
 });
-
 
 module.exports = app;

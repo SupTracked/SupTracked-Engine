@@ -2,7 +2,15 @@ var express = require('express');
 var router = express.Router();
 var os = require("os");
 
-router.get('/', function(req, res, next) {
+router.get('/up', function(req, res, next) {
+  var currentTime = new Date();
+  var upTime = currentTime - startTime;
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify({ up: true}));
+});
+
+// show the system's uptime
+router.get('/uptime', function(req, res, next) {
   var currentTime = new Date();
   var upTime = currentTime - startTime;
   res.setHeader('Content-Type', 'application/json');
@@ -15,7 +23,6 @@ router.get('/db', function(req, res, next) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({rowcount: row.count}));
   });
-
 });
 
 module.exports = router;
