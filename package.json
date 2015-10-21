@@ -1,7 +1,7 @@
 {
   "name": "SupTracked Engine",
   "version": "0.0.1",
-  "description": "Track dietary supplements and nootropic consumption.",
+  "description": "API to track dietary supplements and nootropic consumption.",
   "private": true,
   "author": "Jack Kingsman <jack.kingsman@gmail.com>",
   "license": "MIT",
