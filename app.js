@@ -10,7 +10,7 @@ var status = require('./routes/status');
 var app = express();
 
 if (process.env.NODE_ENV !== 'test') {
-  app.use(morgan('combined'));
+  app.use(morgan('short'));
 }
 
 app.use('/', routes);
@@ -25,7 +25,15 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-  res.status(500).send(err);
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  if(err.status){
+    res.status(err.status).send(err);
+  } else{
+    res.status(500).send(err);
+  }
 });
 
 module.exports = app;

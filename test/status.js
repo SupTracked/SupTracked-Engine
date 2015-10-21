@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 var request = require('supertest');
 require = require('really-need');
 
-describe('loading express', function () {
+describe('startup', function () {
   var server;
 
   beforeEach(function () {
@@ -17,16 +17,15 @@ describe('loading express', function () {
   it('is up', function testSlash(done) {
   request(server)
     .get('/status/up')
-    .expect(200, {
-      up: true
-    },done);
+    .expect(200, done);
   });
 
-  it('has the correct number of db tables', function testDB(done) {
+  it('has the db running', function testDB(done) {
     request(server)
       .get('/status/db')
       .expect(200, {
-        rowcount: 4
+        online: true,
+        tables: 4
       }, done);
   });
 });
