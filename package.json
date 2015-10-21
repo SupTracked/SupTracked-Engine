@@ -1,5 +1,5 @@
 {
-  "name": "SupTracked Engine",
+  "name": "SupTrackedAPI",
   "version": "0.0.1",
   "description": "API to track dietary supplements and nootropic consumption.",
   "private": true,

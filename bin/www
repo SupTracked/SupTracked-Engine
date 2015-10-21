@@ -78,7 +78,7 @@ db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='experiences'
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(config.general.port);
 app.set('port', port);
 
 /**
