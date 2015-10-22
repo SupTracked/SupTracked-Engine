@@ -101,7 +101,7 @@ describe('user', function() {
           .put('/user')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .expect(400, done);
+          .expect(400, {"customfields": "no fields provided"}, done);
       });
   });
 
@@ -116,7 +116,7 @@ describe('user', function() {
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"notafield": "value"}')
-          .expect(400, done);
+          .expect(400, {"customfields": "custom field requested that is not permitted"}, done);
       });
   });
 
@@ -165,7 +165,7 @@ describe('user', function() {
           .put('/user/password')
           .auth('myusername', 'MyPassword')
           .send()
-          .expect(400, done);
+          .expect(400, {"password": "password too short or not provided"}, done);
       });
   });
 
@@ -180,7 +180,7 @@ describe('user', function() {
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"notpassword": "value"}')
-          .expect(400, done);
+          .expect(400, {"password": "password too short or not provided"}, done);
       });
   });
 
@@ -195,7 +195,7 @@ describe('user', function() {
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"password": "shrt"}')
-          .expect(400, done);
+          .expect(400, {"password": "password too short or not provided"}, done);
       });
   });
 });

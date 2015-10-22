@@ -1,7 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var Schema = require('node-schema');
-var str = require('string-validator');
 var bcrypt = require('bcrypt');
 
 /**
@@ -9,66 +7,57 @@ var bcrypt = require('bcrypt');
  * Add a new user
  */
 router.post('/', function(req, res, next) {
-  var userSchema = Schema({
-    username: {
-      'must have at least 5 characters': str.isLength(5),
-      'can only contain numbers and letters': str.matches(/^[a-zA-Z0-9]*$/)
-    },
-    password: {
-      'must have at least 10 characters': str.isLength(10)
-    }
-  });
+  // validation
+  if (req.body === undefined || !("username" in req.body) || !("password" in req.body) || // existence
+    req.body.username.length < 5 || req.body.password.length < 10 || // length
+    !(/^[a-zA-Z0-9]*$/.test(req.body.username))) { //regex for alphanumeric
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send({
+      userpass: "username must be at least five characters and alphanumeric; " +
+        "password must be at least ten characters"
+    });
+    return;
+  }
 
-  userSchema.validate({
-    username: req.body.username,
-    password: req.body.password
-  }).then(function(errors) {
-    if (errors) {
-      // return json of error fields
-      res.setHeader('Content-Type', 'application/json');
-      res.status(400).send(errors);
-    } else {
-      // validation passed; see if they already exist
-      db.get("SELECT * FROM users where username = $username", {
-        $username: req.body.username
-      }, function(err, rows) {
-        if (rows === undefined) {
-          // add the user
-          bcrypt.genSalt(10, function(err, salt) {
-            bcrypt.hash(req.body.password, salt, function(err, hash) {
+  // validation passed; see if they already exist
+  db.get("SELECT * FROM users where username = $username", {
+    $username: req.body.username
+  }, function(err, rows) {
+    if (rows === undefined) {
+      // add the user
+      bcrypt.genSalt(10, function(err, salt) {
+        bcrypt.hash(req.body.password, salt, function(err, hash) {
+          if (err) {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(500).send(JSON.stringify({
+              hash: "general hash error"
+            }));
+          } else {
+            // create user in db
+            db.run("INSERT INTO USERS (username, password, admin) VALUES ($username, $password, $admin)", {
+              $username: req.body.username,
+              $password: hash,
+              $admin: 0
+            }, function(err) {
               if (err) {
                 res.setHeader('Content-Type', 'application/json');
-                res.status(500).send(JSON.stringify({
-                  hash: "general hash error"
+                res.status(400).send(JSON.stringify({
+                  register: err
                 }));
-              } else {
-                // create user in db
-                db.run("INSERT INTO USERS (username, password, admin) VALUES ($username, $password, $admin)", {
-                  $username: req.body.username,
-                  $password: hash,
-                  $admin: 0
-                }, function(err) {
-                  if(err){
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(400).send(JSON.stringify({
-                      register: err
-                    }));
-                    return;
-                  }
-                  // you dun gud
-                  res.status(201).send();
-                });
+                return;
               }
+              // you dun gud
+              res.status(201).send();
             });
-          });
-        } else {
-          // already a user by this name
-          res.setHeader('Content-Type', 'application/json');
-          res.status(409).send(JSON.stringify({
-            username: "username is already taken"
-          }));
-        }
+          }
+        });
       });
+    } else {
+      // already a user by this name
+      res.setHeader('Content-Type', 'application/json');
+      res.status(409).send(JSON.stringify({
+        username: "username is already taken"
+      }));
     }
   });
 });

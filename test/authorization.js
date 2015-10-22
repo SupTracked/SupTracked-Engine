@@ -38,7 +38,7 @@ describe('authorization', function() {
         request(server)
           .get('/user')
           .auth('myusername', 'NotMyPassword')
-          .expect(401, done);
+          .expect(401, {}, done);
       });
   });
 

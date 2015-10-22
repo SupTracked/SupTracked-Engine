@@ -31,7 +31,7 @@ describe('experience', function() {
         request(server)
           .post('/experience')
           .auth('myusername', 'MyPassword')
-          .expect(400, done);
+          .expect(400, {"experience": "title, valid date, and location required"}, done);
       });
   });
 
@@ -45,7 +45,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .expect(400, done);
+          .expect(400, {"experience": "title, valid date, and location required"}, done);
       });
   });
 
@@ -60,7 +60,7 @@ describe('experience', function() {
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"title": "My Title", "location": "My Location", "date": "not a date"}')
-          .expect(400, done);
+          .expect(400, {"experience": "timestamp must be positive unix time integer, down to seconds resolution"}, done);
       });
   });
 
@@ -172,7 +172,7 @@ describe('experience', function() {
               .auth('myusername', 'MyPassword')
               .set('Content-Type', 'application/json')
               .send('{"id": 1, "notafield": "value"}')
-              .expect(400, done);
+              .expect(400, {"experience": "custom field requested that is not permitted"}, done);
           });
       });
   });

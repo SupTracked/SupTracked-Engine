@@ -11,7 +11,7 @@ router.post('/', function(req, res, next) {
   if (req.body === undefined || !("title" in req.body) || !("date" in req.body) || !("location" in req.body)) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      experience: "title, valid date, and location"
+      experience: "title, valid date, and location required"
     }));
     return;
   }
