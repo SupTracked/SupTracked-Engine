@@ -29,7 +29,7 @@ describe('user', function() {
       .expect(401, done);
   });
 
-  it('rejects invalid password', function testUserAuthBadPass(done) {
+  it('rejects invalid passwords', function testUserAuthBadPass(done) {
     request(server)
       .post('/register')
       .set('Content-Type', 'application/json')
