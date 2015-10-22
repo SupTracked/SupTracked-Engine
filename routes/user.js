@@ -29,7 +29,7 @@ router.get('/customfields', function(req, res, next) {
 });
 
 /**
- * put /customfields
+ * PUT /customfields
  * Change user's custom data
  */
 router.put('/customfields', function(req, res, next) {
