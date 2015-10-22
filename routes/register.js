@@ -2,13 +2,13 @@ var express = require('express');
 var router = express.Router();
 var Schema = require('node-schema');
 var str = require('string-validator');
-var bcrypt = 3; // require('bcrypt');
+var bcrypt = require('bcrypt');
 
 /**
- * POST /new
+ * POST /
  * Add a new user
  */
-router.post('/new', function(req, res, next) {
+router.post('/', function(req, res, next) {
   var userSchema = Schema({
     username: {
       'must have at least 5 characters': str.isLength(5),
@@ -32,16 +32,10 @@ router.post('/new', function(req, res, next) {
       db.get("SELECT * FROM users where username = $username", {
         $username: req.body.username
       }, function(err, rows) {
-        if (rows.length != 0) {
-          // already a user by this name
-          res.setHeader('Content-Type', 'application/json');
-          res.status(400).send(JSON.stringify({
-            username: "username is already taken"
-          }));
-        } else {
-          //add the user
+        if (rows === undefined) {
+          // add the user
           bcrypt.genSalt(10, function(err, salt) {
-            bcrypt.hash("my password", salt, function(err, hash) {
+            bcrypt.hash(req.body.password, salt, function(err, hash) {
               if (err) {
                 res.setHeader('Content-Type', 'application/json');
                 res.status(500).send(JSON.stringify({
@@ -53,29 +47,23 @@ router.post('/new', function(req, res, next) {
                   $username: req.body.username,
                   $password: hash,
                   $admin: 0
+                }, function() {
+                  // you dun gud
+                  res.status(201).send();
                 });
-
-                // you dun gud
-                res.setHeader('Content-Type', 'application/json');
-                res.status(201).send();
               }
             });
           });
+        } else {
+          // already a user by this name
+          res.setHeader('Content-Type', 'application/json');
+          res.status(409).send(JSON.stringify({
+            username: "username is already taken"
+          }));
         }
       });
     }
   });
-});
-
-/**
- * PUT /customfields
- * Change user's custom data
- */
-router.put('/customfields', function(req, res, next) {
-  var permittedFields = ['emergcontact', 'phone', 'daysback', 'favoritecount'];
-  console.log(Object.keys(req.body));
-  res.setHeader('Content-Type', 'application/json');
-  res.status(200).send();
 });
 
 module.exports = router;

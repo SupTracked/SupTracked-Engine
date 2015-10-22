@@ -3,10 +3,13 @@ var path = require('path');
 var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var basicAuth = require('basic-auth');
+var bcrypt = require('bcrypt');
 
 var routes = require('./routes/index');
 var status = require('./routes/status');
-var users = require('./routes/users');
+var user = require('./routes/user');
+var register = require('./routes/register');
 
 var app = express();
 
@@ -16,12 +19,16 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // body parsing goodness
-app.use(bodyParser.json());       // to support JSON-encoded bodies
+app.use(bodyParser.json()); // to support JSON-encoded bodies
 
-// routing
+// protect routes
+app.use('/user', auth);
+
+// route to controllers
 app.use('/', routes);
 app.use('/status', status);
-app.use('/users', users);
+app.use('/user', user);
+app.use('/register', register);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -36,11 +43,48 @@ app.use(function(err, req, res, next) {
     return next(err);
   }
 
-  if(err.status){
+  if (err.status) {
     res.status(err.status).send(err);
-  } else{
+  } else {
     res.status(500).send(err);
   }
 });
 
+/**
+ * Basic Auth/DB auth system
+ */
+function auth(req, res, next) {
+  function unauthorized(res) {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+    res.status(401).send();
+    next();
+  };
+
+  var user = basicAuth(req);
+
+  if (!user || !user.name || !user.pass) {
+    return unauthorized(res);
+  };
+
+  db.get("SELECT * FROM users where username = $username", {
+    $username: user.name
+  }, function(err, row) {
+    if (row == undefined) {
+      // I never knew you
+      return unauthorized(res);
+    }
+
+    // we've heard of them; is the password correct?
+    bcrypt.compare(user.pass, row.password, function(err, result) {
+      if (result) {
+        // good to go; add their ID to the request
+        req.supID = row.id;
+        next();
+      } else {
+        console.log("hash error")
+        return unauthorized(res);
+      }
+    });
+  });
+}
 module.exports = app;

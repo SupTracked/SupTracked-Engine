@@ -20,7 +20,7 @@ describe('startup', function () {
     .expect(200, done);
   });
 
-  it('has the db running', function testDB(done) {
+  it('runs the database', function testDB(done) {
     request(server)
       .get('/status/db')
       .expect(200, {
