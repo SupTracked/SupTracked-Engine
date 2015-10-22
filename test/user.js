@@ -84,7 +84,7 @@ describe('user', function() {
       .end(function() {
         // set custom field
         request(server)
-          .post('/user/customfields')
+          .put('/user/customfields')
           .set('Authorization', 'Basic bXl1c2VybmFtZTpNeVBhc3N3b3Jk')
           .set('Content-Type', 'application/json')
           .send('{"phone": "694165516"}')
@@ -101,7 +101,7 @@ describe('user', function() {
       .end(function() {
         // set custom field
         request(server)
-          .post('/user/customfields')
+          .put('/user/customfields')
           .set('Authorization', 'Basic bXl1c2VybmFtZTpNeVBhc3N3b3Jk')
           .set('Content-Type', 'application/json')
           .send('{"phone": "694165516"}')
@@ -129,7 +129,7 @@ describe('user', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .post('/user/customfields')
+          .put('/user/customfields')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .expect(400, done);
@@ -143,7 +143,7 @@ describe('user', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .post('/user/customfields')
+          .put('/user/customfields')
           .set('Authorization', 'Basic bXl1c2VybmFtZTpNeVBhc3N3b3Jk')
           .set('Content-Type', 'application/json')
           .send('{"notafield": "value"}')

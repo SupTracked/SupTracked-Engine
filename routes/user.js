@@ -29,10 +29,10 @@ router.get('/customfields', function(req, res, next) {
 });
 
 /**
- * POST /customfields
+ * put /customfields
  * Change user's custom data
  */
-router.post('/customfields', function(req, res, next) {
+router.put('/customfields', function(req, res, next) {
   var permittedFields = ['emergcontact', 'phone', 'daysback', 'favoritecount'];
 
   //no fields were provided
