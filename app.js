@@ -6,15 +6,22 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var status = require('./routes/status');
+var users = require('./routes/users');
 
 var app = express();
 
+// logging
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('short'));
 }
 
+// body parsing goodness
+app.use(bodyParser.json());       // to support JSON-encoded bodies
+
+// routing
 app.use('/', routes);
 app.use('/status', status);
+app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

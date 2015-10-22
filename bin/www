@@ -45,16 +45,14 @@ server.on('listening', onListening);
 q.fcall(
   db.exec('CREATE TABLE IF NOT EXISTS "users" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-    'firstmane TEXT, ' +
-    'lastname TEXT, ' +
     'username TEXT, ' +
-    'email TEXT, ' +
     'password TEXT, ' +
     'emergcontact TEXT, ' +
     'phone TEXT, ' +
     'daysback INTEGER, ' +
     'favoritecount INTEGER, ' +
-    'admin INTEGER); ' +
+    'admin INTEGER);' +
+    ' ' +
     'CREATE TABLE IF NOT EXISTS "experiences" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
     'date TEXT, ' +
@@ -64,7 +62,8 @@ q.fcall(
     'notes TEXT, ' +
     'panicmsg TEXT, ' +
     'rating_id INTEGER, ' +
-    'owner INTEGER); ' +
+    'owner INTEGER);' +
+    ' ' +
     'CREATE TABLE IF NOT EXISTS "consumptions" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
     'date TEXT, ' +
@@ -72,7 +71,8 @@ q.fcall(
     'count REAL, ' +
     'drug_id INTEGER, ' +
     'method_id INTEGER, ' +
-    'owner INTEGER); ' +
+    'owner INTEGER);' +
+    ' ' +
     'CREATE TABLE IF NOT EXISTS "drugs" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
     'drugname TEXT, ' +
