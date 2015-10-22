@@ -29,6 +29,19 @@ describe('user', function() {
       .expect(401, done);
   });
 
+  it('rejects invalid password', function testUserAuthBadPass(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .get('/user')
+          .auth('myusername', 'NotMyPassword')
+          .expect(401, done);
+      });
+  });
+
   it('accepts valid users', function testUserAuthValid(done) {
     request(server)
       .post('/register')
