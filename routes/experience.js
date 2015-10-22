@@ -3,17 +3,103 @@ var router = express.Router();
 
 
 /**
- * put /customfields
- * Change user's custom data
+ * POST /
+ * Create a new experience
  */
-router.put('/customfields', function(req, res, next) {
-  var permittedFields = ['emergcontact', 'phone', 'daysback', 'favoritecount'];
+router.post('/', function(req, res, next) {
+  // not enough fields were provided
+  if (req.body === undefined || !("title" in req.body) || !("date" in req.body) || !("location" in req.body)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      experience: "title, valid date, and location"
+    }));
+    return;
+  }
+
+  // check for bad timestamp
+  if (req.body.date < 0 || isNaN(req.body.date) ) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      experience: "timestamp must be positive unix time integer, down to seconds resolution"
+    }));
+    return;
+  }
+
+  // stick it in
+  db.run("INSERT INTO EXPERIENCES (title, date, location, owner) VALUES ($title, $date, $location, $owner)", {
+    $title: req.body.title,
+    $date: req.body.date,
+    $location: req.body.location,
+    $owner: req.supID
+  }, function(err) {
+    if(err){
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        experience: err
+      }));
+      return;
+    }
+
+    // you dun gud
+    res.setHeader('Content-Type', 'application/json');
+    res.status(201).send(JSON.stringify({
+      id: this.lastID
+    }));
+  });
+});
+
+/**
+ * GET /
+ * Get an experience
+ */
+router.get('/', function(req, res, next) {
+  // not enough fields were provided
+  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      experience: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.get("SELECT * FROM EXPERIENCES WHERE id = $id AND owner = $owner", {
+    $id: req.body.id,
+    $owner: req.supID
+  }, function(err, row) {
+    if(err){
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        experience: err
+      }));
+      return;
+    }
+
+    // no rows returned; nothing for that ID
+    if(row == []){
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    // return the experience
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(JSON.stringify(row));
+  });
+});
+
+/**
+ * PUT /
+ * Update an experience
+ */
+router.put('/', function(req, res, next){
+  var permittedFields = ['date', 'location', 'notes', 'panicmsg', 'rating_id', 'title', 'ttime', 'id'];
 
   //no fields were provided
   if (Object.keys(req.body).length === 0 || req.body === undefined) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      customfields: "no fields provided"
+      experience: "no fields provided"
     }));
     return;
   }
@@ -33,12 +119,15 @@ router.put('/customfields', function(req, res, next) {
       updateVals.push(columnName + ' = $' + columnName);
     });
 
-    var query = 'UPDATE USERS SET ' + updateVals.join(', ') + ' WHERE id = ' + req.supID;
+    var query = 'UPDATE EXPERIENCES SET ' + updateVals.join(', ') + ' WHERE id = $expid AND owner = ' + req.supID ;
 
     // loop through each key and build the JSON object of bindings for sqlite
     Object.keys(req.body).forEach(function(columnName) {
       dataArray["$" + columnName] = req.body[columnName];
     });
+
+    // add the experience ID
+    dataArray.$expid = req.body.id;
 
     db.run(query, dataArray, function(err) {
       if(err){
@@ -54,9 +143,8 @@ router.put('/customfields', function(req, res, next) {
     // they tried to send an unsupported key; kick 'em out
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      customfields: "custom field requested that is not permitted"
+      experience: "custom field requested that is not permitted"
     }));
   }
 });
-
 module.exports = router;

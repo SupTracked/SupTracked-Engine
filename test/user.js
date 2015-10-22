@@ -22,27 +22,7 @@ describe('user', function() {
       .expect(401, done);
   });
 
-  it('rejects invalid users', function testUserAuthInvalid(done) {
-    request(server)
-      .get('/user')
-      .auth('idontexist', 'lol')
-      .expect(401, done);
-  });
-
-  it('rejects invalid passwords', function testUserAuthBadPass(done) {
-    request(server)
-      .post('/register')
-      .set('Content-Type', 'application/json')
-      .send('{"username": "myusername", "password": "MyPassword"}')
-      .end(function() {
-        request(server)
-          .get('/user')
-          .auth('myusername', 'NotMyPassword')
-          .expect(401, done);
-      });
-  });
-
-  it('accepts valid users', function testUserAuthValid(done) {
+  it('gets empty custom fields', function testUserGetCustomEmpty(done) {
     request(server)
       .post('/register')
       .set('Content-Type', 'application/json')
@@ -51,21 +31,9 @@ describe('user', function() {
         request(server)
           .get('/user')
           .auth('myusername', 'MyPassword')
-          .expect(200, done);
-      });
-  });
-
-  it('gets empty custom fields', function testUserGetCustomEmpty(done) {
-    request(server)
-      .post('/register')
-      .set('Content-Type', 'application/json')
-      .send('{"username": "myusername", "password": "MyPassword"}')
-      .end(function() {
-        request(server)
-          .get('/user/customfields')
-          .set('Authorization', 'Basic bXl1c2VybmFtZTpNeVBhc3N3b3Jk')
           .send()
           .expect(200, {
+            username: "myusername",
             admin: 0,
             daysback: null,
             emergcontact: null,
@@ -84,8 +52,8 @@ describe('user', function() {
       .end(function() {
         // set custom field
         request(server)
-          .put('/user/customfields')
-          .set('Authorization', 'Basic bXl1c2VybmFtZTpNeVBhc3N3b3Jk')
+          .put('/user')
+          .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"phone": "694165516"}')
           .expect(200, done);
@@ -101,17 +69,18 @@ describe('user', function() {
       .end(function() {
         // set custom field
         request(server)
-          .put('/user/customfields')
-          .set('Authorization', 'Basic bXl1c2VybmFtZTpNeVBhc3N3b3Jk')
+          .put('/user')
+          .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"phone": "694165516"}')
           .end(function() {
             // check custom field
             request(server)
-              .get('/user/customfields')
-              .set('Authorization', 'Basic bXl1c2VybmFtZTpNeVBhc3N3b3Jk')
+              .get('/user')
+              .auth('myusername', 'MyPassword')
               .send()
               .expect(200, {
+                username: "myusername",
                 admin: 0,
                 daysback: null,
                 emergcontact: null,
@@ -122,14 +91,14 @@ describe('user', function() {
       });
   });
 
-  it('denies empty custom fields', function testUserCustomInvalidy(done) {
+  it('denies empty custom fields', function testUserCustomEmpty(done) {
     request(server)
       .post('/register')
       .set('Content-Type', 'application/json')
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .put('/user/customfields')
+          .put('/user')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .expect(400, done);
@@ -143,10 +112,89 @@ describe('user', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .put('/user/customfields')
-          .set('Authorization', 'Basic bXl1c2VybmFtZTpNeVBhc3N3b3Jk')
+          .put('/user')
+          .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"notafield": "value"}')
+          .expect(400, done);
+      });
+  });
+
+  it('allows password changes', function testUserPassword(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .put('/user/password')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"password": "MyNewPassword"}')
+          .expect(200, done);
+      });
+  });
+
+  it('changes the password', function testUserPasswordChange(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .put('/user/password')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"password": "MyNewPassword"}')
+          .end(function() {
+            request(server)
+              .get('/user')
+              .auth('myusername', 'MyNewPassword')
+              .expect(200, done);
+          });
+      });
+  });
+
+  it('denies password changes with missing JSON', function testUserPasswordMissingJSON(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .put('/user/password')
+          .auth('myusername', 'MyPassword')
+          .send()
+          .expect(400, done);
+      });
+  });
+
+  it('denies password changes with missing password', function testUserPasswordMissingPassword(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .put('/user/password')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"notpassword": "value"}')
+          .expect(400, done);
+      });
+  });
+
+  it('denies password changes with short password', function testUserPasswordMissingPassword(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .put('/user/password')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"password": "shrt"}')
           .expect(400, done);
       });
   });

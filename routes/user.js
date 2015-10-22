@@ -1,24 +1,18 @@
 var express = require('express');
 var router = express.Router();
+var bcrypt = require('bcrypt');
 
 /**
  * GET /
- * Check if a user exists with the provided credentials
- */
-router.get('/', function(req, res, next) {
-  res.status(200).send();
-});
-
-/**
- * GET /customfields
  * Get user's custom data
  */
-router.get('/customfields', function(req, res, next) {
+router.get('/', function(req, res, next) {
   db.get("SELECT * FROM users where id = $id", {
     $id: req.supID
   }, function(err, row) {
     res.setHeader('Content-Type', 'application/json');
     res.status(200).send(JSON.stringify({
+      username: req.supUser,
       emergcontact: row.emergcontact,
       phone: row.phone,
       daysback: row.daysback,
@@ -29,10 +23,10 @@ router.get('/customfields', function(req, res, next) {
 });
 
 /**
- * PUT /customfields
+ * PUT /
  * Change user's custom data
  */
-router.put('/customfields', function(req, res, next) {
+router.put('/', function(req, res, next) {
   var permittedFields = ['emergcontact', 'phone', 'daysback', 'favoritecount'];
 
   //no fields were provided
@@ -83,6 +77,40 @@ router.put('/customfields', function(req, res, next) {
       customfields: "custom field requested that is not permitted"
     }));
   }
+});
+
+/**
+ * PUT /password
+ * Change user's password
+ */
+router.put('/password', function(req, res, next) {
+  if (req.body === undefined || !("password" in req.body) || req.body.password.length < 10){
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      password: "password too short or not provided"
+    }));
+    return;
+  }
+
+  bcrypt.genSalt(10, function(err, salt) {
+    bcrypt.hash(req.body.password, salt, function(err, hash) {
+      if (err) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(500).send(JSON.stringify({
+          hash: "general hash error"
+        }));
+      } else {
+        // create user in db
+        db.run("UPDATE USERS SET password = $password WHERE id = $id", {
+          $password: hash,
+          $id: req.supID
+        }, function() {
+          // you dun gud
+          res.status(200).send();
+        });
+      }
+    });
+  });
 });
 
 module.exports = router;

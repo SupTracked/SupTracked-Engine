@@ -10,6 +10,7 @@ var routes = require('./routes/index');
 var status = require('./routes/status');
 var user = require('./routes/user');
 var register = require('./routes/register');
+var experience = require('./routes/experience');
 
 var app = express();
 
@@ -23,11 +24,13 @@ app.use(bodyParser.json()); // to support JSON-encoded bodies
 
 // protect routes
 app.use('/user', auth);
+app.use('/experience', auth);
 
 // route to controllers
 app.use('/', routes);
 app.use('/status', status);
 app.use('/user', user);
+app.use('/experience', experience);
 app.use('/register', register);
 
 // catch 404 and forward to error handler
@@ -57,19 +60,19 @@ function auth(req, res, next) {
   function unauthorized(res) {
     res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
     res.status(401).send();
-    next();
-  };
+    return;
+  }
 
   var user = basicAuth(req);
 
   if (!user || !user.name || !user.pass) {
     return unauthorized(res);
-  };
+  }
 
   db.get("SELECT * FROM users where username = $username", {
     $username: user.name
   }, function(err, row) {
-    if (row == undefined) {
+    if (row === undefined) {
       // I never knew you
       return unauthorized(res);
     }
@@ -79,9 +82,9 @@ function auth(req, res, next) {
       if (result) {
         // good to go; add their ID to the request
         req.supID = row.id;
+        req.supUser = user.name;
         next();
       } else {
-        console.log("hash error")
         return unauthorized(res);
       }
     });

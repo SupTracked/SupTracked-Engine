@@ -6,7 +6,15 @@ router.get('/', function(req, res, next) {
   var currentTime = new Date();
   var upTime = currentTime - startTime;
   var stmt = "SELECT count(*) as count FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence'";
-  db.each(stmt, function(err, row) {
+  db.get(stmt, function(err, row) {
+    if(err){
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        status: err
+      }));
+      return;
+    }
+
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({
       status: "up",
@@ -31,6 +39,14 @@ router.get('/up', function(req, res, next) {
 router.get('/db', function(req, res, next) {
   var stmt = "SELECT count(*) as count FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence'";
   db.each(stmt, function(err, row) {
+    if(err){
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        status: err
+      }));
+      return;
+    }
+
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({
       online: db.open,

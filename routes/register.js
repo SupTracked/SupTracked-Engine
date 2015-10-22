@@ -15,7 +15,7 @@ router.post('/', function(req, res, next) {
       'can only contain numbers and letters': str.matches(/^[a-zA-Z0-9]*$/)
     },
     password: {
-      'must have at least 10 characters': str.isLength(5)
+      'must have at least 10 characters': str.isLength(10)
     }
   });
 
@@ -47,7 +47,14 @@ router.post('/', function(req, res, next) {
                   $username: req.body.username,
                   $password: hash,
                   $admin: 0
-                }, function() {
+                }, function(err) {
+                  if(err){
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(400).send(JSON.stringify({
+                      register: err
+                    }));
+                    return;
+                  }
                   // you dun gud
                   res.status(201).send();
                 });
