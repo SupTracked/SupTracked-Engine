@@ -1,35 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
-/**
- * GET /
- * Check if a user exists with the provided credentials
- */
-router.get('/', function(req, res, next) {
-  res.status(200).send();
-});
 
 /**
- * GET /customfields
- * Get user's custom data
- */
-router.get('/customfields', function(req, res, next) {
-  db.get("SELECT * FROM users where id = $id", {
-    $id: req.supID
-  }, function(err, row) {
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify({
-      emergcontact: row.emergcontact,
-      phone: row.phone,
-      daysback: row.daysback,
-      favoritecount: row.favoritecount,
-      admin: row.admin
-    }));
-  });
-});
-
-/**
- * PUT /customfields
+ * put /customfields
  * Change user's custom data
  */
 router.put('/customfields', function(req, res, next) {
