@@ -57,7 +57,7 @@ router.post('/', function(req, res, next) {
   }
 
   // stick it in
-  db.run("INSERT INTO EXPERIENCES (title, date, location, owner) VALUES ($title, $date, $location, $owner)", {
+  db.run("INSERT INTO experiences (title, date, location, owner) VALUES ($title, $date, $location, $owner)", {
     $title: req.body.title,
     $date: req.body.date,
     $location: req.body.location,
@@ -136,7 +136,7 @@ router.get('/', function(req, res, next) {
   }
 
   // get the entry
-  db.get("SELECT * FROM EXPERIENCES WHERE id = $id AND owner = $owner", {
+  db.get("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
   }, function(err, row) {
@@ -223,7 +223,8 @@ router.put('/', function(req, res, next) {
       updateVals.push(columnName + ' = $' + columnName);
     });
 
-    var query = 'UPDATE EXPERIENCES SET ' + updateVals.join(', ') + ' WHERE id = $expid AND owner = ' + req.supID;
+    var query = 'UPDATE experiences SET ' + updateVals.join(', ') + ' WHERE id = $expid AND owner = $owner';
+    dataArray.$owner = req.supID;
 
     // loop through each key and build the JSON object of bindings for sqlite
     Object.keys(req.body).forEach(function(columnName) {
@@ -285,7 +286,7 @@ router.get('/search', function(req, res, next) {
   var queryData = {};
 
   // base and owner
-  var query = "SELECT * FROM EXPERIENCES WHERE owner = $owner";
+  var query = "SELECT * FROM experiences WHERE owner = $owner";
   queryData.$owner = req.supID;
 
   if (req.body !== undefined) {
