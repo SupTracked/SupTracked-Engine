@@ -76,7 +76,7 @@ q.fcall(
     'classification TEXT, ' +
     'family TEXT, ' +
     'rarity TEXT, ' +
-    'owner INTEGER)' +
+    'owner INTEGER);' +
     ' ' +
     'CREATE TABLE IF NOT EXISTS "methods" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
