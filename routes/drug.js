@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 
-
 /**
  * @api {post} /drug Create a drug
  * @apiName CreateDrug
@@ -60,7 +59,7 @@ router.post('/', function(req, res, next) {
       if (err) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
-          experience: err
+          drug: err
         }));
         return;
       }
@@ -89,6 +88,7 @@ router.post('/', function(req, res, next) {
  * @apiSuccess {String} classification  drug classification
  * @apiSuccess {String} family  drug's chemical family
  * @apiSuccess {String} rarity  drug rarity
+ * @apiSuccess {Number} owner  id of the owner of the experience
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -100,6 +100,7 @@ router.post('/', function(req, res, next) {
  *        "classification": "AMPA modulator",
  *        "family": "*racetam",
  *        "rarity": "Common",
+ *        "owner" 1
  *     }
  *
  * @apiError missingID id was not provided
@@ -133,7 +134,7 @@ router.get('/', function(req, res, next) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
-        experience: err
+        drug: err
       }));
       return;
     }
@@ -212,16 +213,13 @@ router.put('/', function(req, res, next) {
       updateVals.push(columnName + ' = $' + columnName);
     });
 
-    var query = 'UPDATE drug SET ' + updateVals.join(', ') + ' WHERE id = $drugid AND owner = $id';
-    dataArray.$id = req.supID;
+    var query = 'UPDATE drugs SET ' + updateVals.join(', ') + ' WHERE id = $id AND owner = $owner';
+    dataArray.$owner = req.supID;
 
     // loop through each key and build the JSON object of bindings for sqlite
     Object.keys(req.body).forEach(function(columnName) {
       dataArray["$" + columnName] = req.body[columnName];
     });
-
-    // add the drug ID
-    dataArray.$drugid = req.body.id;
 
     db.run(query, dataArray, function(err) {
       if (err) {
