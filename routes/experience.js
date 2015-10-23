@@ -3,8 +3,39 @@ var router = express.Router();
 
 
 /**
- * POST /
- * Create a new experience
+ * @api {post} /experience Create an experience
+ * @apiName CreateExperience
+ * @apiGroup Experience
+ *
+ * @apiParam {String} title  Title of the new experience
+ * @apiParam {String} location  Location of the experience
+ * @apiParam {Number} date  Unix timestamp of the date and time of the experience
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number} id  id of the created experience
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 Created
+ *     {
+ *       "id": 3,
+ *     }
+ *
+ * @apiError missingField title, valid date, and location required - one or more was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "experience": "title, valid date, and location required"
+ *     }
+ *
+ * @apiError timestampError timestamp must be positive unix time integer, down to seconds resolution
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "experience": "timestamp must be positive unix time integer, down to seconds resolution"
+ *     }
  */
 router.post('/', function(req, res, next) {
   // not enough fields were provided
@@ -49,8 +80,50 @@ router.post('/', function(req, res, next) {
 });
 
 /**
- * GET /
- * Get an experience
+ * @api {get} /experience Get a JSON object of an experience
+ * @apiName GetExperience
+ * @apiGroup Experience
+ *
+ * @apiParam {Number} id  ID of the desired experience
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number} id  id of the experience
+ * @apiSuccess {Number} date  date of the experience
+ * @apiSuccess {Number} ttime  id of the consumption for which T-0:00 time format is based off
+ * @apiSuccess {String} title  title of the experience
+ * @apiSuccess {String} location  location of the experience
+ * @apiSuccess {String} notes  notes for the experience
+ * @apiSuccess {String} panicmsg  user's panic message for the created experience
+ * @apiSuccess {Number} rating_id  rating of general experience quality
+ * @apiSuccess {Number} owner  id of the owner of the experience
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *        "date": 1445543583,
+ *        "id": 1,
+ *        "location": "My Location",
+ *        "notes": "This is great.",
+ *        "owner": 1,
+ *        "panicmsg": "Oh snap help me!",
+ *        "rating_id": 3,
+ *        "title": "Great Time",
+ *        "ttime": null
+ *     }
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "experience": "id must be provided"
+ *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
  */
 router.get('/', function(req, res, next) {
   // not enough fields were provided
@@ -89,8 +162,39 @@ router.get('/', function(req, res, next) {
 });
 
 /**
- * PUT /
- * Update an experience
+ * @api {put} /experience Update an experience
+ * @apiName UpdateExperience
+ * @apiGroup Experience
+ *
+ * @apiParam {Number} id  id of the experience
+ * @apiParam {Number} [date]  date of the experience
+ * @apiParam {Number} [ttime]  id of the consumption for which T-0:00 time format is based off
+ * @apiParam {String} [title]  title of the experience
+ * @apiParam {String} [location]  location of the experience
+ * @apiParam {String} [notes]  notes for the experience
+ * @apiParam {String} [panicmsg]  user's panic message for the created experience
+ * @apiParam {Number} [rating_id]  rating of general experience quality
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *
+ * @apiError noFields no fields to set were provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "experience": "no fields provided"
+ *     }
+ *
+ * @apiError illegalField a field to update was send that is not permitted (must be in above list)
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "experience": "custom field requested that is not permitted"
+ *     }
  */
 router.put('/', function(req, res, next) {
   var permittedFields = ['date', 'location', 'notes', 'panicmsg', 'rating_id', 'title', 'ttime', 'id'];
@@ -149,8 +253,29 @@ router.put('/', function(req, res, next) {
 });
 
 /**
- * GET /search
- * Get an array of experiences that match certain criteria
+ * @api {get} /experience/search Retrieve an array of experiences that match the provided criteria
+ * @apiName SearchExperience
+ * @apiGroup Experience
+ *
+ * @apiParam {Number} [startdate]  Unix timestamp of beginning of date range to select
+ * @apiParam {Number} [enddate]  Unix timestamp of end of date range to select
+ * @apiParam {String} [title]  experiences where this string is contained in the title will be retrieved
+ * @apiParam {String} [location]  experiences where this string is contained in the location field will be retrieved
+ * @apiParam {String} [notes]  experiences where this string is contained in the notes field will be retrieved
+ * @apiParam {Number} [rating_id]  experiences with this rating will be retrieved
+ * @apiParam {Number} [limit]  only return this number of rows
+ * @apiParam {Number} [offset]  offset the returned number of rows by this amount (requires limit)
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *
+ * @apiError noResults no experiences match the provided criteris
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found Bad Request
+ *
  */
 router.get('/search', function(req, res, next) {
   // get our limits and offset

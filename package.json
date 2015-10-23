@@ -25,5 +25,10 @@
     "mocha": "^2.3.3",
     "really-need": "^1.6.3",
     "supertest": "^1.1.0"
+  },
+  "apidoc": {
+    "name": "SupTracked API",
+    "description": "API to track dietary supplements and nootropic consumption",
+    "title": "SupTracked API"
   }
 }

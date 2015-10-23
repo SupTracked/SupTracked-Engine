@@ -35,9 +35,7 @@ describe('user', function() {
           .expect(200, {
             username: "myusername",
             admin: 0,
-            daysback: null,
             emergcontact: null,
-            favoritecount: null,
             phone: null
           }, done);
       });
@@ -82,9 +80,7 @@ describe('user', function() {
               .expect(200, {
                 username: "myusername",
                 admin: 0,
-                daysback: null,
                 emergcontact: null,
-                favoritecount: null,
                 phone: 694165516
               }, done);
           });
@@ -101,7 +97,7 @@ describe('user', function() {
           .put('/user')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .expect(400, {"customfields": "no fields provided"}, done);
+          .expect(400, {"user": "no fields provided"}, done);
       });
   });
 
@@ -116,7 +112,7 @@ describe('user', function() {
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"notafield": "value"}')
-          .expect(400, {"customfields": "custom field requested that is not permitted"}, done);
+          .expect(400, {"user": "custom field requested that is not permitted"}, done);
       });
   });
 

@@ -3,8 +3,32 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 
 /**
- * POST /
- * Add a new user
+ * @api {post} /register Register a user
+ * @apiName RegisterUser
+ * @apiGroup Registration
+ *
+ * @apiParam {String{5...}} username  username for the new user
+ * @apiParam {String{10...}} password  password for the new user
+ *
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 Created
+ *
+ * @apiError validationError one or more validations on the username or password failed
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       userpass: "username must be at least five characters and alphanumeric; password must be at least ten characters"
+ *     }
+ *
+ * @apiError hashError an error was encountered during password hashing
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 500 server error
+ *     {
+ *       "hash": "general hash error"
+ *     }
  */
 router.post('/', function(req, res, next) {
   // validation

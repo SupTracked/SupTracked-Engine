@@ -46,8 +46,6 @@ q.fcall(
     'password TEXT, ' +
     'emergcontact TEXT, ' +
     'phone TEXT, ' +
-    'daysback INTEGER, ' +
-    'favoritecount INTEGER, ' +
     'admin INTEGER);' +
     ' ' +
     'CREATE TABLE IF NOT EXISTS "experiences" ' +
