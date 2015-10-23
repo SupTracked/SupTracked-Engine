@@ -6,11 +6,13 @@ var bodyParser = require('body-parser');
 var basicAuth = require('basic-auth');
 var bcrypt = require('bcrypt');
 
+// route loading
 var status = require('./routes/status');
-var user = require('./routes/user');
 var register = require('./routes/register');
+var user = require('./routes/user');
 var experience = require('./routes/experience');
 var drug = require('./routes/drug');
+var method = require('./routes/method');
 
 var app = express();
 
@@ -25,14 +27,16 @@ app.use(bodyParser.json()); // to support JSON-encoded bodies
 // protect routes
 app.use('/user', auth);
 app.use('/experience', auth);
-app.use('/drug', drug);
+app.use('/drug', auth);
+app.use('/method', auth);
 
 // route to controllers
+app.use('/register', register);
 app.use('/status', status);
-app.use('/drug', drug);
 app.use('/user', user);
 app.use('/experience', experience);
-app.use('/register', register);
+app.use('/drug', drug);
+app.use('/method', method);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
