@@ -32,9 +32,7 @@ router.put('/', function(req, res, next) {
   //no fields were provided
   if (Object.keys(req.body).length === 0 || req.body === undefined) {
     res.setHeader('Content-Type', 'application/json');
-    res.status(400).send(JSON.stringify({
-      customfields: "no fields provided"
-    }));
+    res.status(400).send(JSON.stringify({customfields: "no fields provided"}));
     return;
   }
 
@@ -73,9 +71,8 @@ router.put('/', function(req, res, next) {
   } else {
     // they tried to send an unsupported key; kick 'em out
     res.setHeader('Content-Type', 'application/json');
-    res.status(400).send(JSON.stringify({
-      customfields: "custom field requested that is not permitted"
-    }));
+    res.status(400).send(JSON.stringify({customfields: "custom field requested that is not permitted"}));
+    return;
   }
 });
 

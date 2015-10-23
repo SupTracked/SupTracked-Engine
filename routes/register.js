@@ -41,9 +41,7 @@ router.post('/', function(req, res, next) {
             }, function(err) {
               if (err) {
                 res.setHeader('Content-Type', 'application/json');
-                res.status(400).send(JSON.stringify({
-                  register: err
-                }));
+                res.status(400).send(JSON.stringify({register: err}));
                 return;
               }
               // you dun gud

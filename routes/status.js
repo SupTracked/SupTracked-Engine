@@ -9,9 +9,7 @@ router.get('/', function(req, res, next) {
   db.get(stmt, function(err, row) {
     if(err){
       res.setHeader('Content-Type', 'application/json');
-      res.status(400).send(JSON.stringify({
-        status: err
-      }));
+      res.status(400).send(JSON.stringify({status: err}));
       return;
     }
 
@@ -41,9 +39,7 @@ router.get('/db', function(req, res, next) {
   db.each(stmt, function(err, row) {
     if(err){
       res.setHeader('Content-Type', 'application/json');
-      res.status(400).send(JSON.stringify({
-        status: err
-      }));
+      res.status(400).send(JSON.stringify({status: err}));
       return;
     }
 
