@@ -69,7 +69,8 @@ describe('drug', function() {
             '"classification": "AMPA modulator",' +
             '"family": "*racetam",' +
             '"rarity": "Common"' +
-            '}').expect(201, {
+            '}')
+          .expect(201, {
             "id": 1
           }, done);
       });
