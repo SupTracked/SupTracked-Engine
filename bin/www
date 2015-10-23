@@ -70,7 +70,7 @@ q.fcall(
     ' ' +
     'CREATE TABLE IF NOT EXISTS "drugs" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-    'drugname TEXT, ' +
+    'name TEXT, ' +
     'unit TEXT, ' +
     'notes TEXT, ' +
     'classification TEXT, ' +
