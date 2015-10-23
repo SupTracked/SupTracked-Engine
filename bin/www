@@ -76,6 +76,12 @@ q.fcall(
     'classification TEXT, ' +
     'family TEXT, ' +
     'rarity TEXT, ' +
+    'owner INTEGER)' +
+    ' ' +
+    'CREATE TABLE IF NOT EXISTS "methods" ' +
+    '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+    'name TEXT, ' +
+    'icon TEXT, ' +
     'owner INTEGER)')
 ).then(server.listen(port)).then(module.exports = server);
 
