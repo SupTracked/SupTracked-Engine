@@ -6,7 +6,6 @@ var bodyParser = require('body-parser');
 var basicAuth = require('basic-auth');
 var bcrypt = require('bcrypt');
 
-var routes = require('./routes/index');
 var status = require('./routes/status');
 var user = require('./routes/user');
 var register = require('./routes/register');
@@ -27,7 +26,6 @@ app.use('/user', auth);
 app.use('/experience', auth);
 
 // route to controllers
-app.use('/', routes);
 app.use('/status', status);
 app.use('/user', user);
 app.use('/experience', experience);
