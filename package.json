@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "start": "node ./bin/www",
-    "test": "mocha -R spec"
+    "test": "mocha",
+    "postinstall": "mocha"
   },
   "dependencies": {
     "basic-auth": "^1.0.3",
