@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 var request = require('supertest');
 require = require('really-need');
 
-describe('startup', function () {
+describe('status', function () {
   var server;
 
   beforeEach(function () {
@@ -25,7 +25,7 @@ describe('startup', function () {
       .get('/status/db')
       .expect(200, {
         online: true,
-        tables: 4
+        tables: 5
       }, done);
   });
 });
