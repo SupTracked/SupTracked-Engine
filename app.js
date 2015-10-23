@@ -10,6 +10,7 @@ var status = require('./routes/status');
 var user = require('./routes/user');
 var register = require('./routes/register');
 var experience = require('./routes/experience');
+var drug = require('./routes/drug');
 
 var app = express();
 
@@ -24,9 +25,11 @@ app.use(bodyParser.json()); // to support JSON-encoded bodies
 // protect routes
 app.use('/user', auth);
 app.use('/experience', auth);
+app.use('/drug', drug);
 
 // route to controllers
 app.use('/status', status);
+app.use('/drug', drug);
 app.use('/user', user);
 app.use('/experience', experience);
 app.use('/register', register);
