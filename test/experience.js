@@ -81,7 +81,7 @@ describe('experience', function() {
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
-          .expect(201, done);
+          .expect(201, {"id": 1}, done);
       });
   });
 
