@@ -8,9 +8,11 @@ TODO
     Add friend add, delete
       add to returned info
     Make sure experiences by consumption is in full experience format (intersectable)
+    Add paging to consumption by experience
 
   Experiences
-    Make sure experiences return in same full experience format as consumption's "get experience by consumption"  (intersectable)
+    Make sure experiences return is intersectable
+    Make sure experiences search return is intersectable
 
   Media
     Add media with file and metadata
@@ -18,7 +20,7 @@ TODO
     Search media to return full media object
       don't forget pagination
 
-  Definitinos
+  Definitioos
       Intersectable format
       Experience
       Consumptions
@@ -26,4 +28,19 @@ TODO
         Friends for each with id and name
 
   General Tasks/looking ahead
+    Make sure everything is sorting by date desc
     Build full experience search mockup to intersect experience search criteria and consumption search criteria
+    convert all instances of rows and row to named
+
+
+immediate
+  convert all instances of rows and row to named
+  get consumption and consumption by experience intersectable
+    with friend array
+    write tests for delete
+    embedded dose and drugs
+    fix tests as needed
+  return list of all friends
+  Make sure consumption by experience is in full experience format (intersectable)
+  Make sure experiences return is intersectable
+  Make sure experiences search return is intersectable
