@@ -1079,12 +1079,20 @@ describe('consumption', function() {
                       .set('Content-Type', 'application/json')
                       .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                       .end(function() {
+                        // add friend
                         request(server)
-                          .delete('/consumption/friend')
+                          .post('/consumption/friend')
                           .auth('myusername', 'MyPassword')
                           .set('Content-Type', 'application/json')
-                          .send('{"id": 1}')
-                          .expect(200, done);
+                          .send('{"consumption_id": 1, "name": "John Smith"}')
+                          .end(function() {
+                            request(server)
+                              .delete('/consumption/friend')
+                              .auth('myusername', 'MyPassword')
+                              .set('Content-Type', 'application/json')
+                              .send('{"id": 1}')
+                              .expect(200, done);
+                          });
                       });
                   });
               });
