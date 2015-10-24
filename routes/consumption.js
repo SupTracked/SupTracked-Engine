@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var q = require('q');
 
 /**
  * @api {post} /consumption Create a consumption
