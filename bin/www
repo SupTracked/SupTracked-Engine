@@ -78,6 +78,12 @@ q.fcall(
     'rarity TEXT, ' +
     'owner INTEGER);' +
     ' ' +
+    'CREATE TABLE IF NOT EXISTS "friends" ' +
+    '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+    'consumption_id INTEGER, ' +
+    'name TEXT, ' +
+    'owner INTEGER);' +
+    ' ' +
     'CREATE TABLE IF NOT EXISTS "methods" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
     'name TEXT, ' +
