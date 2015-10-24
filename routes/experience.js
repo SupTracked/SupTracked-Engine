@@ -161,6 +161,81 @@ router.get('/', function(req, res, next) {
 });
 
 /**
+ * @api {delete} /experience Delete an experience
+ * @apiName DeleteExperience
+ * @apiGroup Experience
+ *
+ * @apiParam {Number} id  ID of the experience
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "experience": "id must be provided"
+ *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ */
+router.delete('/', function(req, res, next) {
+  // not enough fields were provided
+  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      experience: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.get("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
+    $id: req.body.id,
+    $owner: req.supID
+  }, function(err, row) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        experience: err
+      }));
+      return;
+    }
+
+    // no rows returned; nothing for that ID
+    if (row === undefined) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    db.run("DELETE FROM experiences WHERE id = $id AND owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err, row) {
+      if (err) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          experience: err
+        }));
+        return;
+      }
+
+      // delete the experience
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).send(JSON.stringify(row));
+    });
+  });
+});
+
+
+/**
  * @api {put} /experience Update an experience
  * @apiName UpdateExperience
  * @apiGroup Experience
