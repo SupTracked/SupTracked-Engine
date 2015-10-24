@@ -32,7 +32,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .expect(400, {
-            "experience": "title, valid date required"
+            "experience": "title and valid date required"
           }, done);
       });
   });
@@ -48,7 +48,7 @@ describe('experience', function() {
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .expect(400, {
-            "experience": "title, valid date required"
+            "experience": "title and valid date required"
           }, done);
       });
   });

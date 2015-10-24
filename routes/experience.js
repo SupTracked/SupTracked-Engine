@@ -19,12 +19,12 @@ var router = express.Router();
  *       "id": 3,
  *     }
  *
- * @apiError missingField title, valid date required - one or more was not provided
+ * @apiError missingField title and valid date required - one or more was not provided
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Bad Request
  *     {
- *       "experience": "title andvalid date required"
+ *       "experience": "title and valid date required"
  *     }
  *
  * @apiError timestampError timestamp must be positive unix time integer, down to seconds resolution
@@ -40,7 +40,7 @@ router.post('/', function(req, res, next) {
   if (req.body === undefined || !("title" in req.body) || !("date" in req.body)) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      experience: "title, valid date required"
+      experience: "title and valid date required"
     }));
     return;
   }
