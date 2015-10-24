@@ -196,7 +196,7 @@ router.post('/', function(req, res, next) {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
-          "id": 3,
+ *        "id": 3,
  *        "date": 1445543583,
  *        "count": 3,
  *        "experience_id": "1",
