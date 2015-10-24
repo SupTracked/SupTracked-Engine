@@ -34,14 +34,8 @@ TODO
 
 
 immediate
-  get consumption and consumption by experience intersectable
-    with friend array
-    write tests for delete
-    embedded dose and drugs
-    fix tests as needed
-  return list of all friends
-  Make sure consumption by experience is in full experience format (intersectable)
-  Make sure experiences return is intersectable
-  Make sure experiences search return is intersectable
+  get intersectable:
+    experience
+    search
   verify returning ID in all creation
   spellcheck
