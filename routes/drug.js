@@ -260,6 +260,15 @@ router.put('/', function(req, res, next) {
  *       "drug": "id must be provided"
  *     }
  *
+ * @apiError inUse drug is currently used in a consumption; followed by array of full consumptions it's used in
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "drug": "drug in use",
+ *       "consumptions": [array of consumption objects]
+ *     }
+ *
  * @apiError noRecords no results found for the given ID
  *
  * @apiErrorExample Error-Response:
@@ -295,10 +304,11 @@ router.delete('/', function(req, res, next) {
       return;
     }
 
-    db.run("DELETE FROM drugs WHERE id = $id AND owner = $owner", {
+    // makes sure it's not in consumptions
+    db.all("SELECT * FROM consumptions WHERE drug_id = $id AND owner = $owner", {
       $id: req.body.id,
       $owner: req.supID
-    }, function(err, row) {
+    }, function(err, rows) {
       if (err) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
@@ -307,9 +317,32 @@ router.delete('/', function(req, res, next) {
         return;
       }
 
-      // deleted the drug
-      res.setHeader('Content-Type', 'application/json');
-      res.status(200).send(JSON.stringify(row));
+      if(rows.length > 0){
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          drug: "drug in use",
+          consumptions: rows
+        }));
+        return;
+      }
+
+      // we're clear; delete it
+      db.run("DELETE FROM drugs WHERE id = $id AND owner = $owner", {
+        $id: req.body.id,
+        $owner: req.supID
+      }, function(err, row) {
+        if (err) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400).send(JSON.stringify({
+            drug: err
+          }));
+          return;
+        }
+
+        // deleted the drug
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).send(JSON.stringify(row));
+      });
     });
   });
 });

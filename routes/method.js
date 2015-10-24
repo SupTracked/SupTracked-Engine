@@ -237,6 +237,15 @@ router.put('/', function(req, res, next) {
  *       "method": "id must be provided"
  *     }
  *
+ * @apiError inUse method is currently used in a consumption; followed by array of full consumptions it's used in
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "method": "drug in use",
+ *       "consumptions": [array of consumption objects]
+ *     }
+ *
  * @apiError noRecords no results found for the given ID
  *
  * @apiErrorExample Error-Response:
@@ -272,6 +281,28 @@ router.delete('/', function(req, res, next) {
       return;
     }
 
+    // makes sure it's not in consumptions
+    db.all("SELECT * FROM consumptions WHERE method_id = $id AND owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err, rows) {
+      if (err) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          method: err
+        }));
+        return;
+      }
+
+      if(rows.length > 0){
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          method: "method in use",
+          consumptions: rows
+        }));
+        return;
+      }
+
     db.run("DELETE FROM methods WHERE id = $id AND owner = $owner", {
       $id: req.body.id,
       $owner: req.supID
@@ -288,6 +319,7 @@ router.delete('/', function(req, res, next) {
       res.setHeader('Content-Type', 'application/json');
       res.status(200).send(JSON.stringify(row));
     });
+  });
   });
 });
 
