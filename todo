@@ -1,0 +1,15 @@
+TODO
+
+Consumptions
+  add consumption search
+    returns full experience format  (intersectable)
+  return list of all friends
+  Add friend add, delete
+    add to returned info
+  Make sure experiences by consumption is in full experience format (intersectable)
+
+Experiences
+  Make sure experiences return in same full experience format as consumption's "get experience by consumption"  (intersectable)
+
+
+Build full experience search mockup to intersect experience search criteria and consumption search criteria
