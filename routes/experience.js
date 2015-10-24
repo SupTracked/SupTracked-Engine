@@ -93,6 +93,23 @@ router.post('/', function(req, res, next) {
  * @apiSuccess {String} panicmsg  user's panic message for the created experience
  * @apiSuccess {Number} rating_id  rating of general experience quality
  * @apiSuccess {Number} owner  id of the owner of the experience
+ * @apiSuccess {Object[]} consumptions  array of consumptions for the experience
+ *  @apiSuccess {Number} consumptions.id  id of the consumption
+ *  @apiSuccess {Number} consumptions.date  Unix timestamp of the date and time of the consumption
+ *  @apiSuccess {Number} consumptions.count  numerical quantity as measured by the drug's unit
+ *  @apiSuccess {Number} consumptions.experience_id  ID of the experience the consumption is part of
+ *  @apiSuccess {Object[]} consumptions.drug  JSON object of drug
+ *   @apiSuccess {Number}   consumptions.drug.id   ID of friend
+ *   @apiSuccess {String}   consumptions.drug.name  name of drug
+ *   @apiSuccess {String}   consumptions.drug.unit  unit of drug
+ *  @apiSuccess {Object[]} consumptions.method  JSON object of method
+ *   @apiSuccess {Number}   consumptions.method.id   ID of method
+ *   @apiSuccess {String}   consumptions.method.name  name of method
+ *  @apiSuccess {String} consumptions.location  location of the consumption
+ *  @apiSuccess {Object[]} consumptions.friends  array of JSON objects for friends associated with this consumption.
+ *   @apiSuccess {Number}   consumptions.friends.id   ID of friend
+ *   @apiSuccess {String}   consumptions.friends.name  name of friend
+ *  @apiSuccess {Number} consumptions.owner  id of the owner of the consumption
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -104,7 +121,27 @@ router.post('/', function(req, res, next) {
  *        "panicmsg": "Oh snap help me!",
  *        "rating_id": 3,
  *        "title": "Great Time",
- *        "ttime": null
+ *        "ttime": null,
+ *        "consumptions": [{
+ *          "count": 2,
+ *          "date": "1445648036",
+ *          "drug": {
+ *            "id": 1,
+ *            "name": "Oral",
+ *            "unit": "mg",
+ *          },
+ *          "experience_id": 1,
+ *          "friends": [{
+ *            "id": 1,
+ *            "name": "John Smith"
+ *          }],
+ *          "id": 1,
+ *          "location": "San Juan",
+ *            "id": 1,
+ *            "name": "mg"
+ *          },
+ *          "owner": 1
+ *        }]
  *     }
  *
  * @apiError missingID id was not provided
