@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 
-
 /**
  * @api {post} /experience Create an experience
  * @apiName CreateExperience
