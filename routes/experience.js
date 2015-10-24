@@ -131,10 +131,10 @@ router.get('/', function(req, res, next) {
   }
 
   // get the entry
-  db.get("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, row) {
+  }, function(err, experience) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -143,8 +143,8 @@ router.get('/', function(req, res, next) {
       return;
     }
 
-    // no rows returned; nothing for that ID
-    if (row === undefined) {
+    // no experiences returned; nothing for that ID
+    if (experience.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -152,7 +152,7 @@ router.get('/', function(req, res, next) {
 
     // return the experience
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(row));
+    res.status(200).send(JSON.stringify(experience[0]));
   });
 });
 
@@ -192,10 +192,10 @@ router.delete('/', function(req, res, next) {
   }
 
   // get the entry
-  db.get("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, row) {
+  }, function(err, experience) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -204,8 +204,8 @@ router.delete('/', function(req, res, next) {
       return;
     }
 
-    // no rows returned; nothing for that ID
-    if (row === undefined) {
+    // no experiences returned; nothing for that ID
+    if (experience.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -214,7 +214,7 @@ router.delete('/', function(req, res, next) {
     db.run("DELETE FROM experiences WHERE id = $id AND owner = $owner", {
       $id: req.body.id,
       $owner: req.supID
-    }, function(err, row) {
+    }, function(err) {
       if (err) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
@@ -227,7 +227,7 @@ router.delete('/', function(req, res, next) {
       db.run("DELETE FROM consumptions WHERE experience_id = $id AND owner = $owner", {
         $id: req.body.id,
         $owner: req.supID
-      }, function(err, row) {
+      }, function(err) {
         if (err) {
           res.setHeader('Content-Type', 'application/json');
           res.status(400).send(JSON.stringify({
@@ -238,7 +238,7 @@ router.delete('/', function(req, res, next) {
 
         // deleted the experience
         res.setHeader('Content-Type', 'application/json');
-        res.status(200).send(JSON.stringify(row));
+        res.status(200).send();
       });
     });
   });
@@ -420,7 +420,7 @@ router.get('/search', function(req, res, next) {
   }
 
   // get the entry
-  db.all(query, queryData, function(err, rows) {
+  db.all(query, queryData, function(err, experiences) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -429,8 +429,8 @@ router.get('/search', function(req, res, next) {
       return;
     }
 
-    // no rows returned
-    if (rows.length === 0) {
+    // no experiences returned
+    if (experiences.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -438,7 +438,7 @@ router.get('/search', function(req, res, next) {
 
     // return the experience
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(rows));
+    res.status(200).send(JSON.stringify(experiences));
   });
 });
 

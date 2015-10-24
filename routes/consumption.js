@@ -88,7 +88,7 @@ router.post('/', function(req, res, next) {
   db.all("SELECT * from experiences WHERE owner = $owner AND id = $id", {
     $owner: req.supID,
     $id: req.body.experience_id
-  }, function(err, rows) {
+  }, function(err, experiences) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -97,7 +97,7 @@ router.post('/', function(req, res, next) {
       return;
     }
 
-    if (rows.length === 0) {
+    if (experiences.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
         consumption: "the requested experience association doesn't exist or belong to this user"
@@ -110,7 +110,7 @@ router.post('/', function(req, res, next) {
     db.all("SELECT * from drugs WHERE owner = $owner AND id = $id", {
       $owner: req.supID,
       $id: req.body.drug_id
-    }, function(err, rows) {
+    }, function(err, drugs) {
       if (err) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
@@ -119,7 +119,7 @@ router.post('/', function(req, res, next) {
         return;
       }
 
-      if (rows.length === 0) {
+      if (drugs.length === 0) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
           consumption: "the requested drug association doesn't exist or belong to this user"
@@ -131,7 +131,7 @@ router.post('/', function(req, res, next) {
       db.all("SELECT * from methods WHERE owner = $owner AND id = $id", {
         $owner: req.supID,
         $id: req.body.method_id
-      }, function(err, rows) {
+      }, function(err, methods) {
         if (err) {
           res.setHeader('Content-Type', 'application/json');
           res.status(400).send(JSON.stringify({
@@ -140,7 +140,7 @@ router.post('/', function(req, res, next) {
           return;
         }
 
-        if (rows.length === 0) {
+        if (methods.length === 0) {
           res.setHeader('Content-Type', 'application/json');
           res.status(400).send(JSON.stringify({
             consumption: "the requested method association doesn't exist or belong to this user"
@@ -234,10 +234,10 @@ router.get('/', function(req, res, next) {
   }
 
   // get the entry
-  db.get("SELECT * FROM consumptions WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM consumptions WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, row) {
+  }, function(err, consumption) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -246,8 +246,8 @@ router.get('/', function(req, res, next) {
       return;
     }
 
-    // no rows returned; nothing for that ID
-    if (row === undefined) {
+    // no consumptions returned; nothing for that ID
+    if (consumption.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -255,7 +255,7 @@ router.get('/', function(req, res, next) {
 
     // return the experience
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(row));
+    res.status(200).send(JSON.stringify(consumption[0]));
   });
 });
 
@@ -275,6 +275,9 @@ router.get('/', function(req, res, next) {
  * @apiSuccess {Number} drug_id  ID of the drug consumed
  * @apiSuccess {Number} method_id  ID of the method used to consume the drug
  * @apiSuccess {String} location  location of the consumption
+ * @apiSuccess {Object[]} friends  array of JSON objects for friends associated with this consumption.
+ *  @apiSuccess {Number}   friends.id   ID of friend
+ *  @apiSuccess {String}   friends.name  name of friend
  * @apiSuccess {Number} owner  id of the owner of the consumption
  *
  * @apiSuccessExample Success-Response:
@@ -286,6 +289,10 @@ router.get('/', function(req, res, next) {
  *        "experience_id": "1",
  *        "drug_id": 4,
  *        "method_id": 1,
+ *        "friends": [
+ *            {"name": "John Smith", "id": 321},
+ *            {"name": "Frank Johnson", "id": 964}
+ *         ],
  *        "owner": 1
  *     }
  *
@@ -316,7 +323,7 @@ router.get('/experience', function(req, res, next) {
   db.all("SELECT * FROM consumptions WHERE experience_id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, rows) {
+  }, function(err, consumptions) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -325,16 +332,52 @@ router.get('/experience', function(req, res, next) {
       return;
     }
 
-    // no rows returned; nothing for that ID
-    if (rows === undefined) {
+    // no consumptions returned; nothing for that ID
+    if (consumptions.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
     }
 
-    // return the experience
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify({consumptions: rows}));
+
+
+    // loop through each consumption
+    consumptions.forEach(function(consumption, index) {
+      // we have consumptions; let's parse the friends into it
+      db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
+        $id: req.body.id,
+        $owner: req.supID
+      }, function(err, friends) {
+        if (err) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400).send(JSON.stringify({
+            consumption: err
+          }));
+          return;
+        }
+
+        // default is empty Friends
+        consumptions[index].friends = [];
+
+        // we have friends for this consumption
+        if (friends.length > 0) {
+          friends.forEach(function(friend) {
+            consumptions[index].friends.push({
+              "name": friend.name,
+              "id": friend.id
+            });
+          });
+        }
+
+        // return the experience if this is our last consumption
+        if (index == consumptions.length - 1) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(200).send(JSON.stringify({
+            consumptions: consumptions
+          }));
+        }
+      });
+    });
   });
 });
 
@@ -444,7 +487,7 @@ router.put('/', function(req, res, next) {
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Bad Request
  *     {
- *       "experience": "id must be provided"
+ *       "consumption": "id must be provided"
  *     }
  *
  * @apiError noRecords no results found for the given ID
@@ -457,16 +500,16 @@ router.delete('/', function(req, res, next) {
   if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      experience: "id must be provided"
+      consumption: "id must be provided"
     }));
     return;
   }
 
   // get the entry
-  db.get("SELECT * FROM consumptions WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM consumptions WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, row) {
+  }, function(err, consumption) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -475,8 +518,8 @@ router.delete('/', function(req, res, next) {
       return;
     }
 
-    // no rows returned; nothing for that ID
-    if (row === undefined) {
+    // no consumptions returned; nothing for that ID
+    if (consumption.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -485,7 +528,7 @@ router.delete('/', function(req, res, next) {
     db.run("DELETE FROM consumptions WHERE id = $id AND owner = $owner", {
       $id: req.body.id,
       $owner: req.supID
-    }, function(err, row) {
+    }, function(err) {
       if (err) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
@@ -496,7 +539,180 @@ router.delete('/', function(req, res, next) {
 
       // deleted the consumption
       res.setHeader('Content-Type', 'application/json');
-      res.status(200).send(JSON.stringify(row));
+      res.status(200).send();
+    });
+  });
+});
+
+/**
+ * @api {post} /friend Add a friend to a consumption
+ * @apiName AddFriendConsumption
+ * @apiGroup Consumption
+ *
+ * @apiParam {Number} id  id of the consumption
+ * @apiParam {Number} name  name of the friend
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number} id  id of the friend
+ * @apiSuccess {String} consumption_id  id of the consumption the friend is attached to
+ * @apiSuccess {String} name  name of the friend
+ * @apiSuccess {Number} owner  id of the owner of the experience
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *        "id": 1,
+ *        "consumption_id": q",
+ *        "name": "John Smith",
+ *        "owner": 1
+ *     }
+ *
+ * @apiError missingField consumption_id and name required - one or more was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "consumption": "consumption_id and name required"
+ *     }
+ */
+router.post('/friend', function(req, res, next) {
+  // not enough fields were provided
+  if (req.body === undefined || !("consumption_id" in req.body) || !("name" in req.body)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      consumption: "consumption_id and name required"
+    }));
+    return;
+  }
+  // check for bad experience
+  db.all("SELECT * from consumptions WHERE owner = $owner AND id = $id", {
+    $owner: req.supID,
+    $id: req.body.consumption_id
+  }, function(err, consumption) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        consumption: err
+      }));
+      return;
+    }
+
+    if (consumption.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        consumption: "the requested experience consumption doesn't exist or belong to this user"
+      }));
+      res.end();
+      return;
+    }
+
+    // phew. we made it. stick it in.
+    db.run("INSERT INTO friends (consumption_id, name, owner)" +
+      " VALUES ($consumption_id, $name, $owner)", {
+        $consumption_id: req.body.consumption_id,
+        $name: req.body.name,
+        $owner: req.supID
+      },
+      function(err) {
+        if (err) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400).send(JSON.stringify({
+            consumption: err
+          }));
+          return;
+        }
+
+        // made the insert, but sqlite only gives us the lastID of the query, so we gotta look up the full thing
+        // strictly don't need the owner, but conservative redundant security makes me comfy
+        db.all("SELECT * from friends WHERE owner = $owner AND id = $id", {
+          $owner: req.supID,
+          $id: this.lastID
+        }, function(err, friends) {
+          if (err) {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400).send(JSON.stringify({
+              consumption: err
+            }));
+            return;
+          }
+          res.setHeader('Content-Type', 'application/json');
+          res.status(201).send(JSON.stringify(friends));
+        });
+      });
+  });
+});
+
+/**
+ * @api {delete} /consumption/friend Delete a friend from a consumption
+ * @apiName DeleteFriendConsumption
+ * @apiGroup Consumption
+ *
+ * @apiParam {Number} id  ID of the friend
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "consumption": "id must be provided"
+ *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ */
+router.delete('/friend', function(req, res, next) {
+  // not enough fields were provided
+  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      consumption: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.all("SELECT * FROM friends WHERE id = $id AND owner = $owner", {
+    $id: req.body.id,
+    $owner: req.supID
+  }, function(err, friends) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        consumption: err
+      }));
+      return;
+    }
+
+    // no friends returned; nothing for that ID
+    if (friends.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    db.run("DELETE FROM friends WHERE id = $id AND owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err) {
+      if (err) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          consumption: err
+        }));
+        return;
+      }
+
+      // deleted the consumption
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).send();
     });
   });
 });

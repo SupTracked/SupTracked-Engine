@@ -250,16 +250,14 @@ describe('consumption', function() {
                           .auth('myusername', 'MyPassword')
                           .set('Content-Type', 'application/json')
                           .send('{"id": 1}')
-                          .expect(200, {
-                            "count": 2,
-                            "date": "1445648036",
-                            "drug_id": 1,
-                            "experience_id": 1,
-                            "id": 1,
-                            "method_id": 1,
-                            "location": "San Juan",
-                            "owner": 1
-                          }, done);
+                          .expect(200,  { id: 1,
+    date: '1445648036',
+    experience_id: 1,
+    count: 2,
+    drug_id: 1,
+    method_id: 1,
+    location: 'San Juan',
+    owner: 1 }, done);
                       });
                   });
               });
@@ -359,53 +357,15 @@ describe('consumption', function() {
       .set('Content-Type', 'application/json')
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
-        // make an experience
         request(server)
-          .post('/experience')
+          .get('/consumption')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
-          .end(function() {
-            // make a drug
-            request(server)
-              .post('/drug')
-              .auth('myusername', 'MyPassword')
-              .set('Content-Type', 'application/json')
-              .send('{"name": "Phenylpiracetam",' +
-                '"unit": "mg",' +
-                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
-                '"classification": "AMPA modulator",' +
-                '"family": "*racetam",' +
-                '"rarity": "Common"' +
-                '}')
-              .end(function() {
-                request(server)
-                  .post('/method')
-                  .auth('myusername', 'MyPassword')
-                  .set('Content-Type', 'application/json')
-                  .send('{"name": "Oral",' +
-                    '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
-                    '}')
-                  .end(function() {
-                    // add consumption
-                    request(server)
-                      .post('/consumption')
-                      .auth('myusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
-                      .end(function() {
-                        request(server)
-                          .get('/consumption')
-                          .auth('myusername', 'MyPassword')
-                          .set('Content-Type', 'application/json')
-                          .send('{"id": 2}')
-                          .expect(404, done);
-                      });
-                  });
-              });
-          });
+          .send('{"id": 2}')
+          .expect(404, done);
       });
   });
+
 
   it('updates a consumption', function testConsumptionUpdate(done) {
     request(server)
@@ -579,6 +539,61 @@ describe('consumption', function() {
                           .auth('myusername', 'MyPassword')
                           .set('Content-Type', 'application/json')
                           .send('{"id": 1}')
+                          .expect(200, done);
+                      });
+                  });
+              });
+          });
+      });
+  });
+
+  it('confirms deletes consumption', function testConsumptionDeletionConfirm(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        // make an experience
+        request(server)
+          .post('/experience')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .end(function() {
+            // make a drug
+            request(server)
+              .post('/drug')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"name": "Phenylpiracetam",' +
+                '"unit": "mg",' +
+                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
+                '"classification": "AMPA modulator",' +
+                '"family": "*racetam",' +
+                '"rarity": "Common"' +
+                '}')
+              .end(function() {
+                request(server)
+                  .post('/method')
+                  .auth('myusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"name": "Oral",' +
+                    '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
+                    '}')
+                  .end(function() {
+                    // add consumption
+                    request(server)
+                      .post('/consumption')
+                      .auth('myusername', 'MyPassword')
+                      .set('Content-Type', 'application/json')
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
+                        // delete the consumption
+                        request(server)
+                          .delete('/consumption')
+                          .auth('myusername', 'MyPassword')
+                          .set('Content-Type', 'application/json')
+                          .send('{"id": 1}')
                           .end(function() {
                             // request the deleted consumption
                             request(server)
@@ -601,55 +616,16 @@ describe('consumption', function() {
       .set('Content-Type', 'application/json')
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
-        // make an experience
         request(server)
-          .post('/experience')
+          .delete('/consumption')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
-          .end(function() {
-            // make a drug
-            request(server)
-              .post('/drug')
-              .auth('myusername', 'MyPassword')
-              .set('Content-Type', 'application/json')
-              .send('{"name": "Phenylpiracetam",' +
-                '"unit": "mg",' +
-                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
-                '"classification": "AMPA modulator",' +
-                '"family": "*racetam",' +
-                '"rarity": "Common"' +
-                '}')
-              .end(function() {
-                request(server)
-                  .post('/method')
-                  .auth('myusername', 'MyPassword')
-                  .set('Content-Type', 'application/json')
-                  .send('{"name": "Oral",' +
-                    '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
-                    '}')
-                  .end(function() {
-                    // add consumption
-                    request(server)
-                      .post('/consumption')
-                      .auth('myusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
-                      .end(function() {
-                        // delete the consumption
-                        request(server)
-                          .delete('/consumption')
-                          .auth('myusername', 'MyPassword')
-                          .set('Content-Type', 'application/json')
-                          .expect(400, {
-                            "experience": "id must be provided"
-                          }, done);
-                      });
-                  });
-              });
-          });
+          .expect(400, {
+            "consumption": "id must be provided"
+          }, done);
       });
   });
+
 
   it('refuses deletes with nonexistent ID', function testConsumptionDeletionWithBadID(done) {
     request(server)
@@ -657,55 +633,15 @@ describe('consumption', function() {
       .set('Content-Type', 'application/json')
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
-        // make an experience
         request(server)
-          .post('/experience')
+          .delete('/consumption')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
-          .end(function() {
-            // make a drug
-            request(server)
-              .post('/drug')
-              .auth('myusername', 'MyPassword')
-              .set('Content-Type', 'application/json')
-              .send('{"name": "Phenylpiracetam",' +
-                '"unit": "mg",' +
-                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
-                '"classification": "AMPA modulator",' +
-                '"family": "*racetam",' +
-                '"rarity": "Common"' +
-                '}')
-              .end(function() {
-                // add a method
-                request(server)
-                  .post('/method')
-                  .auth('myusername', 'MyPassword')
-                  .set('Content-Type', 'application/json')
-                  .send('{"name": "Oral",' +
-                    '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
-                    '}')
-                  .end(function() {
-                    // add consumption
-                    request(server)
-                      .post('/consumption')
-                      .auth('myusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
-                      .end(function() {
-                        // delete the consumption
-                        request(server)
-                          .delete('/consumption')
-                          .auth('myusername', 'MyPassword')
-                          .set('Content-Type', 'application/json')
-                          .send('{"id": 99}')
-                          .expect(404, done);
-                      });
-                  });
-              });
-          });
+          .send('{"id": 99}')
+          .expect(404, done);
       });
   });
+
 
   it('404s on consumptions by experience with no records', function testConsumptionByExperienceNoRecords(done) {
     request(server)
@@ -815,6 +751,7 @@ describe('consumption', function() {
                                   "experience_id": 1,
                                   "id": 1,
                                   "method_id": 1,
+                                  "friends": [],
                                   "location": "San Juan",
                                   "owner": 1,
                                 }, {
@@ -824,10 +761,202 @@ describe('consumption', function() {
                                   "experience_id": 1,
                                   "id": 2,
                                   "method_id": 1,
+                                  "friends": [],
                                   "location": "San Juan",
                                   "owner": 1
                                 }]
                               }, done);
+                          });
+                      });
+                  });
+              });
+          });
+      });
+  });
+
+  it('returns all consumptions for a given experience with friends on consumption', function testConsumptionByExperienceWithFriends(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        // make an experience
+        request(server)
+          .post('/experience')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .end(function() {
+            // make a drug
+            request(server)
+              .post('/drug')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"name": "Phenylpiracetam",' +
+                '"unit": "mg",' +
+                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
+                '"classification": "AMPA modulator",' +
+                '"family": "*racetam",' +
+                '"rarity": "Common"' +
+                '}')
+              .end(function() {
+                // add a method
+                request(server)
+                  .post('/method')
+                  .auth('myusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"name": "Oral",' +
+                    '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
+                    '}')
+                  .end(function() {
+                    // add consumption
+                    request(server)
+                      .post('/consumption')
+                      .auth('myusername', 'MyPassword')
+                      .set('Content-Type', 'application/json')
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
+                        // add friends
+                        request(server)
+                          .post('/consumption/friend')
+                          .auth('myusername', 'MyPassword')
+                          .set('Content-Type', 'application/json')
+                          .send('{"consumption_id": 1, "name": "John Smith"}')
+                          .end(function() {
+                            request(server)
+                              .get('/consumption/experience')
+                              .auth('myusername', 'MyPassword')
+                              .set('Content-Type', 'application/json')
+                              .send('{"id": 1}')
+                              .expect(200, {
+                                "consumptions": [{
+                                  "count": 2,
+                                  "date": "1445648036",
+                                  "drug_id": 1,
+                                  "experience_id": 1,
+                                  "friends": [{
+                                    "id": 1,
+                                    "name": "John Smith"
+                                  }],
+                                  "id": 1,
+                                  "location": "San Juan",
+                                  "method_id": 1,
+                                  "owner": 1
+                                }]
+                              }, done);
+                          });
+                      });
+                  });
+              });
+          });
+      });
+  });
+
+  it('returns 404 for experience by consumption with no such experience', function testConsumptionByExperienceNoSuchExperience(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .get('/consumption/experience')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"id": 1}')
+          .expect(404, done);
+      });
+  });
+
+
+  it('denies adding a friend with no JSON', function testConsumptionFriendNoJSON(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .post('/consumption/friend')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .expect(400, {
+            "consumption": "consumption_id and name required"
+          }, done);
+      });
+  });
+
+
+  it('denies adding a friend with no fields', function testConsumptionFriendNoFields(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .post('/consumption/friend')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .expect(400, {
+            "consumption": "consumption_id and name required"
+          }, done);
+      });
+  });
+
+
+  it('adds a friend', function testConsumptionFriend(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        // make an experience
+        request(server)
+          .post('/experience')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .end(function() {
+            // make a drug
+            request(server)
+              .post('/drug')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"name": "Phenylpiracetam",' +
+                '"unit": "mg",' +
+                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
+                '"classification": "AMPA modulator",' +
+                '"family": "*racetam",' +
+                '"rarity": "Common"' +
+                '}')
+              .end(function() {
+                // make a method
+                request(server)
+                  .post('/method')
+                  .auth('myusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"name": "Oral",' +
+                    '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
+                    '}')
+                  .end(function() {
+                    // add consumption
+                    request(server)
+                      .post('/consumption')
+                      .auth('myusername', 'MyPassword')
+                      .set('Content-Type', 'application/json')
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
+                        // add consumption
+                        request(server)
+                          .post('/consumption')
+                          .auth('myusername', 'MyPassword')
+                          .set('Content-Type', 'application/json')
+                          .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                          .end(function() {
+                            request(server)
+                              .post('/consumption/friend')
+                              .auth('myusername', 'MyPassword')
+                              .set('Content-Type', 'application/json')
+                              .send('{"consumption_id": 1, "name": "John Smith"}')
+                              .expect(201, done);
                           });
                       });
                   });
