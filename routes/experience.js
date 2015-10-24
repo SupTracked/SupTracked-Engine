@@ -131,7 +131,7 @@ router.get('/', function(req, res, next) {
   }
 
   // get the entry
-  db.all("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM experiences where id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
   }, function(err, experience) {
@@ -143,16 +143,117 @@ router.get('/', function(req, res, next) {
       return;
     }
 
-    // no experiences returned; nothing for that ID
+    // no experience
     if (experience.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
     }
 
-    // return the experience
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(experience[0]));
+    // get the entry
+    db.all("select * from consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND c.owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err, consumptions) {
+      if (err) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          experience: err
+        }));
+        return;
+      }
+
+      // no consumptions returned; nothing for that ID
+      if (consumptions.length === 0) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(404).send();
+        return;
+      }
+
+      // layout where each consumption will go
+      var allConsumptions = [];
+
+      consumptions.forEach(function(consumption, index) {
+        // set up the drug array
+        var drugData = {};
+        //only load if we have drugs in this con (though that should never happen)
+        if (consumption.drug_id !== undefined) {
+          drugData.id = consumption.drug_id;
+          drugData.name = consumption.name;
+          drugData.unit = consumption.unit;
+        }
+
+        // set up the method array
+        var methodData = {};
+        //only load if we have methods in this con (though that should never happen)
+        if (consumption.method_id !== undefined) {
+          methodData.id = consumption.method_id;
+          methodData.name = consumption.unit;
+        }
+
+        // we have a consumption; let's parse the friends into it
+        db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
+          $id: req.body.id,
+          $owner: req.supID
+        }, function(err, friends) {
+          if (err) {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400).send(JSON.stringify({
+              experience: err
+            }));
+            return;
+          }
+
+          // default is empty Friends
+          var friendsData = [];
+
+          // we have friends for this consumption
+          if (friends.length > 0) {
+            friends.forEach(function(friend) {
+              friendsData.push({
+                "name": friend.name,
+                "id": friend.id
+              });
+            });
+          }
+
+          // assemble our consumption
+          var compiledConsumption = {
+            id: consumption.id,
+            date: consumption.date,
+            count: consumption.count,
+            experience_id: consumption.experience_id,
+            drug: drugData,
+            method: methodData,
+            location: consumption.location,
+            friends: friendsData,
+            owner: req.supID
+          };
+
+          // shove it in our big object
+          allConsumptions.push(compiledConsumption);
+
+          // if we've run through all consumptions, load the experience data and fire it
+          if (index == consumptions.length - 1) {
+            var fullExperience = {
+              date: experience[0].date,
+              id: experience[0].id,
+              notes: experience[0].notes,
+              owner: experience[0].owner,
+              panicmsg: experience[0].panicmsg,
+              rating_id: experience[0].rating_id,
+              title: experience[0].title,
+              ttime: experience[0].ttime,
+              consumptions: allConsumptions
+            };
+
+            // bombs away
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200).send(fullExperience);
+          }
+        });
+      });
+    });
   });
 });
 
