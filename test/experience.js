@@ -32,7 +32,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .expect(400, {
-            "experience": "title, valid date, and location required"
+            "experience": "title, valid date required"
           }, done);
       });
   });
@@ -48,7 +48,7 @@ describe('experience', function() {
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .expect(400, {
-            "experience": "title, valid date, and location required"
+            "experience": "title, valid date required"
           }, done);
       });
   });
@@ -63,7 +63,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": "not a date"}')
+          .send('{"title": "My Title", "date": "not a date"}')
           .expect(400, {
             "experience": "timestamp must be positive unix time integer, down to seconds resolution"
           }, done);
@@ -80,7 +80,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .expect(201, {"id": 1}, done);
       });
   });
@@ -95,7 +95,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             request(server)
               .get('/experience')
@@ -105,7 +105,6 @@ describe('experience', function() {
               .expect(200, {
                 "date": 1445543583,
                 "id": 1,
-                "location": "My Location",
                 "notes": null,
                 "owner": 1,
                 "panicmsg": null,
@@ -127,7 +126,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             request(server)
               .get('/experience')
@@ -150,7 +149,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // edit that experience
             request(server)
@@ -168,7 +167,6 @@ describe('experience', function() {
                   .expect(200, {
                     "date": 1445543583,
                     "id": 1,
-                    "location": "My Location",
                     "notes": null,
                     "owner": 1,
                     "panicmsg": null,
@@ -192,7 +190,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // edit that experience
             request(server)
@@ -231,7 +229,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // run an empty search
             request(server)
@@ -242,7 +240,6 @@ describe('experience', function() {
                 date: 1445543583,
                 ttime: null,
                 title: 'My Title',
-                location: 'My Location',
                 notes: null,
                 panicmsg: null,
                 rating_id: null,
@@ -263,14 +260,14 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // create a second experience
             request(server)
               .post('/experience')
               .auth('myusername', 'MyPassword')
               .set('Content-Type', 'application/json')
-              .send('{"title": "Cows", "location": "My Location", "date": 1445543583}')
+              .send('{"title": "Cows", "date": 1445543583}')
               .end(function() {
                 request(server)
                   .get('/experience/search')
@@ -282,7 +279,6 @@ describe('experience', function() {
                     date: 1445543583,
                     ttime: null,
                     title: 'My Title',
-                    location: 'My Location',
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
@@ -304,14 +300,14 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // create a second experience
             request(server)
               .post('/experience')
               .auth('myusername', 'MyPassword')
               .set('Content-Type', 'application/json')
-              .send('{"title": "Cows", "location": "My Location", "date": 1445543583}')
+              .send('{"title": "Cows", "date": 1445543583}')
               .end(function() {
                 // run a request with a limit and an offset
                 request(server)
@@ -324,7 +320,6 @@ describe('experience', function() {
                     date: 1445543583,
                     ttime: null,
                     title: 'Cows',
-                    location: 'My Location',
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
@@ -346,14 +341,14 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // create a second experience
             request(server)
               .post('/experience')
               .auth('myusername', 'MyPassword')
               .set('Content-Type', 'application/json')
-              .send('{"title": "Cows", "location": "My Location", "date": 1445543583}')
+              .send('{"title": "Cows", "date": 1445543583}')
               .end(function() {
                 // search on title
                 request(server)
@@ -366,7 +361,6 @@ describe('experience', function() {
                     date: 1445543583,
                     ttime: null,
                     title: 'Cows',
-                    location: 'My Location',
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
@@ -388,14 +382,14 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title","date": 1445543583}')
           .end(function() {
             // create a second experience
             request(server)
               .post('/experience')
               .auth('myusername', 'MyPassword')
               .set('Content-Type', 'application/json')
-              .send('{"title": "Cows", "location": "My Location", "date": 1445543583}')
+              .send('{"title": "Cows", "date": 1445543583}')
               .end(function() {
                 // edit that experience's notes
                 request(server)
@@ -415,58 +409,7 @@ describe('experience', function() {
                         date: 1445543583,
                         ttime: null,
                         title: 'Cows',
-                        location: 'My Location',
                         notes: "Cool story, bro",
-                        panicmsg: null,
-                        rating_id: null,
-                        owner: 1
-                      }], done);
-                  });
-              });
-          });
-      });
-  });
-
-  it('searches on location', function testExperienceSearchLocation(done) {
-    request(server)
-      .post('/register')
-      .set('Content-Type', 'application/json')
-      .send('{"username": "myusername", "password": "MyPassword"}')
-      .end(function() {
-        // create an experience
-        request(server)
-          .post('/experience')
-          .auth('myusername', 'MyPassword')
-          .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
-          .end(function() {
-            // create a second experience
-            request(server)
-              .post('/experience')
-              .auth('myusername', 'MyPassword')
-              .set('Content-Type', 'application/json')
-              .send('{"title": "Cows", "location": "My Location", "date": 1445543583}')
-              .end(function() {
-                // edit that experience's notes
-                request(server)
-                  .put('/experience')
-                  .auth('myusername', 'MyPassword')
-                  .set('Content-Type', 'application/json')
-                  .send('{"id": 2, "location": "Someplace"}')
-                  .end(function() {
-                    // search for the location
-                    request(server)
-                      .get('/experience/search')
-                      .auth('myusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"location": "Someplace"}')
-                      .expect(200, [{
-                        id: 2,
-                        date: 1445543583,
-                        ttime: null,
-                        title: 'Cows',
-                        location: 'Someplace',
-                        notes: null,
                         panicmsg: null,
                         rating_id: null,
                         owner: 1
@@ -488,14 +431,14 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // create a second experience
             request(server)
               .post('/experience')
               .auth('myusername', 'MyPassword')
               .set('Content-Type', 'application/json')
-              .send('{"title": "Cows", "location": "My Location", "date": 1445543583}')
+              .send('{"title": "Cows", "date": 1445543583}')
               .end(function() {
                 // edit that experience's notes
                 request(server)
@@ -515,7 +458,6 @@ describe('experience', function() {
                         date: 1445543583,
                         ttime: null,
                         title: 'Cows',
-                        location: 'My Location',
                         notes: null,
                         panicmsg: null,
                         rating_id: 2,
@@ -538,14 +480,14 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1430000000}')
+          .send('{"title": "My Title", "date": 1430000000}')
           .end(function() {
             // create a second experience
             request(server)
               .post('/experience')
               .auth('myusername', 'MyPassword')
               .set('Content-Type', 'application/json')
-              .send('{"title": "Cows", "location": "My Location", "date": 1450000000}')
+              .send('{"title": "Cows", "date": 1450000000}')
               .end(function() {
                 // search for the daterange
                 request(server)
@@ -558,7 +500,6 @@ describe('experience', function() {
                     date: 1450000000,
                     ttime: null,
                     title: 'Cows',
-                    location: 'My Location',
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
@@ -580,7 +521,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // delete the experience
             request(server)
@@ -611,7 +552,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // delete the experience
             request(server)
@@ -642,7 +583,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // delete the experience
             request(server)
@@ -665,7 +606,7 @@ describe('experience', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // delete the experience
             request(server)
@@ -690,7 +631,7 @@ describe('experience', function() {
             .post('/experience')
             .auth('myusername', 'MyPassword')
             .set('Content-Type', 'application/json')
-            .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+            .send('{"title": "My Title", "date": 1445543583}')
             .end(function() {
               // make a drug
               request(server)

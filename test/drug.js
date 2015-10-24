@@ -281,7 +281,7 @@ describe('drug', function() {
           .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             // make a drug
             request(server)
@@ -310,7 +310,7 @@ describe('drug', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                       .end(function(){
                         request(server)
                           .delete('/drug')
@@ -324,6 +324,7 @@ describe('drug', function() {
                                 "date": "1445648036",
                                 "drug_id": 1,
                                 "experience_id": 1,
+                                "location": "San Juan",
                                 "id": 1,
                                 "method_id": 1,
                                 "owner": 1

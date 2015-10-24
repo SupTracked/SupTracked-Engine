@@ -53,7 +53,6 @@ q.fcall(
     'date INTEGER, ' +
     'ttime INTEGER, ' +
     'title TEXT, ' +
-    'location TEXT, ' +
     'notes TEXT, ' +
     'panicmsg TEXT, ' +
     'rating_id INTEGER, ' +
@@ -66,6 +65,7 @@ q.fcall(
     'count REAL, ' +
     'drug_id INTEGER, ' +
     'method_id INTEGER, ' +
+    'location TEXT, ' +
     'owner INTEGER);' +
     ' ' +
     'CREATE TABLE IF NOT EXISTS "drugs" ' +

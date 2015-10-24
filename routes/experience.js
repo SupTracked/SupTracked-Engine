@@ -7,7 +7,6 @@ var router = express.Router();
  * @apiGroup Experience
  *
  * @apiParam {String} title  Title of the new experience
- * @apiParam {String} location  Location of the experience
  * @apiParam {Number} date  Unix timestamp of the date and time of the experience
  *
  * @apiPermission ValidUserBasicAuthRequired
@@ -20,12 +19,12 @@ var router = express.Router();
  *       "id": 3,
  *     }
  *
- * @apiError missingField title, valid date, and location required - one or more was not provided
+ * @apiError missingField title, valid date required - one or more was not provided
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Bad Request
  *     {
- *       "experience": "title, valid date, and location required"
+ *       "experience": "title andvalid date required"
  *     }
  *
  * @apiError timestampError timestamp must be positive unix time integer, down to seconds resolution
@@ -38,10 +37,10 @@ var router = express.Router();
  */
 router.post('/', function(req, res, next) {
   // not enough fields were provided
-  if (req.body === undefined || !("title" in req.body) || !("date" in req.body) || !("location" in req.body)) {
+  if (req.body === undefined || !("title" in req.body) || !("date" in req.body)) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      experience: "title, valid date, and location required"
+      experience: "title, valid date required"
     }));
     return;
   }
@@ -56,10 +55,9 @@ router.post('/', function(req, res, next) {
   }
 
   // stick it in
-  db.run("INSERT INTO experiences (title, date, location, owner) VALUES ($title, $date, $location, $owner)", {
+  db.run("INSERT INTO experiences (title, date, owner) VALUES ($title, $date, $owner)", {
     $title: req.body.title,
     $date: req.body.date,
-    $location: req.body.location,
     $owner: req.supID
   }, function(err) {
     if (err) {
@@ -91,7 +89,6 @@ router.post('/', function(req, res, next) {
  * @apiSuccess {Number} date  date of the experience
  * @apiSuccess {Number} ttime  id of the consumption for which T-0:00 time format is based off
  * @apiSuccess {String} title  title of the experience
- * @apiSuccess {String} location  location of the experience
  * @apiSuccess {String} notes  notes for the experience
  * @apiSuccess {String} panicmsg  user's panic message for the created experience
  * @apiSuccess {Number} rating_id  rating of general experience quality
@@ -102,7 +99,6 @@ router.post('/', function(req, res, next) {
  *     {
  *        "date": 1445543583,
  *        "id": 1,
- *        "location": "My Location",
  *        "notes": "This is great.",
  *        "owner": 1,
  *        "panicmsg": "Oh snap help me!",
@@ -258,7 +254,6 @@ router.delete('/', function(req, res, next) {
  * @apiParam {Number} [date]  date of the experience
  * @apiParam {Number} [ttime]  id of the consumption for which T-0:00 time format is based off
  * @apiParam {String} [title]  title of the experience
- * @apiParam {String} [location]  location of the experience
  * @apiParam {String} [notes]  notes for the experience
  * @apiParam {String} [panicmsg]  user's panic message for the created experience
  * @apiParam {Number} [rating_id]  rating of general experience quality
@@ -285,7 +280,7 @@ router.delete('/', function(req, res, next) {
  *     }
  */
 router.put('/', function(req, res, next) {
-  var permittedFields = ['date', 'location', 'notes', 'panicmsg', 'rating_id', 'title', 'ttime', 'id'];
+  var permittedFields = ['date', 'notes', 'panicmsg', 'rating_id', 'title', 'ttime', 'id'];
 
   //no fields were provided
   if (Object.keys(req.body).length === 0 || req.body === undefined) {
@@ -349,7 +344,6 @@ router.put('/', function(req, res, next) {
  * @apiParam {Number} [startdate]  Unix timestamp of beginning of date range to select
  * @apiParam {Number} [enddate]  Unix timestamp of end of date range to select
  * @apiParam {String} [title]  experiences where this string is contained in the title will be retrieved
- * @apiParam {String} [location]  experiences where this string is contained in the location field will be retrieved
  * @apiParam {String} [notes]  experiences where this string is contained in the notes field will be retrieved
  * @apiParam {Number} [rating_id]  experiences with this rating will be retrieved
  * @apiParam {Number} [limit]  only return this number of rows
@@ -405,13 +399,6 @@ router.get('/search', function(req, res, next) {
       // we have date parameters
       query += " AND rating_id = $rating_id";
       queryData.$rating_id = req.body.rating_id;
-    }
-
-    // get location
-    if ("location" in req.body) {
-      // we have date parameters
-      query += " AND location LIKE '%' || $location || '%'";
-      queryData.$location = req.body.location;
     }
 
     // get notes

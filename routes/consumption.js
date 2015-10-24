@@ -11,6 +11,7 @@ var router = express.Router();
  * @apiParam {Number} experience_id  ID of the experience the consumption is part of
  * @apiParam {Number} drug_id  ID of the drug consumed
  * @apiParam {Number} method_id  ID of the method used to consume the drug
+ * @apiParam {String} location  location of the consumption
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
@@ -65,10 +66,11 @@ var router = express.Router();
 router.post('/', function(req, res, next) {
   // not enough fields were provided
   if (req.body === undefined || !("date" in req.body) || !("count" in req.body) ||
-    !("experience_id" in req.body) || !("drug_id" in req.body) || !("method_id" in req.body)) {
+    !("experience_id" in req.body) || !("drug_id" in req.body) ||
+    !("method_id" in req.body) || !("location" in req.body)) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      consumption: "date, count, experience_id, drug_id, and method_id required"
+      consumption: "date, count, experience_id, drug_id, method_id, and location required"
     }));
     return;
   }
@@ -147,13 +149,14 @@ router.post('/', function(req, res, next) {
         }
 
         // phew. we made it. stick it in.
-        db.run("INSERT INTO consumptions (date, experience_id, count, drug_id, method_id, owner)" +
-          " VALUES ($date, $experience_id, $count, $drug_id, $method_id, $owner)", {
+        db.run("INSERT INTO consumptions (date, experience_id, count, drug_id, method_id, location, owner)" +
+          " VALUES ($date, $experience_id, $count, $drug_id, $method_id, $location, $owner)", {
             $date: req.body.date,
             $experience_id: req.body.experience_id,
             $count: req.body.count,
             $drug_id: req.body.drug_id,
             $method_id: req.body.method_id,
+            $location: req.body.location,
             $owner: req.supID
           },
           function(err) {
@@ -191,6 +194,7 @@ router.post('/', function(req, res, next) {
  * @apiSuccess {Number} experience_id  ID of the experience the consumption is part of
  * @apiSuccess {Number} drug_id  ID of the drug consumed
  * @apiSuccess {Number} method_id  ID of the method used to consume the drug
+ * @apiSuccess {String} location  location of the consumption
  * @apiSuccess {Number} owner  id of the owner of the consumption
  *
  * @apiSuccessExample Success-Response:
@@ -202,6 +206,7 @@ router.post('/', function(req, res, next) {
  *        "experience_id": "1",
  *        "drug_id": 4,
  *        "method_id": 1,
+ *        "location": "San Juan"
  *        "owner": 1
  *     }
  *
@@ -269,6 +274,7 @@ router.get('/', function(req, res, next) {
  * @apiSuccess {Number} experience_id  ID of the experience the consumption is part of
  * @apiSuccess {Number} drug_id  ID of the drug consumed
  * @apiSuccess {Number} method_id  ID of the method used to consume the drug
+ * @apiSuccess {String} location  location of the consumption
  * @apiSuccess {Number} owner  id of the owner of the consumption
  *
  * @apiSuccessExample Success-Response:
@@ -343,6 +349,7 @@ router.get('/experience', function(req, res, next) {
  * @apiParam {Number} [experience_id]  ID of the experience the consumption is part of
  * @apiParam {Number} [drug_id]  ID of the drug consumed
  * @apiParam {Number} [method_id]  ID of the method used to consume the drug
+ * @apiParam {String} [location]  location of the consumption
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
@@ -366,7 +373,7 @@ router.get('/experience', function(req, res, next) {
  *     }
  */
 router.put('/', function(req, res, next) {
-  var permittedFields = ['date', 'count', 'experience_id', 'drug_id', 'method_id', 'id'];
+  var permittedFields = ['date', 'count', 'experience_id', 'drug_id', 'method_id', 'location', 'id'];
 
   //no fields were provided
   if (Object.keys(req.body).length === 0 || req.body === undefined) {

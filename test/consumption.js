@@ -32,7 +32,7 @@ describe('consumption', function() {
           .post('/consumption')
           .auth('myusername', 'MyPassword')
           .expect(400, {
-            "consumption": "date, count, experience_id, drug_id, and method_id required"
+            "consumption": "date, count, experience_id, drug_id, method_id, and location required"
           }, done);
       });
   });
@@ -48,7 +48,7 @@ describe('consumption', function() {
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .expect(400, {
-            "consumption": "date, count, experience_id, drug_id, and method_id required"
+            "consumption": "date, count, experience_id, drug_id, method_id, and location required"
           }, done);
       });
   });
@@ -63,7 +63,7 @@ describe('consumption', function() {
           .post('/consumption')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"count": 2, "experience_id": 1, "date": "notadate", "drug_id": 2, "method_id": 1}')
+          .send('{"count": 2, "experience_id": 1, "date": "notadate", "location": "San Juan", "drug_id": 2, "method_id": 1}')
           .expect(400, {
             "consumption": "timestamp must be positive unix time integer, down to seconds resolution"
           }, done);
@@ -80,7 +80,7 @@ describe('consumption', function() {
           .post('/consumption')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 2, "method_id": 1}')
+          .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 2, "method_id": 1}')
           .expect(400, {
             "consumption": "the requested experience association doesn't exist or belong to this user"
           }, done);
@@ -105,7 +105,7 @@ describe('consumption', function() {
               .post('/consumption')
               .auth('myusername', 'MyPassword')
               .set('Content-Type', 'application/json')
-              .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 2, "method_id": 1}')
+              .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 2, "method_id": 1}')
               .expect(400, {
                 "consumption": "the requested drug association doesn't exist or belong to this user"
               }, done);
@@ -144,7 +144,7 @@ describe('consumption', function() {
                   .post('/consumption')
                   .auth('myusername', 'MyPassword')
                   .set('Content-Type', 'application/json')
-                  .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
+                  .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                   .expect(400, {
                     "consumption": "the requested method association doesn't exist or belong to this user"
                   }, done);
@@ -179,6 +179,7 @@ describe('consumption', function() {
                 '"rarity": "Common"' +
                 '}')
               .end(function() {
+                // make a method
                 request(server)
                   .post('/method')
                   .auth('myusername', 'MyPassword')
@@ -192,7 +193,7 @@ describe('consumption', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                       .expect(201, {
                         "id": 1
                       }, done);
@@ -242,8 +243,8 @@ describe('consumption', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                      .end(function(){
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
                         request(server)
                           .get('/consumption')
                           .auth('myusername', 'MyPassword')
@@ -256,6 +257,7 @@ describe('consumption', function() {
                             "experience_id": 1,
                             "id": 1,
                             "method_id": 1,
+                            "location": "San Juan",
                             "owner": 1
                           }, done);
                       });
@@ -335,8 +337,8 @@ describe('consumption', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                      .end(function(){
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
                         request(server)
                           .get('/consumption')
                           .auth('myusername', 'MyPassword')
@@ -390,8 +392,8 @@ describe('consumption', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                      .end(function(){
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
                         request(server)
                           .get('/consumption')
                           .auth('myusername', 'MyPassword')
@@ -444,21 +446,14 @@ describe('consumption', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                      .end(function(){
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
                         request(server)
-                          .post('/consumption')
+                          .put('/consumption')
                           .auth('myusername', 'MyPassword')
                           .set('Content-Type', 'application/json')
-                          .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                          .end(function(){
-                            request(server)
-                              .put('/consumption')
-                              .auth('myusername', 'MyPassword')
-                              .set('Content-Type', 'application/json')
-                              .send('{"id": 1, "count": 17}')
-                              .expect(200, done);
-                          });
+                          .send('{"id": 1, "count": 17}')
+                          .expect(200, done);
                       });
                   });
               });
@@ -505,35 +500,30 @@ describe('consumption', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                      .end(function(){
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
+                        // update consumpetion
                         request(server)
-                          .post('/consumption')
+                          .put('/consumption')
                           .auth('myusername', 'MyPassword')
                           .set('Content-Type', 'application/json')
-                          .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                          .end(function(){
+                          .send('{"id": 1, "count": 17}')
+                          .end(function() {
                             request(server)
-                              .put('/consumption')
+                              .get('/consumption')
                               .auth('myusername', 'MyPassword')
                               .set('Content-Type', 'application/json')
-                              .send('{"id": 1, "count": 17}')
-                              .end(function(){
-                                request(server)
-                                  .get('/consumption')
-                                  .auth('myusername', 'MyPassword')
-                                  .set('Content-Type', 'application/json')
-                                  .send('{"id": 1}')
-                                  .expect(200, {
-                                    "count": 17,
-                                    "date": "1445648036",
-                                    "drug_id": 1,
-                                    "experience_id": 1,
-                                    "id": 1,
-                                    "method_id": 1,
-                                    "owner": 1
-                                  }, done);
-                              });
+                              .send('{"id": 1}')
+                              .expect(200, {
+                                "count": 17,
+                                "date": "1445648036",
+                                "drug_id": 1,
+                                "experience_id": 1,
+                                "id": 1,
+                                "method_id": 1,
+                                "location": "San Juan",
+                                "owner": 1
+                              }, done);
                           });
                       });
                   });
@@ -581,23 +571,23 @@ describe('consumption', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                      .end(function(){
-                          // delete the consumption
-                          request(server)
-                            .delete('/consumption')
-                            .auth('myusername', 'MyPassword')
-                            .set('Content-Type', 'application/json')
-                            .send('{"id": 1}')
-                            .end(function(){
-                              // request the deleted consumption
-                              request(server)
-                                .get('/consumption')
-                                .auth('myusername', 'MyPassword')
-                                .set('Content-Type', 'application/json')
-                                .send('{"id": 1}')
-                                .expect(404, done);
-                            });
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
+                        // delete the consumption
+                        request(server)
+                          .delete('/consumption')
+                          .auth('myusername', 'MyPassword')
+                          .set('Content-Type', 'application/json')
+                          .send('{"id": 1}')
+                          .end(function() {
+                            // request the deleted consumption
+                            request(server)
+                              .get('/consumption')
+                              .auth('myusername', 'MyPassword')
+                              .set('Content-Type', 'application/json')
+                              .send('{"id": 1}')
+                              .expect(404, done);
+                          });
                       });
                   });
               });
@@ -644,14 +634,16 @@ describe('consumption', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                      .end(function(){
-                          // delete the consumption
-                          request(server)
-                            .delete('/consumption')
-                            .auth('myusername', 'MyPassword')
-                            .set('Content-Type', 'application/json')
-                            .expect(400, {"experience": "id must be provided"}, done);
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
+                        // delete the consumption
+                        request(server)
+                          .delete('/consumption')
+                          .auth('myusername', 'MyPassword')
+                          .set('Content-Type', 'application/json')
+                          .expect(400, {
+                            "experience": "id must be provided"
+                          }, done);
                       });
                   });
               });
@@ -699,15 +691,15 @@ describe('consumption', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                      .end(function(){
-                          // delete the consumption
-                          request(server)
-                            .delete('/consumption')
-                            .auth('myusername', 'MyPassword')
-                            .set('Content-Type', 'application/json')
-                            .send('{"id": 99}')
-                            .expect(404, done);
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
+                        // delete the consumption
+                        request(server)
+                          .delete('/consumption')
+                          .auth('myusername', 'MyPassword')
+                          .set('Content-Type', 'application/json')
+                          .send('{"id": 99}')
+                          .expect(404, done);
                       });
                   });
               });
@@ -739,7 +731,9 @@ describe('consumption', function() {
         request(server)
           .get('/consumption')
           .auth('myusername', 'MyPassword')
-          .expect(400, {"consumption": "id must be provided"}, done);
+          .expect(400, {
+            "consumption": "id must be provided"
+          }, done);
       });
   });
 
@@ -753,7 +747,9 @@ describe('consumption', function() {
           .get('/consumption')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .expect(400, {"consumption": "id must be provided"}, done);
+          .expect(400, {
+            "consumption": "id must be provided"
+          }, done);
       });
   });
 
@@ -797,40 +793,41 @@ describe('consumption', function() {
                       .post('/consumption')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1}')
-                      .end(function(){
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
                         // add second consumption
                         request(server)
                           .post('/consumption')
                           .auth('myusername', 'MyPassword')
                           .set('Content-Type', 'application/json')
-                          .send('{"count": 1, "experience_id": 1, "date": 1445648096, "drug_id": 1, "method_id": 1}')
-                          .end(function(){
+                          .send('{"count": 1, "experience_id": 1, "date": 1445648096, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                          .end(function() {
                             request(server)
                               .get('/consumption/experience')
                               .auth('myusername', 'MyPassword')
                               .set('Content-Type', 'application/json')
                               .send('{"id": 1}')
                               .expect(200, {
-                                "consumptions": [
-                                  {
-                                    "count": 2,
-                                    "date": "1445648036",
-                                    "drug_id": 1,
-                                    "experience_id": 1,
-                                    "id": 1,
-                                    "method_id": 1,
-                                    "owner": 1,
-                                  },
-                                  {
-                                    "count": 1,
-                                    "date": "1445648096",
-                                    "drug_id": 1,
-                                    "experience_id": 1,
-                                    "id": 2,
-                                    "method_id": 1,
-                                    "owner": 1
-                                  }]}, done);
+                                "consumptions": [{
+                                  "count": 2,
+                                  "date": "1445648036",
+                                  "drug_id": 1,
+                                  "experience_id": 1,
+                                  "id": 1,
+                                  "method_id": 1,
+                                  "location": "San Juan",
+                                  "owner": 1,
+                                }, {
+                                  "count": 1,
+                                  "date": "1445648096",
+                                  "drug_id": 1,
+                                  "experience_id": 1,
+                                  "id": 2,
+                                  "method_id": 1,
+                                  "location": "San Juan",
+                                  "owner": 1
+                                }]
+                              }, done);
                           });
                       });
                   });
