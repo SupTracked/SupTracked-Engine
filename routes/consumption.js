@@ -177,7 +177,7 @@ router.post('/', function(req, res, next) {
 });
 
 /**
- * @api {get} /consumption Get a JSON object of an consumption
+ * @api {get} /consumption Get a JSON object of a consumption
  * @apiName GetConsumption
  * @apiGroup Consumption
  *
@@ -252,6 +252,94 @@ router.get('/', function(req, res, next) {
     res.setHeader('Content-Type', 'application/json');
     res.status(200).send(JSON.stringify(row));
   });
+});
+
+/**
+ * @api {put} /consumption Update a consumption
+ * @apiName UpdateConsumption
+ * @apiGroup Consumption
+ *
+ * @apiParam {Number} id  id of the experience
+ * @apiParam {Number} [date]  Unix timestamp of the date and time of the consumption
+ * @apiParam {Number} [count]  numerical quantity as measured by the drug's unit
+ * @apiParam {Number} [experience_id]  ID of the experience the consumption is part of
+ * @apiParam {Number} [drug_id]  ID of the drug consumed
+ * @apiParam {Number} [method_id]  ID of the method used to consume the drug
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *
+ * @apiError noFields no fields to set were provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "consumption": "no fields provided"
+ *     }
+ *
+ * @apiError illegalField a field to update was send that is not permitted (must be in above list)
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "consumption": "custom field requested that is not permitted"
+ *     }
+ */
+router.put('/', function(req, res, next) {
+  var permittedFields = ['date', 'count', 'experience_id', 'drug_id', 'method_id', 'id'];
+
+  //no fields were provided
+  if (Object.keys(req.body).length === 0 || req.body === undefined) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      consumption: "no fields provided"
+    }));
+    return;
+  }
+
+  if (Object.keys(req.body).every(function(field) {
+      return permittedFields.indexOf(field) >= 0;
+    })) {
+    // all the keys of the request body (AKA all requested fields) are allowed; let them pass
+
+    // assemble the query
+    var columns = Object.keys(req.body).join(', ');
+    var updateVals = [];
+    var dataArray = {};
+
+    // set the column1 = value1, etc. for the update
+    Object.keys(req.body).forEach(function(columnName) {
+      updateVals.push(columnName + ' = $' + columnName);
+    });
+
+    var query = 'UPDATE consumptions SET ' + updateVals.join(', ') + ' WHERE id = $conid AND owner = $owner';
+    dataArray.$owner = req.supID;
+    dataArray.$conid = req.body.id;
+
+    // loop through each key and build the JSON object of bindings for sqlite
+    Object.keys(req.body).forEach(function(columnName) {
+      dataArray["$" + columnName] = req.body[columnName];
+    });
+
+    db.run(query, dataArray, function(err) {
+      if (err) {
+        res.status(500).send();
+        return;
+      }
+
+      // all done. loaded and ready.
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).send();
+    });
+  } else {
+    // they tried to send an unsupported key; kick 'em out
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      consumption: "custom field requested that is not permitted"
+    }));
+  }
 });
 
 module.exports = router;
