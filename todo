@@ -4,6 +4,7 @@ TODO
     add consumption search
       returns full experience format  (intersectable)
       don't forget pagination
+      order by date
 
   Experiences
     Make sure experiences search return is intersectable
