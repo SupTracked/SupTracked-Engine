@@ -34,7 +34,6 @@ TODO
 
 
 immediate
-  convert all instances of rows and row to named
   get consumption and consumption by experience intersectable
     with friend array
     write tests for delete
@@ -44,3 +43,5 @@ immediate
   Make sure consumption by experience is in full experience format (intersectable)
   Make sure experiences return is intersectable
   Make sure experiences search return is intersectable
+  verify returning ID in all creation
+  spellcheck
