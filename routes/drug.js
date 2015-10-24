@@ -140,7 +140,7 @@ router.get('/', function(req, res, next) {
     }
 
     // no rows returned; nothing for that ID
-    if (row == []) {
+    if (row === undefined) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -238,6 +238,80 @@ router.put('/', function(req, res, next) {
       drug: "custom field requested that is not permitted"
     }));
   }
+});
+
+/**
+ * @api {delete} /drug Delete a drug
+ * @apiName DeleteDrug
+ * @apiGroup Drug
+ *
+ * @apiParam {Number} id  ID of the drug
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "drug": "id must be provided"
+ *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ */
+router.delete('/', function(req, res, next) {
+  // not enough fields were provided
+  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      drug: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.get("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
+    $id: req.body.id,
+    $owner: req.supID
+  }, function(err, row) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        drug: err
+      }));
+      return;
+    }
+
+    // no rows returned; nothing for that ID
+    if (row === undefined) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    db.run("DELETE FROM drugs WHERE id = $id AND owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err, row) {
+      if (err) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          drug: err
+        }));
+        return;
+      }
+
+      // deleted the drug
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).send(JSON.stringify(row));
+    });
+  });
 });
 
 module.exports = router;

@@ -599,4 +599,83 @@ describe('experience', function() {
           });
       });
   });
+
+  it('deletes an experience', function testExperienceDeletion(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        // make the experience
+        request(server)
+          .post('/experience')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .end(function() {
+            // delete the experience
+            request(server)
+              .delete('/experience')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"id": 1}')
+              .end(function(){
+                request(server)
+                  .get('/experience')
+                  .auth('myusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"id": 1}')
+                  .expect(404, done);
+              });
+          });
+      });
+  });
+
+  it('refuses to delete without ID', function testExperienceDeletionNoID(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        // make the experience
+        request(server)
+          .post('/experience')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .end(function() {
+            // delete the experience
+            request(server)
+              .delete('/experience')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .expect(400, {"experience": "id must be provided"}, done);
+          });
+      });
+  });
+
+  it('refuses to delete bad ID', function testExperienceDeletionBadID(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        // make the experience
+        request(server)
+          .post('/experience')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .end(function() {
+            // delete the experience
+            request(server)
+              .delete('/experience')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .set('Content-Type', 'application/json')
+              .send('{"id": 99}')
+              .expect(404, done);
+          });
+      });
+  });
 });

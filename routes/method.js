@@ -121,7 +121,7 @@ router.get('/', function(req, res, next) {
     }
 
     // no rows returned; nothing for that ID
-    if (row == []) {
+    if (row === undefined) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -215,6 +215,80 @@ router.put('/', function(req, res, next) {
       method: "custom field requested that is not permitted"
     }));
   }
+});
+
+/**
+ * @api {delete} /method Delete a method
+ * @apiName DeleteMethod
+ * @apiGroup Method
+ *
+ * @apiParam {Number} id  ID of the method
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "method": "id must be provided"
+ *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ */
+router.delete('/', function(req, res, next) {
+  // not enough fields were provided
+  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      method: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.get("SELECT * FROM methods WHERE id = $id AND owner = $owner", {
+    $id: req.body.id,
+    $owner: req.supID
+  }, function(err, row) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        method: err
+      }));
+      return;
+    }
+
+    // no rows returned; nothing for that ID
+    if (row === undefined) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    db.run("DELETE FROM methods WHERE id = $id AND owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err, row) {
+      if (err) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          method: err
+        }));
+        return;
+      }
+
+      // deleted the method
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).send(JSON.stringify(row));
+    });
+  });
 });
 
 module.exports = router;

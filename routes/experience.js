@@ -227,7 +227,7 @@ router.delete('/', function(req, res, next) {
         return;
       }
 
-      // delete the experience
+      // deleted the experience
       res.setHeader('Content-Type', 'application/json');
       res.status(200).send(JSON.stringify(row));
     });

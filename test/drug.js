@@ -22,6 +22,21 @@ describe('drug', function() {
       .expect(401, done);
   });
 
+  it('404s drugs with no such ID missing', function testDrugNoSuchID(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .get('/drug')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"id": 1}')
+          .expect(404, done);
+      });
+  });
+
   it('denies missing JSON', function testDrugMissingJSON(done) {
     request(server)
       .post('/register')
@@ -189,6 +204,69 @@ describe('drug', function() {
                 "drug": "custom field requested that is not permitted"
               }, done);
           });
+      });
+  });
+
+  it('deletes a drug', function testDrugDeletion(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .post('/drug')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"name": "Phenylpiracetam",' +
+            '"unit": "mg",' +
+            '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
+            '"classification": "AMPA modulator",' +
+            '"family": "*racetam",' +
+            '"rarity": "Common"' +
+            '}')
+          .end(function(){
+            request(server)
+              .delete('/drug')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"id": 1}')
+              .end(function(){
+                request(server)
+                  .get('/drug')
+                  .auth('myusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"id": 1}')
+                  .expect(404, done);
+              });
+          });
+      });
+  });
+
+  it('refuses delete on no ID', function testDrugDeletionNoID(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function(){
+        request(server)
+          .delete('/drug')
+          .auth('myusername', 'MyPassword')
+          .expect(400, {"drug": "id must be provided"}, done);
+      });
+  });
+
+  it('refuses delete on no such ID', function testDrugDeletionNoSuchID(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function(){
+        request(server)
+          .delete('/drug')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"id": 1}')
+          .expect(404, done);
       });
   });
 });

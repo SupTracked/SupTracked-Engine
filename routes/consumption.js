@@ -342,4 +342,78 @@ router.put('/', function(req, res, next) {
   }
 });
 
+/**
+ * @api {delete} /consumption Delete a consumption
+ * @apiName DeleteConsumption
+ * @apiGroup Consumption
+ *
+ * @apiParam {Number} id  ID of the experience
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "experience": "id must be provided"
+ *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ */
+router.delete('/', function(req, res, next) {
+  // not enough fields were provided
+  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      experience: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.get("SELECT * FROM consumptions WHERE id = $id AND owner = $owner", {
+    $id: req.body.id,
+    $owner: req.supID
+  }, function(err, row) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        consumption: err
+      }));
+      return;
+    }
+
+    // no rows returned; nothing for that ID
+    if (row === undefined) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    db.run("DELETE FROM consumptions WHERE id = $id AND owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err, row) {
+      if (err) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          consumption: err
+        }));
+        return;
+      }
+
+      // deleted the consumption
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).send(JSON.stringify(row));
+    });
+  });
+});
+
 module.exports = router;

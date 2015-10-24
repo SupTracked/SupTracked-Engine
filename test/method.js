@@ -37,6 +37,21 @@ describe('method', function() {
       });
   });
 
+  it('404s on no such ID', function testMethodNoSuchID(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .get('/method')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"id": 1}')
+          .expect(404, done);
+      });
+  });
+
   it('denies missing fields', function testMethodMissing(done) {
     request(server)
       .post('/register')
@@ -165,6 +180,65 @@ describe('method', function() {
                 "method": "custom field requested that is not permitted"
               }, done);
           });
+      });
+  });
+
+  it('deletes a method', function testDrugDeletion(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+          request(server)
+          .post('/method')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"name": "Oral",' +
+            '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
+            '}')
+          .end(function(){
+            request(server)
+              .delete('/method')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"id": 1}')
+              .end(function(){
+                request(server)
+                  .get('/method')
+                  .auth('myusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"id": 1}')
+                  .expect(404, done);
+              });
+          });
+      });
+  });
+
+  it('refuses delete on no ID', function testMethodDeletionNoID(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function(){
+        request(server)
+          .delete('/method')
+          .auth('myusername', 'MyPassword')
+          .expect(400, {"method": "id must be provided"}, done);
+      });
+  });
+
+  it('refuses delete on no such ID', function testMethodDeletionNoSuchID(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function(){
+        request(server)
+          .delete('/method')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"id": 1}')
+          .expect(404, done);
       });
   });
 });
