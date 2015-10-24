@@ -148,7 +148,7 @@ router.get('/', function(req, res, next) {
     }
 
     // no rows returned; nothing for that ID
-    if (row == []) {
+    if (row === undefined) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;

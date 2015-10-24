@@ -117,6 +117,28 @@ describe('experience', function() {
       });
   });
 
+  it('returns 404 with no experience for ID', function testExperienceRetrieval404(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .post('/experience')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .end(function() {
+            request(server)
+              .get('/experience')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"id": 2}')
+              .expect(404, done);
+          });
+      });
+  });
+
   it('updates a valid experience', function testExperienceUpdate(done) {
     request(server)
       .post('/register')
