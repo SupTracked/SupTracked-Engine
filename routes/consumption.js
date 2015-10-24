@@ -344,7 +344,7 @@ router.get('/', function(req, res, next) {
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
- * @apiSuccess {Object[]} consumptions  array of JSON objects for consumptionsin this experience
+ * @apiSuccess {Object[]} consumptions  array of JSON objects for consumptions in this experience
  *  @apiSuccess {Number} consumptions.id  id of the consumption
  *  @apiSuccess {Number} consumptions.date  Unix timestamp of the date and time of the consumption
  *  @apiSuccess {Number} consumptions.count  numerical quantity as measured by the drug's unit
