@@ -317,7 +317,7 @@ router.delete('/', function(req, res, next) {
         return;
       }
 
-      if(consumption.length > 0){
+      if (consumption.length > 0) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
           drug: "drug in use",

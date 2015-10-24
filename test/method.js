@@ -81,7 +81,7 @@ describe('method', function() {
           .send('{"name": "Oral",' +
             '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
             '}')
-            .expect(201, {
+          .expect(201, {
             "id": 1
           }, done);
       });
@@ -189,20 +189,20 @@ describe('method', function() {
       .set('Content-Type', 'application/json')
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
-          request(server)
+        request(server)
           .post('/method')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"name": "Oral",' +
             '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
             '}')
-          .end(function(){
+          .end(function() {
             request(server)
               .delete('/method')
               .auth('myusername', 'MyPassword')
               .set('Content-Type', 'application/json')
               .send('{"id": 1}')
-              .end(function(){
+              .end(function() {
                 request(server)
                   .get('/method')
                   .auth('myusername', 'MyPassword')
@@ -219,11 +219,13 @@ describe('method', function() {
       .post('/register')
       .set('Content-Type', 'application/json')
       .send('{"username": "myusername", "password": "MyPassword"}')
-      .end(function(){
+      .end(function() {
         request(server)
           .delete('/method')
           .auth('myusername', 'MyPassword')
-          .expect(400, {"method": "id must be provided"}, done);
+          .expect(400, {
+            "method": "id must be provided"
+          }, done);
       });
   });
 
@@ -232,7 +234,7 @@ describe('method', function() {
       .post('/register')
       .set('Content-Type', 'application/json')
       .send('{"username": "myusername", "password": "MyPassword"}')
-      .end(function(){
+      .end(function() {
         request(server)
           .delete('/method')
           .auth('myusername', 'MyPassword')
@@ -283,25 +285,23 @@ describe('method', function() {
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
                       .send('{"count": 2, "experience_id": 1, "date": 1445648036, "drug_id": 1, "method_id": 1, "location": "My Location"}')
-                      .end(function(){
+                      .end(function() {
                         request(server)
                           .delete('/method')
                           .auth('myusername', 'MyPassword')
                           .set('Content-Type', 'application/json')
                           .send('{"id": 1}')
                           .expect(400, {
-                            "consumptions": [
-                              {
-                                "count": 2,
-                                "date": "1445648036",
-                                "drug_id": 1,
-                                "experience_id": 1,
-                                "location": "My Location", 
-                                "id": 1,
-                                "method_id": 1,
-                                "owner": 1
-                              }
-                            ],
+                            "consumptions": [{
+                              "count": 2,
+                              "date": "1445648036",
+                              "drug_id": 1,
+                              "experience_id": 1,
+                              "location": "My Location",
+                              "id": 1,
+                              "method_id": 1,
+                              "owner": 1
+                            }],
                             "method": "method in use"
                           }, done);
                       });

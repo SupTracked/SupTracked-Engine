@@ -3,21 +3,23 @@ process.env.NODE_ENV = 'test';
 var request = require('supertest');
 require = require('really-need');
 
-describe('status', function () {
+describe('status', function() {
   var server;
 
-  beforeEach(function () {
-    server = require('../bin/www', {bustCache: true});
+  beforeEach(function() {
+    server = require('../bin/www', {
+      bustCache: true
+    });
   });
 
-  afterEach(function (done) {
+  afterEach(function(done) {
     server.close(done);
   });
 
   it('is up', function testSlash(done) {
-  request(server)
-    .get('/status/up')
-    .expect(200, done);
+    request(server)
+      .get('/status/up')
+      .expect(200, done);
   });
 
   it('runs the database', function testDB(done) {
