@@ -6,7 +6,6 @@ TODO
       don't forget pagination
 
   Experiences
-    Make sure experiences return is intersectable
     Make sure experiences search return is intersectable
 
   Media
@@ -14,13 +13,6 @@ TODO
     Remove media
     Search media to return full media object
       don't forget pagination
-
-  Definitions
-      Intersectable format
-      Experience
-      Consumptions
-        All with field including pretty names (e.g. for drug as object with both drug_id and drug name, for example)
-        Friends for each with id and name
 
   General Tasks/looking ahead
     Make sure everything is sorting by date desc
@@ -31,3 +23,14 @@ TODO
 immediate
   get intersectable:
     experience search
+
+
+
+
+
+Definitions
+    Intersectable format
+    Experience
+    Consumptions
+      All with field including pretty names (e.g. for drug as object with both drug_id and drug name, for example)
+      Friends for each with id and name
