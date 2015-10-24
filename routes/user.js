@@ -25,7 +25,7 @@ var bcrypt = require('bcrypt');
  *
  */
 router.get('/', function(req, res, next) {
-  db.all("SELECT * FROM users where id = $id", {
+  db.all("SELECT * FROM users WHERE id = $id", {
     $id: req.supID
   }, function(err, user) {
     res.setHeader('Content-Type', 'application/json');

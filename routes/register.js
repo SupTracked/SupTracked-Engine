@@ -44,7 +44,7 @@ router.post('/', function(req, res, next) {
   }
 
   // validation passed; see if they already exist
-  db.all("SELECT * FROM users where username = $username", {
+  db.all("SELECT * FROM users WHERE username = $username", {
     $username: req.body.username
   }, function(err, users) {
     if (users.length === 0) {

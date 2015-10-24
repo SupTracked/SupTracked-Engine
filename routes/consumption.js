@@ -85,7 +85,7 @@ router.post('/', function(req, res, next) {
   }
 
   // check for bad experience
-  db.all("SELECT * from experiences WHERE owner = $owner AND id = $id", {
+  db.all("SELECT * FROM experiences WHERE owner = $owner AND id = $id", {
     $owner: req.supID,
     $id: req.body.experience_id
   }, function(err, experiences) {
@@ -107,7 +107,7 @@ router.post('/', function(req, res, next) {
     }
 
     // we have a good experience; check for bad drug
-    db.all("SELECT * from drugs WHERE owner = $owner AND id = $id", {
+    db.all("SELECT * FROM drugs WHERE owner = $owner AND id = $id", {
       $owner: req.supID,
       $id: req.body.drug_id
     }, function(err, drugs) {
@@ -253,7 +253,7 @@ router.get('/', function(req, res, next) {
   }
 
   // get the entry
-  db.all("select * from consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.id = $id AND c.owner = $owner", {
+  db.all("SELECT * FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.id = $id AND c.owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
   }, function(err, consumption) {
@@ -412,7 +412,7 @@ router.get('/experience', function(req, res, next) {
   }
 
   // get the entry
-  db.all("select * from consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND c.owner = $owner", {
+  db.all("SELECT * FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND c.owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
   }, function(err, consumptions) {
@@ -710,7 +710,7 @@ router.post('/friend', function(req, res, next) {
     return;
   }
   // check for bad experience
-  db.all("SELECT * from consumptions WHERE owner = $owner AND id = $id", {
+  db.all("SELECT * FROM consumptions WHERE owner = $owner AND id = $id", {
     $owner: req.supID,
     $id: req.body.consumption_id
   }, function(err, consumption) {
@@ -749,7 +749,7 @@ router.post('/friend', function(req, res, next) {
 
         // made the insert, but sqlite only gives us the lastID of the query, so we gotta look up the full thing
         // strictly don't need the owner, but conservative redundant security makes me comfy
-        db.all("SELECT * from friends WHERE owner = $owner AND id = $id", {
+        db.all("SELECT * FROM friends WHERE owner = $owner AND id = $id", {
           $owner: req.supID,
           $id: this.lastID
         }, function(err, friends) {
@@ -792,7 +792,7 @@ router.post('/friend', function(req, res, next) {
  */
 router.get('/friend', function(req, res, next) {
   // get friends
-  db.all("SELECT * from friends WHERE owner = $owner GROUP BY name", {
+  db.all("SELECT * FROM friends WHERE owner = $owner GROUP BY name", {
     $owner: req.supID
   }, function(err, friends) {
     if (err) {

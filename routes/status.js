@@ -31,7 +31,7 @@ var os = require("os");
 router.get('/', function(req, res, next) {
   var currentTime = new Date();
   var upTime = currentTime - startTime;
-  var stmt = "SELECT count(*) as count FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence'";
+  var stmt = "SELECT count(*) AS count FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence'";
   db.all(stmt, function(err, tableCountRow) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
@@ -91,7 +91,7 @@ router.get('/up', function(req, res, next) {
  *     }
  */
 router.get('/db', function(req, res, next) {
-  var stmt = "SELECT count(*) as count FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence'";
+  var stmt = "SELECT count(*) AS count FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence'";
   db.each(stmt, function(err, tableCountRow) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');

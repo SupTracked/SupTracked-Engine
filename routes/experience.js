@@ -131,7 +131,7 @@ router.get('/', function(req, res, next) {
   }
 
   // get the entry
-  db.all("SELECT * FROM experiences where id = $id AND owner = $owner", {
+  db.all("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
   }, function(err, experience) {
@@ -151,7 +151,7 @@ router.get('/', function(req, res, next) {
     }
 
     // get the entry
-    db.all("select * from consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND c.owner = $owner", {
+    db.all("SELECT * FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND c.owner = $owner", {
       $id: req.body.id,
       $owner: req.supID
     }, function(err, consumptions) {
