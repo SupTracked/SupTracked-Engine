@@ -11,6 +11,7 @@ var status = require('./routes/status');
 var register = require('./routes/register');
 var user = require('./routes/user');
 var experience = require('./routes/experience');
+var consumption = require('./routes/consumption');
 var drug = require('./routes/drug');
 var method = require('./routes/method');
 
@@ -27,6 +28,7 @@ app.use(bodyParser.json()); // to support JSON-encoded bodies
 // protect routes
 app.use('/user', auth);
 app.use('/experience', auth);
+app.use('/consumption', auth);
 app.use('/drug', auth);
 app.use('/method', auth);
 
@@ -35,6 +37,7 @@ app.use('/register', register);
 app.use('/status', status);
 app.use('/user', user);
 app.use('/experience', experience);
+app.use('/consumption', consumption);
 app.use('/drug', drug);
 app.use('/method', method);
 
