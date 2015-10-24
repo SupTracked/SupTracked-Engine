@@ -35,7 +35,7 @@ TODO
 
 immediate
   get intersectable:
-    experience
-    search
+    experience search
   verify returning ID in all creation
   spellcheck
+  capitalize all queries
