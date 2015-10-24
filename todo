@@ -4,11 +4,6 @@ TODO
     add consumption search
       returns full experience format  (intersectable)
       don't forget pagination
-    return list of all friends
-    Add friend add, delete
-      add to returned info
-    Make sure experiences by consumption is in full experience format (intersectable)
-    Add paging to consumption by experience
 
   Experiences
     Make sure experiences return is intersectable
