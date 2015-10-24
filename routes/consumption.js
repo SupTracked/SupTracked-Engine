@@ -195,6 +195,9 @@ router.post('/', function(req, res, next) {
  * @apiSuccess {Number} drug_id  ID of the drug consumed
  * @apiSuccess {Number} method_id  ID of the method used to consume the drug
  * @apiSuccess {String} location  location of the consumption
+ * @apiSuccess {Object[]} friends  array of JSON objects for friends associated with this consumption.
+ *  @apiSuccess {Number}   friends.id   ID of friend
+ *  @apiSuccess {String}   friends.name  name of friend
  * @apiSuccess {Number} owner  id of the owner of the consumption
  *
  * @apiSuccessExample Success-Response:
@@ -206,7 +209,11 @@ router.post('/', function(req, res, next) {
  *        "experience_id": "1",
  *        "drug_id": 4,
  *        "method_id": 1,
- *        "location": "San Juan"
+ *        "location": "San Juan",
+ *        "friends": [
+ *            {"name": "John Smith", "id": 321},
+ *            {"name": "Frank Johnson", "id": 964}
+ *         ],
  *        "owner": 1
  *     }
  *
@@ -246,6 +253,7 @@ router.get('/', function(req, res, next) {
       return;
     }
 
+
     // no consumptions returned; nothing for that ID
     if (consumption.length === 0) {
       res.setHeader('Content-Type', 'application/json');
@@ -253,9 +261,37 @@ router.get('/', function(req, res, next) {
       return;
     }
 
-    // return the experience
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(consumption[0]));
+
+    // we have a consumption; let's parse the friends into it
+    db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err, friends) {
+      if (err) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          consumption: err
+        }));
+        return;
+      }
+
+      // default is empty Friends
+      consumption[0].friends = [];
+
+      // we have friends for this consumption
+      if (friends.length > 0) {
+        friends.forEach(function(friend) {
+          consumption[0].friends.push({
+            "name": friend.name,
+            "id": friend.id
+          });
+        });
+      }
+
+      // return the consumptionn
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).send(JSON.stringify(consumption[0]));
+    });
   });
 });
 
@@ -642,6 +678,50 @@ router.post('/friend', function(req, res, next) {
       });
   });
 });
+
+/**
+ * @api {get} /friend Get a unique list of friends by name
+ * @apiName GetFriendList
+ * @apiGroup Consumption
+ *
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number}   friendcount number of unique friends
+ * @apiSuccess {Object[]} friends json array of friends.
+ * @apiSuccess {Object[]} friends.friend  JSON array for individual friend
+ * @apiSuccess {Number}   friends.friend.id  friend's id.
+ * @apiSuccess {String}   friends.friend.name  friend's name.
+ * @apiSuccess {Number}   friends.friend.consumption_id  consumption ID association for friend
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     friends: [
+ *        {"id": 1, "consumption_id": 7", "name": "John Smith"}
+ *        {"id": 2, "consumption_id": 4", "name": "Micahel Johnson"}
+ *     ]
+ *
+ */
+router.get('/friend', function(req, res, next) {
+  // get friends
+  db.all("SELECT * from friends WHERE owner = $owner GROUP BY name", {
+    $owner: req.supID
+  }, function(err, friends) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        consumption: err
+      }));
+      return;
+    }
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(JSON.stringify({
+      friendcount: friends.length,
+      friends: friends
+    }));
+  });
+});
+
 
 /**
  * @api {delete} /consumption/friend Delete a friend from a consumption

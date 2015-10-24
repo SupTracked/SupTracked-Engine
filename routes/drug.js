@@ -140,7 +140,7 @@ router.get('/', function(req, res, next) {
     }
 
     // no drugs returned; nothing for that ID
-    if (drugs.length === 0) {
+    if (drug.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -285,7 +285,7 @@ router.delete('/', function(req, res, next) {
   }
 
   // get the entry
-  db.get("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
   }, function(err, drug) {
