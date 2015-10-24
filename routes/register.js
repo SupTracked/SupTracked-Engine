@@ -44,10 +44,10 @@ router.post('/', function(req, res, next) {
   }
 
   // validation passed; see if they already exist
-  db.get("SELECT * FROM users where username = $username", {
+  db.all("SELECT * FROM users where username = $username", {
     $username: req.body.username
-  }, function(err, rows) {
-    if (rows === undefined) {
+  }, function(err, users) {
+    if (users.length === 0) {
       // add the user
       bcrypt.genSalt(10, function(err, salt) {
         bcrypt.hash(req.body.password, salt, function(err, hash) {

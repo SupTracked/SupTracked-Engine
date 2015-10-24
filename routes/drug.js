@@ -127,10 +127,10 @@ router.get('/', function(req, res, next) {
   }
 
   // get the entry
-  db.get("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, row) {
+  }, function(err, drug) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -139,8 +139,8 @@ router.get('/', function(req, res, next) {
       return;
     }
 
-    // no rows returned; nothing for that ID
-    if (row === undefined) {
+    // no drugs returned; nothing for that ID
+    if (drugs.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -148,7 +148,7 @@ router.get('/', function(req, res, next) {
 
     // return the drug
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(row));
+    res.status(200).send(JSON.stringify(drug[0]));
   });
 });
 
@@ -288,7 +288,7 @@ router.delete('/', function(req, res, next) {
   db.get("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, row) {
+  }, function(err, drug) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -297,8 +297,8 @@ router.delete('/', function(req, res, next) {
       return;
     }
 
-    // no rows returned; nothing for that ID
-    if (row === undefined) {
+    // no drugs returned; nothing for that ID
+    if (drug.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -308,7 +308,7 @@ router.delete('/', function(req, res, next) {
     db.all("SELECT * FROM consumptions WHERE drug_id = $id AND owner = $owner", {
       $id: req.body.id,
       $owner: req.supID
-    }, function(err, rows) {
+    }, function(err, consumption) {
       if (err) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
@@ -317,11 +317,11 @@ router.delete('/', function(req, res, next) {
         return;
       }
 
-      if(rows.length > 0){
+      if(consumption.length > 0){
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
           drug: "drug in use",
-          consumptions: rows
+          consumptions: consumption
         }));
         return;
       }
@@ -330,7 +330,7 @@ router.delete('/', function(req, res, next) {
       db.run("DELETE FROM drugs WHERE id = $id AND owner = $owner", {
         $id: req.body.id,
         $owner: req.supID
-      }, function(err, row) {
+      }, function(err) {
         if (err) {
           res.setHeader('Content-Type', 'application/json');
           res.status(400).send(JSON.stringify({
@@ -341,7 +341,7 @@ router.delete('/', function(req, res, next) {
 
         // deleted the drug
         res.setHeader('Content-Type', 'application/json');
-        res.status(200).send(JSON.stringify(row));
+        res.status(200).send();
       });
     });
   });

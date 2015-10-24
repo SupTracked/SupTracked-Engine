@@ -32,7 +32,7 @@ router.get('/', function(req, res, next) {
   var currentTime = new Date();
   var upTime = currentTime - startTime;
   var stmt = "SELECT count(*) as count FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence'";
-  db.get(stmt, function(err, row) {
+  db.get(stmt, function(err, tableCountRow) {
     if(err){
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({status: err}));
@@ -47,7 +47,7 @@ router.get('/', function(req, res, next) {
       database: {
         file: db.filename,
         online: db.open,
-        tables: row.count
+        tables: tableCountRow.count
       }
     }));
   });
@@ -90,7 +90,7 @@ router.get('/up', function(req, res, next) {
  */
 router.get('/db', function(req, res, next) {
   var stmt = "SELECT count(*) as count FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence'";
-  db.each(stmt, function(err, row) {
+  db.each(stmt, function(err, tableCountRow) {
     if(err){
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({status: err}));
@@ -100,7 +100,7 @@ router.get('/db', function(req, res, next) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({
       online: db.open,
-      tables: row.count
+      tables: tableCountRow.count
     }));
   });
 });

@@ -108,10 +108,10 @@ router.get('/', function(req, res, next) {
   }
 
   // get the entry
-  db.get("SELECT * FROM methods WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM methods WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, row) {
+  }, function(err, method) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -120,8 +120,8 @@ router.get('/', function(req, res, next) {
       return;
     }
 
-    // no rows returned; nothing for that ID
-    if (row === undefined) {
+    // no methods returned; nothing for that ID
+    if (method.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -129,7 +129,7 @@ router.get('/', function(req, res, next) {
 
     // return the method
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(row));
+    res.status(200).send(JSON.stringify(method[0]));
   });
 });
 
@@ -262,10 +262,10 @@ router.delete('/', function(req, res, next) {
   }
 
   // get the entry
-  db.get("SELECT * FROM methods WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM methods WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, row) {
+  }, function(err, method) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
@@ -274,8 +274,8 @@ router.delete('/', function(req, res, next) {
       return;
     }
 
-    // no rows returned; nothing for that ID
-    if (row === undefined) {
+    // no methods returned; nothing for that ID
+    if (method.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
@@ -285,7 +285,7 @@ router.delete('/', function(req, res, next) {
     db.all("SELECT * FROM consumptions WHERE method_id = $id AND owner = $owner", {
       $id: req.body.id,
       $owner: req.supID
-    }, function(err, rows) {
+    }, function(err, consumptions) {
       if (err) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
@@ -294,32 +294,32 @@ router.delete('/', function(req, res, next) {
         return;
       }
 
-      if(rows.length > 0){
+      if (consumptions.length > 0) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
           method: "method in use",
-          consumptions: rows
+          consumptions: consumptions
         }));
         return;
       }
 
-    db.run("DELETE FROM methods WHERE id = $id AND owner = $owner", {
-      $id: req.body.id,
-      $owner: req.supID
-    }, function(err, row) {
-      if (err) {
+      db.run("DELETE FROM methods WHERE id = $id AND owner = $owner", {
+        $id: req.body.id,
+        $owner: req.supID
+      }, function(err) {
+        if (err) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400).send(JSON.stringify({
+            method: err
+          }));
+          return;
+        }
+
+        // deleted the method
         res.setHeader('Content-Type', 'application/json');
-        res.status(400).send(JSON.stringify({
-          method: err
-        }));
-        return;
-      }
-
-      // deleted the method
-      res.setHeader('Content-Type', 'application/json');
-      res.status(200).send(JSON.stringify(row));
+        res.status(200).send();
+      });
     });
-  });
   });
 });
 

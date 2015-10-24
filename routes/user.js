@@ -25,15 +25,15 @@ var bcrypt = require('bcrypt');
  *
  */
 router.get('/', function(req, res, next) {
-  db.get("SELECT * FROM users where id = $id", {
+  db.all("SELECT * FROM users where id = $id", {
     $id: req.supID
-  }, function(err, row) {
+  }, function(err, user) {
     res.setHeader('Content-Type', 'application/json');
     res.status(200).send(JSON.stringify({
       username: req.supUser,
-      emergcontact: row.emergcontact,
-      phone: row.phone,
-      admin: row.admin
+      emergcontact: user[0].emergcontact,
+      phone: user[0].phone,
+      admin: user[0].admin
     }));
   });
 });
