@@ -228,6 +228,7 @@ describe('consumption', function() {
                 '"rarity": "Common"' +
                 '}')
               .end(function() {
+                // make a method
                 request(server)
                   .post('/method')
                   .auth('myusername', 'MyPassword')

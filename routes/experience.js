@@ -227,9 +227,23 @@ router.delete('/', function(req, res, next) {
         return;
       }
 
-      // deleted the experience
-      res.setHeader('Content-Type', 'application/json');
-      res.status(200).send(JSON.stringify(row));
+      // delete the consumptions too
+      db.run("DELETE FROM consumptions WHERE experience_id = $id AND owner = $owner", {
+        $id: req.body.id,
+        $owner: req.supID
+      }, function(err, row) {
+        if (err) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400).send(JSON.stringify({
+            experience: err
+          }));
+          return;
+        }
+
+        // deleted the experience
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).send(JSON.stringify(row));
+      });
     });
   });
 });
