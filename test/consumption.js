@@ -253,12 +253,19 @@ describe('consumption', function() {
                           .expect(200, {
                             id: 1,
                             date: '1445648036',
-                            experience_id: 1,
                             count: 2,
-                            drug_id: 1,
-                            method_id: 1,
-                            friends: [],
+                            experience_id: 1,
+                            drug: {
+                              id: 1,
+                              name: 'Oral',
+                              unit: 'mg'
+                            },
+                            method: {
+                              id: 1,
+                              name: 'mg'
+                            },
                             location: 'San Juan',
+                            friends: [],
                             owner: 1
                           }, done);
                       });
@@ -478,15 +485,22 @@ describe('consumption', function() {
                               .set('Content-Type', 'application/json')
                               .send('{"id": 1}')
                               .expect(200, {
-                                "count": 17,
-                                "date": "1445648036",
-                                "drug_id": 1,
-                                "experience_id": 1,
-                                "id": 1,
-                                "method_id": 1,
-                                "friends": [],
-                                "location": "San Juan",
-                                "owner": 1
+                                id: 1,
+                                date: '1445648036',
+                                count: 17,
+                                experience_id: 1,
+                                drug: {
+                                  id: 1,
+                                  name: 'Oral',
+                                  unit: 'mg'
+                                },
+                                method: {
+                                  id: 1,
+                                  name: 'mg'
+                                },
+                                location: 'San Juan',
+                                friends: [],
+                                owner: 1
                               }, done);
                           });
                       });
@@ -735,91 +749,6 @@ describe('consumption', function() {
                       .set('Content-Type', 'application/json')
                       .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                       .end(function() {
-                        // add second consumption
-                        request(server)
-                          .post('/consumption')
-                          .auth('myusername', 'MyPassword')
-                          .set('Content-Type', 'application/json')
-                          .send('{"count": 1, "experience_id": 1, "date": 1445648096, "location": "San Juan", "drug_id": 1, "method_id": 1}')
-                          .end(function() {
-                            request(server)
-                              .get('/consumption/experience')
-                              .auth('myusername', 'MyPassword')
-                              .set('Content-Type', 'application/json')
-                              .send('{"id": 1}')
-                              .expect(200, {
-                                "consumptions": [{
-                                  "count": 2,
-                                  "date": "1445648036",
-                                  "drug_id": 1,
-                                  "experience_id": 1,
-                                  "id": 1,
-                                  "method_id": 1,
-                                  "friends": [],
-                                  "location": "San Juan",
-                                  "owner": 1,
-                                }, {
-                                  "count": 1,
-                                  "date": "1445648096",
-                                  "drug_id": 1,
-                                  "experience_id": 1,
-                                  "id": 2,
-                                  "method_id": 1,
-                                  "friends": [],
-                                  "location": "San Juan",
-                                  "owner": 1
-                                }]
-                              }, done);
-                          });
-                      });
-                  });
-              });
-          });
-      });
-  });
-
-  it('returns all consumptions for a given experience with friends on consumption', function testConsumptionByExperienceWithFriends(done) {
-    request(server)
-      .post('/register')
-      .set('Content-Type', 'application/json')
-      .send('{"username": "myusername", "password": "MyPassword"}')
-      .end(function() {
-        // make an experience
-        request(server)
-          .post('/experience')
-          .auth('myusername', 'MyPassword')
-          .set('Content-Type', 'application/json')
-          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
-          .end(function() {
-            // make a drug
-            request(server)
-              .post('/drug')
-              .auth('myusername', 'MyPassword')
-              .set('Content-Type', 'application/json')
-              .send('{"name": "Phenylpiracetam",' +
-                '"unit": "mg",' +
-                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
-                '"classification": "AMPA modulator",' +
-                '"family": "*racetam",' +
-                '"rarity": "Common"' +
-                '}')
-              .end(function() {
-                // add a method
-                request(server)
-                  .post('/method')
-                  .auth('myusername', 'MyPassword')
-                  .set('Content-Type', 'application/json')
-                  .send('{"name": "Oral",' +
-                    '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
-                    '}')
-                  .end(function() {
-                    // add consumption
-                    request(server)
-                      .post('/consumption')
-                      .auth('myusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
-                      .end(function() {
                         // add friends
                         request(server)
                           .post('/consumption/friend')
@@ -836,7 +765,11 @@ describe('consumption', function() {
                                 "consumptions": [{
                                   "count": 2,
                                   "date": "1445648036",
-                                  "drug_id": 1,
+                                  "drug": {
+                                    "id": 1,
+                                    "name": "Oral",
+                                    "unit": "mg",
+                                  },
                                   "experience_id": 1,
                                   "friends": [{
                                     "id": 1,
@@ -844,7 +777,10 @@ describe('consumption', function() {
                                   }],
                                   "id": 1,
                                   "location": "San Juan",
-                                  "method_id": 1,
+                                  "method": {
+                                    "id": 1,
+                                    "name": "mg"
+                                  },
                                   "owner": 1
                                 }]
                               }, done);
@@ -1015,20 +951,29 @@ describe('consumption', function() {
                               .auth('myusername', 'MyPassword')
                               .set('Content-Type', 'application/json')
                               .send('{"id": 1}')
-                              .expect(200, {
-                                "count": 2,
-                                "date": "1445648036",
-                                "drug_id": 1,
-                                "experience_id": 1,
-                                "friends": [{
-                                  "id": 1,
-                                  "name": "John Smith"
-                                }],
-                                "id": 1,
-                                "location": "San Juan",
-                                "method_id": 1,
-                                "owner": 1
-                              }, done);
+                              .expect(200,
+
+                                {
+                                  id: 1,
+                                  date: '1445648036',
+                                  count: 2,
+                                  experience_id: 1,
+                                  drug: {
+                                    id: 1,
+                                    name: 'Oral',
+                                    unit: 'mg'
+                                  },
+                                  method: {
+                                    id: 1,
+                                    name: 'mg'
+                                  },
+                                  location: 'San Juan',
+                                  friends: [{
+                                    "id": 1,
+                                    "name": "John Smith"
+                                  }],
+                                  owner: 1
+                                }, done);
                           });
                       });
                   });
@@ -1162,15 +1107,22 @@ describe('consumption', function() {
                                   .set('Content-Type', 'application/json')
                                   .send('{"id": 1}')
                                   .expect(200, {
-                                    "count": 2,
-                                    "date": "1445648036",
-                                    "drug_id": 1,
-                                    "experience_id": 1,
-                                    "friends": [],
-                                    "id": 1,
-                                    "location": "San Juan",
-                                    "method_id": 1,
-                                    "owner": 1
+                                    id: 1,
+                                    date: '1445648036',
+                                    count: 2,
+                                    experience_id: 1,
+                                    drug: {
+                                      id: 1,
+                                      name: 'Oral',
+                                      unit: 'mg'
+                                    },
+                                    method: {
+                                      id: 1,
+                                      name: 'mg'
+                                    },
+                                    location: 'San Juan',
+                                    friends: [],
+                                    owner: 1
                                   }, done);
                               });
                           });
