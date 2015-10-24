@@ -255,6 +255,84 @@ router.get('/', function(req, res, next) {
 });
 
 /**
+ * @api {get} /consumption/experience Get a JSON object of all consumptions from a given experience
+ * @apiName GetConsumptionsByExp
+ * @apiGroup Consumption
+ *
+ * @apiParam {Number} id  id of the desired experience's consumptions
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number} id  id of the experience
+ * @apiSuccess {Number} date  Unix timestamp of the date and time of the consumption
+ * @apiSuccess {Number} count  numerical quantity as measured by the drug's unit
+ * @apiSuccess {Number} experience_id  ID of the experience the consumption is part of
+ * @apiSuccess {Number} drug_id  ID of the drug consumed
+ * @apiSuccess {Number} method_id  ID of the method used to consume the drug
+ * @apiSuccess {Number} owner  id of the owner of the consumption
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *        "id": 3,
+ *        "date": 1445543583,
+ *        "count": 3,
+ *        "experience_id": "1",
+ *        "drug_id": 4,
+ *        "method_id": 1,
+ *        "owner": 1
+ *     }
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "consumption": "experience id must be provided"
+ *     }
+ *
+ * @apiError noRecords no consumptions found for the given experience
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ */
+router.get('/experience', function(req, res, next) {
+  // not enough fields were provided
+  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      consumption: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.all("SELECT * FROM consumptions WHERE experience_id = $id AND owner = $owner", {
+    $id: req.body.id,
+    $owner: req.supID
+  }, function(err, rows) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        consumption: err
+      }));
+      return;
+    }
+
+    // no rows returned; nothing for that ID
+    if (rows === undefined) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    // return the experience
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(JSON.stringify({consumptions: rows}));
+  });
+});
+
+/**
  * @api {put} /consumption Update a consumption
  * @apiName UpdateConsumption
  * @apiGroup Consumption
