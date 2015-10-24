@@ -495,7 +495,7 @@ router.get('/experience', function(req, res, next) {
         // shove it in our big object
         allConsumptions.consumptions.push(compiledConsumption);
 
-        // if we've run through all consumptions, return the consumptionn
+        // if we've run through all consumptions, return the consumption
         if (index == consumptions.length - 1) {
           res.setHeader('Content-Type', 'application/json');
           res.status(200).send(allConsumptions);
