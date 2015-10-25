@@ -584,7 +584,6 @@ router.get('/search', function(req, res, next) {
 
     // get date range
     if ("startdate" in req.body && "enddate" in req.body) {
-      // we have date parameters
       query += " AND date BETWEEN $startdate AND $enddate";
       queryData.$startdate = req.body.startdate;
       queryData.$enddate = req.body.enddate;
@@ -592,21 +591,18 @@ router.get('/search', function(req, res, next) {
 
     // get rating
     if ("rating_id" in req.body) {
-      // we have date parameters
       query += " AND rating_id = $rating_id";
       queryData.$rating_id = req.body.rating_id;
     }
 
     // get notes
     if ("notes" in req.body) {
-      // we have date parameters
       query += " AND notes LIKE '%' || $notes || '%'";
       queryData.$notes = req.body.notes;
     }
 
     // get title
     if ("title" in req.body) {
-      // we have date parameters
       query += " AND title LIKE '%' || $title || '%'";
       queryData.$title = req.body.title;
     }
