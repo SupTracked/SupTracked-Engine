@@ -505,7 +505,7 @@ router.put('/', function(req, res, next) {
  *    @apiSuccess {Number}   experiences.consumptions.friends.id   ID of friend
  *    @apiSuccess {String}   experiences.consumptions.friends.name  name of friend
  *   @apiSuccess {Number} experiences.consumptions.owner  id of the owner of the consumption
-
+ *
  * @apiParam {Number} [startdate]  Unix timestamp of beginning of date range to select
  * @apiParam {Number} [enddate]  Unix timestamp of end of date range to select
  * @apiParam {String} [title]  experiences where this string is contained in the title will be retrieved
