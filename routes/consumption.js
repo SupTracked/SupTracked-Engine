@@ -885,4 +885,309 @@ router.delete('/friend', function(req, res, next) {
   });
 });
 
+/**
+ * @api {get} /consumption/search Retrieve an array of experiences with consumptions that match the provided criteria
+ * @apiName SearchConsumption
+ * @apiGroup Consumption
+ *
+ * @apiSuccess {Object[]} experiences  JSON array of full experiences
+ *  @apiSuccess {Number} experiences.id  id of the experience
+ *  @apiSuccess {Number} experiences.date  date of the experience
+ *  @apiSuccess {Number} experiences.ttime  id of the consumption for which T-0:00 time format is based off
+ *  @apiSuccess {String} experiences.title  title of the experience
+ *  @apiSuccess {String} experiences.notes  notes for the experience
+ *  @apiSuccess {String} experiences.panicmsg  user's panic message for the created experience
+ *  @apiSuccess {Number} experiences.rating_id  rating of general experience quality
+ *  @apiSuccess {Number} experiences.owner  id of the owner of the experience
+ *  @apiSuccess {Object[]} experiences.consumptions  array of consumptions for the experience
+ *   @apiSuccess {Number} experiences.consumptions.id  id of the consumption
+ *   @apiSuccess {Number} experiences.consumptions.date  Unix timestamp of the date and time of the consumption
+ *   @apiSuccess {Number} experiences.consumptions.count  numerical quantity as measured by the drug's unit
+ *   @apiSuccess {Number} experiences.consumptions.experience_id  ID of the experience the consumption is part of
+ *   @apiSuccess {Object[]} experiences.consumptions.drug  JSON object of drug
+ *    @apiSuccess {Number}   experiences.consumptions.drug.id   ID of friend
+ *    @apiSuccess {String}   experiences.consumptions.drug.name  name of drug
+ *    @apiSuccess {String}   experiences.consumptions.drug.unit  unit of drug
+ *   @apiSuccess {Object[]} experiences.consumptions.method  JSON object of method
+ *    @apiSuccess {Number}   experiences.consumptions.method.id   ID of method
+ *    @apiSuccess {String}   experiences.consumptions.method.name  name of method
+ *   @apiSuccess {String} experiences.consumptions.location  location of the consumption
+ *   @apiSuccess {Object[]} experiences.consumptions.friends  array of JSON objects for friends associated with this consumption.
+ *    @apiSuccess {Number}   experiences.consumptions.friends.id   ID of friend
+ *    @apiSuccess {String}   experiences.consumptions.friends.name  name of friend
+ *   @apiSuccess {Number} experiences.consumptions.owner  id of the owner of the consumption
+ *
+ * @apiParam {Number} [startdate]  Unix timestamp of beginning of date range to select
+ * @apiParam {Number} [enddate]  Unix timestamp of end of date range to select
+ * @apiParam {Number[]} [drug_id]  array of drug ids to search for
+ * @apiParam {Number[]} [method_id]  array of method ids to search for
+ * @apiParam {String} [location]  string that must be contained in the location field
+ * @apiParam {String} [friends]  string that must be contained in the name of associated friends
+ * @apiParam {Number} [limit]  only return this number of rows
+ * @apiParam {Number} [offset]  offset the returned number of rows by this amount (requires limit)
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *       "date": 1445543583,
+ *       "id": 1,
+ *       "notes": null,
+ *       "owner": 1,
+ *       "panicmsg": null,
+ *       "rating_id": null,
+ *       "title": "My Title",
+ *       "ttime": null,
+ *       "consumptions": [{
+ *         "id": 1,
+ *         "date": "1445648036",
+ *         "count": 2,
+ *         "experience_id": 1,
+ *         "drug": {
+ *           "id": 1,
+ *           "name": "Oral",
+ *           "unit": "mg"
+ *         },
+ *         "method": {
+ *           "id": 1,
+ *           "name": "mg"
+ *         },
+ *         "location": "San Juan",
+ *         "friends": [{
+ *           "id": 1,
+ *           "name": "John Smith"
+ *         }],
+ *         "owner": 1
+ *       }]
+ *     }]
+ *
+ * @apiError noResults no experiences match the provided criteris
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found Bad Request
+ *
+ */
+router.get('/search', function(req, res, next) {
+  // get our limits and offset
+  var limitOffset = "";
+
+  // start assembling the query
+  var queryData = {};
+  var query = "";
+  var searchCriteria = [];
+  var limitCriteria = "";
+
+  if (req.body !== undefined) {
+    if ("limit" in req.body) {
+      if (parseInt(req.body.limit)) {
+        // we have a parseable int
+        limitOffset += " LIMIT " + parseInt(req.body.limit);
+      }
+    }
+
+    if ("offset" in req.body) {
+      if (parseInt(req.body.offset)) {
+        // we have a parseable int
+        limitOffset += "," + parseInt(req.body.offset);
+      }
+    }
+
+    // get date range
+    if ("startdate" in req.body && "enddate" in req.body) {
+      searchCriteria.push("date BETWEEN $startdate AND $enddate");
+      queryData.$startdate = req.body.startdate;
+      queryData.$enddate = req.body.enddate;
+    }
+
+    // get location
+    if ("location" in req.body) {
+      searchCriteria.push("location LIKE '%' || $location || '%'");
+      queryData.$location = req.body.location;
+    }
+
+    // get friends
+    if ("friends" in req.body) {
+      searchCriteria.push("name LIKE '%' || $friends || '%'");
+      queryData.$friends = req.body.friends;
+    }
+  }
+
+  // slap the limit and offset
+  query = "SELECT * FROM consumptions C LEFT JOIN friends F ON C.id = F.consumption_id";
+
+  query += " WHERE ";
+
+  if (searchCriteria.length > 0) {
+    // we know we have search criteria; add it
+    query += searchCriteria.join(" AND ");
+    query += " AND owner = $owner";
+    queryData.$owner = req.supID;
+  } else {
+    query += " owner = $owner";
+    queryData.$owner = req.supID;
+  }
+
+  query += " ORDER BY date desc";
+  query += limitOffset;
+
+  // get the consumptions
+  db.all(query, queryData, function(err, experiences) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        consumption: err
+      }));
+      return;
+    }
+
+    // no consumptions returned
+    if (consumption.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    // get a list of experience ID's we care about
+    var experienceIDs = experiences.map(function(consumption) {
+      return consumption.experience_id;
+    });
+
+    // get all our experiences
+    db.all("SELECT * FROM experiences WHERE experience_id IN (" + experienceIDs.join() + ") ORDER BY date DESC",
+      function(err, experiences) {
+        if (err) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400).send(JSON.stringify({
+            experience: err
+          }));
+          return;
+        }
+
+        var allExperiences = [];
+
+        experiences.forEach(function(singleExperience, experienceIndex) {
+          // get consumptions for each experience
+          db.all("SELECT * FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND C.owner = $owner ORDER BY date DESC", {
+            $id: singleExperience.id,
+            $owner: req.supID
+          }, function(err, consumptions) {
+            if (err) {
+              res.setHeader('Content-Type', 'application/json');
+              res.status(400).send(JSON.stringify({
+                experience: err
+              }));
+              return;
+            }
+
+            // no consumptions returned; push the experience with no consumptions
+            if (consumptions.length === 0) {
+              singleExperience.consumptions = [];
+              allExperiences.push(singleExperience);
+
+              // if we've covered all the experiences, fire it off
+              if (experienceIndex == experiences.length - 1) {
+                // bombs away
+                res.setHeader('Content-Type', 'application/json');
+                res.status(200).send(allExperiences);
+              } else {
+                // we're not done; just return so we can keep processing experiences
+                return;
+              }
+            }
+
+            // layout where each consumption will go
+            var allConsumptions = [];
+
+            consumptions.forEach(function(consumption, index) {
+              // set up the drug array
+              var drugData = {};
+              //only load if we have drugs in this con (though that should never happen)
+              if (consumption.drug_id !== undefined) {
+                drugData.id = consumption.drug_id;
+                drugData.name = consumption.name;
+                drugData.unit = consumption.unit;
+              }
+
+              // set up the method array
+              var methodData = {};
+              //only load if we have methods in this con (though that should never happen)
+              if (consumption.method_id !== undefined) {
+                methodData.id = consumption.method_id;
+                methodData.name = consumption.unit;
+              }
+
+              // we have a consumption; let's parse the friends into it
+              db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
+                $id: consumption.id,
+                $owner: req.supID
+              }, function(err, friends) {
+                if (err) {
+                  res.setHeader('Content-Type', 'application/json');
+                  res.status(400).send(JSON.stringify({
+                    experience: err
+                  }));
+                  return;
+                }
+
+                // default is empty Friends
+                var friendsData = [];
+
+                // we have friends for this consumption
+                if (friends.length > 0) {
+                  friends.forEach(function(friend) {
+                    friendsData.push({
+                      "name": friend.name,
+                      "id": friend.id
+                    });
+                  });
+                }
+
+                // assemble our consumption
+                var compiledConsumption = {
+                  id: consumption.id,
+                  date: consumption.date,
+                  count: consumption.count,
+                  experience_id: consumption.experience_id,
+                  drug: drugData,
+                  method: methodData,
+                  location: consumption.location,
+                  friends: friendsData,
+                  owner: req.supID
+                };
+
+                // shove it in our big object
+                allConsumptions.push(compiledConsumption);
+
+                // if we've run through all consumptions, load the experience data
+                if (index == consumptions.length - 1) {
+                  var fullExperience = {
+                    date: singleExperience.date,
+                    id: singleExperience.id,
+                    notes: singleExperience.notes,
+                    owner: singleExperience.owner,
+                    panicmsg: singleExperience.panicmsg,
+                    rating_id: singleExperience.rating_id,
+                    title: singleExperience.title,
+                    ttime: singleExperience.ttime,
+                    consumptions: allConsumptions
+                  };
+
+                  allExperiences.push(fullExperience);
+
+                  // we've done all the experiences
+                  if (experienceIndex == experiences.length - 1) {
+                    // bombs away
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(200).send(allExperiences);
+                  }
+                }
+              });
+            });
+          });
+        });
+      });
+  });
+});
+
 module.exports = router;
