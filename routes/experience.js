@@ -479,6 +479,33 @@ router.put('/', function(req, res, next) {
  * @apiName SearchExperience
  * @apiGroup Experience
  *
+ * @apiSuccess {Object[]} experiences  JSON array of full experiences
+ *  @apiSuccess {Number} experiences.id  id of the experience
+ *  @apiSuccess {Number} experiences.date  date of the experience
+ *  @apiSuccess {Number} experiences.ttime  id of the consumption for which T-0:00 time format is based off
+ *  @apiSuccess {String} experiences.title  title of the experience
+ *  @apiSuccess {String} experiences.notes  notes for the experience
+ *  @apiSuccess {String} experiences.panicmsg  user's panic message for the created experience
+ *  @apiSuccess {Number} experiences.rating_id  rating of general experience quality
+ *  @apiSuccess {Number} experiences.owner  id of the owner of the experience
+ *  @apiSuccess {Object[]} experiences.consumptions  array of consumptions for the experience
+ *   @apiSuccess {Number} experiences.consumptions.id  id of the consumption
+ *   @apiSuccess {Number} experiences.consumptions.date  Unix timestamp of the date and time of the consumption
+ *   @apiSuccess {Number} experiences.consumptions.count  numerical quantity as measured by the drug's unit
+ *   @apiSuccess {Number} experiences.consumptions.experience_id  ID of the experience the consumption is part of
+ *   @apiSuccess {Object[]} experiences.consumptions.drug  JSON object of drug
+ *    @apiSuccess {Number}   experiences.consumptions.drug.id   ID of friend
+ *    @apiSuccess {String}   experiences.consumptions.drug.name  name of drug
+ *    @apiSuccess {String}   experiences.consumptions.drug.unit  unit of drug
+ *   @apiSuccess {Object[]} experiences.consumptions.method  JSON object of method
+ *    @apiSuccess {Number}   experiences.consumptions.method.id   ID of method
+ *    @apiSuccess {String}   experiences.consumptions.method.name  name of method
+ *   @apiSuccess {String} experiences.consumptions.location  location of the consumption
+ *   @apiSuccess {Object[]} experiences.consumptions.friends  array of JSON objects for friends associated with this consumption.
+ *    @apiSuccess {Number}   experiences.consumptions.friends.id   ID of friend
+ *    @apiSuccess {String}   experiences.consumptions.friends.name  name of friend
+ *   @apiSuccess {Number} experiences.consumptions.owner  id of the owner of the consumption
+
  * @apiParam {Number} [startdate]  Unix timestamp of beginning of date range to select
  * @apiParam {Number} [enddate]  Unix timestamp of end of date range to select
  * @apiParam {String} [title]  experiences where this string is contained in the title will be retrieved
@@ -641,7 +668,7 @@ router.get('/search', function(req, res, next) {
 
               // default is empty Friends
               var friendsData = [];
-              
+
               // we have friends for this consumption
               if (friends.length > 0) {
                 friends.forEach(function(friend) {
