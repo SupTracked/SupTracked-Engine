@@ -3,9 +3,7 @@ TODO
   Consumptions
     add consumption search
       returns full experience format  (intersectable)
-      don't forget pagination
-      order by date
-
+      pagination
   Media
     Add media with file and metadata
     Remove media
@@ -14,12 +12,3 @@ TODO
 
   General Tasks/looking ahead
     Build full experience search mockup to intersect experience search criteria and consumption search criteria
-
-
-
-Definitions
-    Intersectable format
-    Experience
-    Consumptions
-      All with field including pretty names (e.g. for drug as object with both drug_id and drug name, for example)
-      Friends for each with id and name
