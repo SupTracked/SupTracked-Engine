@@ -343,8 +343,101 @@ describe('experience', function() {
                 notes: null,
                 panicmsg: null,
                 rating_id: null,
-                owner: 1
+                owner: 1,
+                consumptions: []
               }], done);
+          });
+      });
+  });
+
+  it('returns full search results', function testExperienceFullSearch(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        // make an experience
+        request(server)
+          .post('/experience')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
+          .end(function() {
+            // make a drug
+            request(server)
+              .post('/drug')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"name": "Phenylpiracetam",' +
+                '"unit": "mg",' +
+                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
+                '"classification": "AMPA modulator",' +
+                '"family": "*racetam",' +
+                '"rarity": "Common"' +
+                '}')
+              .end(function() {
+                // make a method
+                request(server)
+                  .post('/method')
+                  .auth('myusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"name": "Oral",' +
+                    '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
+                    '}')
+                  .end(function() {
+                    // add consumption
+                    request(server)
+                      .post('/consumption')
+                      .auth('myusername', 'MyPassword')
+                      .set('Content-Type', 'application/json')
+                      .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
+                      .end(function() {
+                        // add a friend
+                        request(server)
+                          .post('/consumption/friend')
+                          .auth('myusername', 'MyPassword')
+                          .set('Content-Type', 'application/json')
+                          .send('{"consumption_id": 1, "name": "John Smith"}')
+                          .end(function() {
+                            request(server)
+                              .get('/experience/search')
+                              .auth('myusername', 'MyPassword')
+                              .set('Content-Type', 'application/json')
+                              .expect(200, [{
+                                "date": 1445543583,
+                                "id": 1,
+                                "notes": null,
+                                "owner": 1,
+                                "panicmsg": null,
+                                "rating_id": null,
+                                "title": "My Title",
+                                "ttime": null,
+                                "consumptions": [{
+                                  "id": 1,
+                                  "date": "1445648036",
+                                  "count": 2,
+                                  "experience_id": 1,
+                                  "drug": {
+                                    "id": 1,
+                                    "name": "Oral",
+                                    "unit": "mg"
+                                  },
+                                  "method": {
+                                    "id": 1,
+                                    "name": "mg"
+                                  },
+                                  "location": "San Juan",
+                                  "friends": [{
+                                    "id": 1,
+                                    "name": "John Smith"
+                                  }],
+                                  "owner": 1
+                                }]
+                              }], done);
+                          });
+                      });
+                  });
+              });
           });
       });
   });
@@ -382,7 +475,8 @@ describe('experience', function() {
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
-                    owner: 1
+                    owner: 1,
+                    consumptions: []
                   }], done);
               });
           });
@@ -423,7 +517,8 @@ describe('experience', function() {
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
-                    owner: 1
+                    owner: 1,
+                    consumptions: []
                   }], done);
               });
           });
@@ -464,7 +559,8 @@ describe('experience', function() {
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
-                    owner: 1
+                    owner: 1,
+                    consumptions: []
                   }], done);
               });
           });
@@ -512,7 +608,8 @@ describe('experience', function() {
                         notes: "Cool story, bro",
                         panicmsg: null,
                         rating_id: null,
-                        owner: 1
+                        owner: 1,
+                        consumptions: []
                       }], done);
                   });
               });
@@ -561,7 +658,8 @@ describe('experience', function() {
                         notes: null,
                         panicmsg: null,
                         rating_id: 2,
-                        owner: 1
+                        owner: 1,
+                        consumptions: []
                       }], done);
                   });
               });
@@ -603,7 +701,8 @@ describe('experience', function() {
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
-                    owner: 1
+                    owner: 1,
+                    consumptions: []
                   }], done);
               });
           });
