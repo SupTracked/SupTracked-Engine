@@ -6,9 +6,6 @@ TODO
       don't forget pagination
       order by date
 
-  Experiences
-    Make sure experiences search return is intersectable
-
   Media
     Add media with file and metadata
     Remove media
@@ -18,7 +15,6 @@ TODO
   General Tasks/looking ahead
     Make sure everything is sorting by date desc
     Build full experience search mockup to intersect experience search criteria and consumption search criteria
-    convert all instances of rows and row to named
 
 
 
