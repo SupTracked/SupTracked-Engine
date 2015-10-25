@@ -781,6 +781,7 @@ router.post('/friend', function(req, res, next) {
  *    @apiSuccess {Number}   friends.friend.id  friend's id.
  *    @apiSuccess {String}   friends.friend.name  friend's name.
  *    @apiSuccess {Number}   friends.friend.consumption_id  consumption ID association for friend
+ *    @apiSuccess {Number}   friends.friend.owner  ID of the owner for friend
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
