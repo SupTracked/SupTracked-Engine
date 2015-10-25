@@ -550,7 +550,7 @@ router.put('/', function(req, res, next) {
  *       }]
  *     }]
  *
- * @apiError noResults no experiences match the provided criteris
+ * @apiError noResults no experiences match the provided criteria
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not Found Bad Request
