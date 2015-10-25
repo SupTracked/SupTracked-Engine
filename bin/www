@@ -80,6 +80,7 @@ q.fcall(
     ' ' +
     'CREATE TABLE IF NOT EXISTS "friends" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+    'consumption_id INTEGER, ' +
     'name TEXT, ' +
     'owner INTEGER);' +
     ' ' +
