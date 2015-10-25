@@ -1,9 +1,7 @@
 TODO
 
   Consumptions
-    add consumption search
-      returns full experience format  (intersectable)
-      pagination
+    test consumption search
   Media
     Add media with file and metadata
     Remove media
