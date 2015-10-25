@@ -187,8 +187,8 @@ router.get('/', function(req, res, next) {
       return;
     }
 
-    // get the entry
-    db.all("SELECT * FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND c.owner = $owner", {
+    // get the consumptions
+    db.all("SELECT * FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
       $id: req.body.id,
       $owner: req.supID
     }, function(err, consumptions) {
@@ -611,7 +611,8 @@ router.get('/search', function(req, res, next) {
       queryData.$title = req.body.title;
     }
 
-    // slap the limit and offset on the enddate
+    // slap the limit, offset, and sort on the enddate
+    query += " ORDER BY date DESC";
     query += limitOffset;
 
     // get the entries
@@ -635,7 +636,7 @@ router.get('/search', function(req, res, next) {
 
       experiences.forEach(function(singleExperience, experienceIndex) {
         // get consumptions for each experience
-        db.all("SELECT * FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND C.owner = $owner", {
+        db.all("SELECT * FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND C.owner = $owner ORDER BY date DESC", {
           $id: singleExperience.id,
           $owner: req.supID
         }, function(err, consumptions) {
