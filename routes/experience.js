@@ -518,6 +518,37 @@ router.put('/', function(req, res, next) {
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
+ *     [{
+ *       "date": 1445543583,
+ *       "id": 1,
+ *       "notes": null,
+ *       "owner": 1,
+ *       "panicmsg": null,
+ *       "rating_id": null,
+ *       "title": "My Title",
+ *       "ttime": null,
+ *       "consumptions": [{
+ *         "id": 1,
+ *         "date": "1445648036",
+ *         "count": 2,
+ *         "experience_id": 1,
+ *         "drug": {
+ *           "id": 1,
+ *           "name": "Oral",
+ *           "unit": "mg"
+ *         },
+ *         "method": {
+ *           "id": 1,
+ *           "name": "mg"
+ *         },
+ *         "location": "San Juan",
+ *         "friends": [{
+ *           "id": 1,
+ *           "name": "John Smith"
+ *         }],
+ *         "owner": 1
+ *       }]
+ *     }]
  *
  * @apiError noResults no experiences match the provided criteris
  *
