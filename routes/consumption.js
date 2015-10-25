@@ -810,7 +810,6 @@ router.get('/friend', function(req, res, next) {
   });
 });
 
-
 /**
  * @api {delete} /consumption/friend Delete a friend from a consumption
  * @apiName DeleteFriendConsumption
