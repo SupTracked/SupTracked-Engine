@@ -962,21 +962,25 @@ router.delete('/friend', function(req, res, next) {
  *       }]
  *     }]
  *
- * @apiError noResults no experiences match the provided criteris
+ * @apiError noResults no experiences or consumptions match the provided criteria
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not Found Bad Request
  *
+ * @apiError needCriteria no experiences match the provided criteria (at least one must be provided)
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *
  */
 router.get('/search', function(req, res, next) {
-  // get our limits and offset
-  var limitOffset = "";
 
   // start assembling the query
   var queryData = {};
   var query = "";
   var searchCriteria = [];
   var limitCriteria = "";
+  var limitOffset = "";
 
   if (req.body !== undefined) {
     if ("limit" in req.body) {
@@ -1011,6 +1015,13 @@ router.get('/search', function(req, res, next) {
       searchCriteria.push("name LIKE '%' || $friends || '%'");
       queryData.$friends = req.body.friends;
     }
+  } else{
+    // no headers... we need SOMETHING here. use experience search if you don't care
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      consumption: err
+    }));
+    return;
   }
 
   // slap the limit and offset
