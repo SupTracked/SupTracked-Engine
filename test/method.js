@@ -310,4 +310,50 @@ describe('method', function() {
           });
       });
   });
+
+  it('retrieves a unique method list', function testMethodList(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          // make a method
+          .post('/method')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"name": "Oral",' +
+            '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
+            '}')
+          .end(function() {
+            request(server)
+              // make another method
+              .post('/method')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"name": "Bucal",' +
+                '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
+                '}')
+              .end(function() {
+                request(server)
+                  .get('/method/all')
+                  .auth('myusername', 'MyPassword')
+                  .expect(200, {
+                    "methodcount": 2,
+                    "methods": [{
+                      "id": 2,
+                      "name": "Bucal",
+                      "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=",
+                      "owner": 1
+                    }, {
+                      "id": 1,
+                      "name": "Oral",
+                      "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=",
+                      "owner": 1
+                    }]
+                  }, done);
+              });
+          });
+      });
+  });
 });

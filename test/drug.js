@@ -338,4 +338,66 @@ describe('drug', function() {
           });
       });
   });
+
+  it('retrieves unique drug list', function testDrugList(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        // make a drug
+        request(server)
+          .post('/drug')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"name": "Phenylpiracetam",' +
+            '"unit": "mg",' +
+            '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
+            '"classification": "AMPA modulator",' +
+            '"family": "*racetam",' +
+            '"rarity": "Common"' +
+            '}')
+          .end(function() {
+            // make another drug
+            request(server)
+              .post('/drug')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"name": "Ibuprofen",' +
+                '"unit": "mg",' +
+                '"notes": "Ibuprofen is a painkiller",' +
+                '"classification": "COX inhibitor",' +
+                '"family": "NSAID",' +
+                '"rarity": "Common"' +
+                '}')
+              .end(function() {
+                request(server)
+                  .get('/drug/all')
+                  .auth('myusername', 'MyPassword')
+                  .expect(200, {
+                    "drugcount": 2,
+                    "drugs": [{
+                      "id": 2,
+                      "name": "Ibuprofen",
+                      "unit": "mg",
+                      "notes": "Ibuprofen is a painkiller",
+                      "classification": "COX inhibitor",
+                      "family": "NSAID",
+                      "rarity": "Common",
+                      "owner": 1
+                    }, {
+                      "id": 1,
+                      "name": "Phenylpiracetam",
+                      "unit": "mg",
+                      "notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",
+                      "classification": "AMPA modulator",
+                      "family": "*racetam",
+                      "rarity": "Common",
+                      "owner": 1
+                    }]
+                  }, done);
+              });
+          });
+      });
+  });
 });

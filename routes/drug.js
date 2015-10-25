@@ -347,4 +347,52 @@ router.delete('/', function(req, res, next) {
   });
 });
 
+/**
+ * @api {get} /drug/all Get a unique list of all drugs owned by the user
+ * @apiName GetAllDrugs
+ * @apiGroup Drug
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number}   drugcount number of unique drugs
+ * @apiSuccess {Object[]} drugs json array of drugs.
+ *  @apiSuccess {Object[]} drugs.drug  JSON array for individual drug
+ *    @apiSuccess {Number}   drugs.drug.id  drug id.
+ *    @apiSuccess {String}   drugs.drug.name  drug name
+ *    @apiSuccess {String}   drugs.drug.unit  drug name
+ *    @apiSuccess {String}   drugs.drug.notes  drug name
+ *    @apiSuccess {String}   drugs.drug.classification  drug name
+ *    @apiSuccess {String}   drugs.drug.family  drug family
+ *    @apiSuccess {String}   drugs.drug.rarity  drug rarity
+ *    @apiSuccess {Number}   drugs.drug.owner  id of the owner of the drug
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     friends: [
+ *        {"id": 1, "consumption_id": 7", "name": "John Smith"}
+ *        {"id": 2, "consumption_id": 4", "name": "Micahel Johnson"}
+ *     ]
+ *
+ */
+router.get('/all', function(req, res, next) {
+  // get drugs
+  db.all("SELECT * FROM drugs WHERE owner = $owner GROUP BY name", {
+    $owner: req.supID
+  }, function(err, drugs) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        drug: err
+      }));
+      return;
+    }
+
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(JSON.stringify({
+      drugcount: drugs.length,
+      drugs: drugs
+    }));
+  });
+});
+
 module.exports = router;

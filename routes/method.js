@@ -323,4 +323,48 @@ router.delete('/', function(req, res, next) {
   });
 });
 
+/**
+ * @api {get} /method/all Get a unique list of all methods owned by the user
+ * @apiName GetAllMethods
+ * @apiGroup Drug
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number}   methodcount number of unique methods
+ * @apiSuccess {Object[]} methods json array of methods.
+ *  @apiSuccess {Object[]} methods.method  JSON array for individual method
+ *    @apiSuccess {Number}   methods.method.id  method id.
+ *    @apiSuccess {String}   methods.method.name  method name
+ *    @apiSuccess {String}   methods.method.icon  method icon
+ *    @apiSuccess {Number}   methods.method.owner  id of the owner of the method
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     friends: [
+ *        {"id": 1, "consumption_id": 7", "name": "John Smith"}
+ *        {"id": 2, "consumption_id": 4", "name": "Micahel Johnson"}
+ *     ]
+ *
+ */
+router.get('/all', function(req, res, next) {
+  // get drugs
+  db.all("SELECT * FROM methods WHERE owner = $owner GROUP BY name", {
+    $owner: req.supID
+  }, function(err, methods) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        method: err
+      }));
+      return;
+    }
+
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(JSON.stringify({
+      methodcount: methods.length,
+      methods: methods
+    }));
+  });
+});
+
 module.exports = router;
