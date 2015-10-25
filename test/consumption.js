@@ -203,7 +203,7 @@ describe('consumption', function() {
       });
   });
 
-  it('retrieves a valid consumption', function testConsumptionCreation(done) {
+  it('verifies a valid consumption', function testConsumptionCreation(done) {
     request(server)
       .post('/register')
       .set('Content-Type', 'application/json')
