@@ -768,7 +768,7 @@ describe('consumption', function() {
                                   "drug": {
                                     "id": 1,
                                     "name": "Oral",
-                                    "unit": "mg",
+                                    "unit": "mg"
                                   },
                                   "experience_id": 1,
                                   "friends": [{
