@@ -1,10 +1,21 @@
 TODO
 
   Media
-    Add media with file, title, subtitle, tags, date
+    Add media with file, title, subtitle, tags, date, drug or experience association
     Remove media by ID
     Get media by ID
-    Get media by experience
-    Search for media by title, subtitle, tags, date range, limit, offset
+    Search for media by title, subtitle, tags, date range, limit, offset, experience OR drug
 
   twilio endpoints
+    add note
+    images
+      add image
+      rename image
+      tag image
+    consumptions
+      list current
+      set count
+      duplicate to now
+      jump to now
+
+  consider io.js compatible hashing platform
