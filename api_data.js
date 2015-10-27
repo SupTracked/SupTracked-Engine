@@ -1525,90 +1525,13 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n[{\n  location: 'Maine',\n  use_count: 1\n}, {\n  location: 'San Juan',\n  use_count: 1\n}]",
+          "content": "HTTP/1.1 200 OK\n[{\n  \"id\": 2,\n  \"name\": \"Ibuprofen\",\n  \"unit\": \"mg\",\n  \"notes\": \"Ibuprofen is a painkiller\",\n  \"classification\": \"COX inhibitor\",\n  \"family\": \"NSAID\",\n  \"rarity\": \"Common\",\n  \"use_count\": 0,\n  \"owner\": 1\n}, {\n  \"id\": 1,\n  \"name\": \"Phenylpiracetam\",\n  \"unit\": \"mg\",\n  \"notes\": \"Phenylpiracetam is a phenylated analog of the drug piracetam.\",\n  \"classification\": \"AMPA modulator\",\n  \"family\": \"*racetam\",\n  \"rarity\": \"Common\",\n  \"use_count\": 0,\n  \"owner\": 1\n}]",
           "type": "json"
         }
       ]
     },
     "version": "0.0.0",
     "filename": "routes/drug.js",
-    "groupTitle": "Drug"
-  },
-  {
-    "type": "get",
-    "url": "/method/all",
-    "title": "Get a unique list of all methods owned by the user",
-    "name": "GetAllMethods",
-    "group": "Drug",
-    "permission": [
-      {
-        "name": "ValidUserBasicAuthRequired"
-      }
-    ],
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "<p>Object[]</p> ",
-            "optional": false,
-            "field": "methods",
-            "description": "<p>json array of methods.</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>Object[]</p> ",
-            "optional": false,
-            "field": "methods.method",
-            "description": "<p>JSON array for individual method</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>Number</p> ",
-            "optional": false,
-            "field": "methods.method.id",
-            "description": "<p>method id.</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>String</p> ",
-            "optional": false,
-            "field": "methods.method.name",
-            "description": "<p>method name</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>String</p> ",
-            "optional": false,
-            "field": "methods.method.icon",
-            "description": "<p>method icon</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>Number</p> ",
-            "optional": false,
-            "field": "methods.method.use_count",
-            "description": "<p>number of times that the method has been used in consumptions</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>Number</p> ",
-            "optional": false,
-            "field": "methods.method.owner",
-            "description": "<p>id of the owner of the method</p> "
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n[{\n  \"id\": 1,\n  \"name\": \"Oral\",\n  \"icon\": \"data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=\",\n  \"use_count\": 3,\n  \"owner\": 1\n}, {\n  \"id\": 2,\n  \"name\": \"Bucal\",\n  \"icon\": \"data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=\",\n  \"use_count\": 1,\n  \"owner\": 1\n}]",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "routes/method.js",
     "groupTitle": "Drug"
   },
   {
@@ -2873,6 +2796,83 @@ define({ "api": [
         {
           "title": "Error-Response:",
           "content": "HTTP/1.1 404 Not Found",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/method.js",
+    "groupTitle": "Method"
+  },
+  {
+    "type": "get",
+    "url": "/method/all",
+    "title": "Get a unique list of all methods owned by the user",
+    "name": "GetAllMethods",
+    "group": "Method",
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "methods",
+            "description": "<p>json array of methods.</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "methods.method",
+            "description": "<p>JSON array for individual method</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "methods.method.id",
+            "description": "<p>method id.</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "methods.method.name",
+            "description": "<p>method name</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "methods.method.icon",
+            "description": "<p>method icon</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "methods.method.use_count",
+            "description": "<p>number of times that the method has been used in consumptions</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "methods.method.owner",
+            "description": "<p>id of the owner of the method</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[{\n  \"id\": 1,\n  \"name\": \"Oral\",\n  \"icon\": \"data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=\",\n  \"use_count\": 3,\n  \"owner\": 1\n}, {\n  \"id\": 2,\n  \"name\": \"Bucal\",\n  \"icon\": \"data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=\",\n  \"use_count\": 1,\n  \"owner\": 1\n}]",
           "type": "json"
         }
       ]
