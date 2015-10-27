@@ -348,7 +348,7 @@ router.delete('/', function(req, res, next) {
 });
 
 /**
- * @api {get} /drug/all Get a unique list of all drugs owned by the user, ordered from most used to least used
+ * @api {get} /drug/all Get a unique list of all drugs owned by the user
  * @apiName GetAllDrugs
  * @apiGroup Drug
  *
