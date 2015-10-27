@@ -7,7 +7,7 @@ describe('register', function() {
   var server;
 
   beforeEach(function() {
-    server = require('../bin/www', {
+    server = require('../../bin/www', {
       bustCache: true
     });
   });
