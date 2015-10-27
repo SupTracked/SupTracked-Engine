@@ -330,7 +330,6 @@ router.delete('/', function(req, res, next) {
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
- * @apiSuccess {Number}   methodcount number of unique methods
  * @apiSuccess {Object[]} methods json array of methods.
  *  @apiSuccess {Object[]} methods.method  JSON array for individual method
  *    @apiSuccess {Number}   methods.method.id  method id.
@@ -339,7 +338,21 @@ router.delete('/', function(req, res, next) {
  *    @apiSuccess {Number}   methods.method.use_count  number of times that the method has been used in consumptions
  *    @apiSuccess {Number}   methods.method.owner  id of the owner of the method
  *
- *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *       "id": 1,
+ *       "name": "Oral",
+ *       "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=",
+ *       "use_count": 3,
+ *       "owner": 1
+ *     }, {
+ *       "id": 2,
+ *       "name": "Bucal",
+ *       "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=",
+ *       "use_count": 1,
+ *       "owner": 1
+ *     }]
  */
 router.get('/all', function(req, res, next) {
   // get drugs
@@ -355,10 +368,7 @@ router.get('/all', function(req, res, next) {
     }
 
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify({
-      methodcount: methods.length,
-      methods: methods
-    }));
+    res.status(200).send(methods);
   });
 });
 

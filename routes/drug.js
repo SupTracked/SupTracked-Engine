@@ -354,7 +354,6 @@ router.delete('/', function(req, res, next) {
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
- * @apiSuccess {Number}   drugcount number of unique drugs
  * @apiSuccess {Object[]} drugs json array of drugs.
  *  @apiSuccess {Object[]} drugs.drug  JSON array for individual drug
  *    @apiSuccess {Number}   drugs.drug.id  drug id.
@@ -367,7 +366,15 @@ router.delete('/', function(req, res, next) {
  *    @apiSuccess {Number}   drugs.drug.use_count  number of times that the drug has been used in consumptions
  *    @apiSuccess {Number}   drugs.drug.owner  id of the owner of the drug
  *
- *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *       location: 'Maine',
+ *       use_count: 1
+ *     }, {
+ *       location: 'San Juan',
+ *       use_count: 1
+ *     }]
  */
 router.get('/all', function(req, res, next) {
   // get drugs
@@ -383,10 +390,7 @@ router.get('/all', function(req, res, next) {
     }
 
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify({
-      drugcount: drugs.length,
-      drugs: drugs
-    }));
+    res.status(200).send(drugs);
   });
 });
 

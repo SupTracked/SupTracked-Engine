@@ -374,30 +374,27 @@ describe('drug', function() {
                 request(server)
                   .get('/drug/all')
                   .auth('myusername', 'MyPassword')
-                  .expect(200, {
-                    "drugcount": 2,
-                    "drugs": [{
-                      "id": 2,
-                      "name": "Ibuprofen",
-                      "unit": "mg",
-                      "notes": "Ibuprofen is a painkiller",
-                      "classification": "COX inhibitor",
-                      "family": "NSAID",
-                      "rarity": "Common",
-                      "use_count": 0,
-                      "owner": 1
-                    }, {
-                      "id": 1,
-                      "name": "Phenylpiracetam",
-                      "unit": "mg",
-                      "notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",
-                      "classification": "AMPA modulator",
-                      "family": "*racetam",
-                      "rarity": "Common",
-                      "use_count": 0,
-                      "owner": 1
-                    }]
-                  }, done);
+                  .expect(200, [{
+                    "id": 2,
+                    "name": "Ibuprofen",
+                    "unit": "mg",
+                    "notes": "Ibuprofen is a painkiller",
+                    "classification": "COX inhibitor",
+                    "family": "NSAID",
+                    "rarity": "Common",
+                    "use_count": 0,
+                    "owner": 1
+                  }, {
+                    "id": 1,
+                    "name": "Phenylpiracetam",
+                    "unit": "mg",
+                    "notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",
+                    "classification": "AMPA modulator",
+                    "family": "*racetam",
+                    "rarity": "Common",
+                    "use_count": 0,
+                    "owner": 1
+                  }], done);
               });
           });
       });
