@@ -251,22 +251,22 @@ describe('consumption create', function() {
                           .set('Content-Type', 'application/json')
                           .send('{"id": 1}')
                           .expect(200, {
-                            id: 1,
-                            date: '1445648036',
-                            count: 2,
-                            experience_id: 1,
-                            drug: {
-                              id: 1,
-                              name: 'Oral',
-                              unit: 'mg'
+                            "id": 1,
+                            "date": "1445648036",
+                            "count": 2,
+                            "experience_id": 1,
+                            "drug": {
+                              "id": 1,
+                              "name": "Phenylpiracetam",
+                              "unit": "mg"
                             },
-                            method: {
-                              id: 1,
-                              name: 'mg'
+                            "method": {
+                              "id": 1,
+                              "name": "Oral"
                             },
-                            location: 'San Juan',
-                            friends: [],
-                            owner: 1
+                            "location": "San Juan",
+                            "friends": [],
+                            "owner": 1
                           }, done);
                       });
                   });

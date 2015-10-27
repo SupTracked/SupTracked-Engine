@@ -150,17 +150,15 @@ describe('experience create', function() {
                               "experience_id": 1,
                               "drug": {
                                 "id": 1,
-                                "name": "Oral",
+                                "name": "Phenylpiracetam",
                                 "unit": "mg"
                               },
                               "method": {
                                 "id": 1,
-                                "name": "mg"
+                                "name": "Oral"
                               },
                               "location": "San Juan",
-                              "friends": [
-
-                              ],
+                              "friends": [],
                               "owner": 1
                             }]
                           }, done);

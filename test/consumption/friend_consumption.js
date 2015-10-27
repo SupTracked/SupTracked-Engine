@@ -159,29 +159,29 @@ describe('consumption friend', function() {
                               .auth('myusername', 'MyPassword')
                               .set('Content-Type', 'application/json')
                               .send('{"id": 1}')
-                              .expect(200,
-
-                                {
-                                  id: 1,
-                                  date: '1445648036',
-                                  count: 2,
-                                  experience_id: 1,
-                                  drug: {
-                                    id: 1,
-                                    name: 'Oral',
-                                    unit: 'mg'
-                                  },
-                                  method: {
-                                    id: 1,
-                                    name: 'mg'
-                                  },
-                                  location: 'San Juan',
-                                  friends: [{
-                                    "id": 1,
-                                    "name": "John Smith"
-                                  }],
-                                  owner: 1
-                                }, done);
+                              .expect(200, {
+                                "id": 1,
+                                "date": "1445648036",
+                                "count": 2,
+                                "experience_id": 1,
+                                "drug": {
+                                  "id": 1,
+                                  "name": "Phenylpiracetam",
+                                  "unit": "mg"
+                                },
+                                "method": {
+                                  "id": 1,
+                                  "name": "Oral"
+                                },
+                                "location": "San Juan",
+                                "friends": [{
+                                  "name": "John Smith",
+                                  "id": 1,
+                                  "consumption_id": 1,
+                                  "owner": 1
+                                }],
+                                "owner": 1
+                              }, done);
                           });
                       });
                   });
@@ -315,22 +315,22 @@ describe('consumption friend', function() {
                                   .set('Content-Type', 'application/json')
                                   .send('{"id": 1}')
                                   .expect(200, {
-                                    id: 1,
-                                    date: '1445648036',
-                                    count: 2,
-                                    experience_id: 1,
-                                    drug: {
-                                      id: 1,
-                                      name: 'Oral',
-                                      unit: 'mg'
+                                    "id": 1,
+                                    "date": "1445648036",
+                                    "count": 2,
+                                    "experience_id": 1,
+                                    "drug": {
+                                      "id": 1,
+                                      "name": "Phenylpiracetam",
+                                      "unit": "mg"
                                     },
-                                    method: {
-                                      id: 1,
-                                      name: 'mg'
+                                    "method": {
+                                      "id": 1,
+                                      "name": "Oral"
                                     },
-                                    location: 'San Juan',
-                                    friends: [],
-                                    owner: 1
+                                    "location": "San Juan",
+                                    "friends": [],
+                                    "owner": 1
                                   }, done);
                               });
                           });

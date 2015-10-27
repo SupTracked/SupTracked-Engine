@@ -116,29 +116,29 @@ describe('consumptions for experience', function() {
                               .auth('myusername', 'MyPassword')
                               .set('Content-Type', 'application/json')
                               .send('{"id": 1}')
-                              .expect(200, {
-                                "consumptions": [{
-                                  "count": 2,
-                                  "date": "1445648036",
-                                  "drug": {
-                                    "id": 1,
-                                    "name": "Oral",
-                                    "unit": "mg"
-                                  },
-                                  "experience_id": 1,
-                                  "friends": [{
-                                    "id": 1,
-                                    "name": "John Smith"
-                                  }],
+                              .expect(200, [{
+                                "id": 1,
+                                "date": "1445648036",
+                                "count": 2,
+                                "experience_id": 1,
+                                "drug": {
                                   "id": 1,
-                                  "location": "San Juan",
-                                  "method": {
-                                    "id": 1,
-                                    "name": "mg"
-                                  },
+                                  "name": "Phenylpiracetam",
+                                  "unit": "mg"
+                                },
+                                "method": {
+                                  "id": 1,
+                                  "name": "Oral"
+                                },
+                                "location": "San Juan",
+                                "friends": [{
+                                  "name": "John Smith",
+                                  "id": 1,
+                                  "consumption_id": 1,
                                   "owner": 1
-                                }]
-                              }, done);
+                                }],
+                                "owner": 1
+                              }], done);
                           });
                       });
                   });

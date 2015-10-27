@@ -109,6 +109,8 @@ router.post('/', function(req, res, next) {
  *  @apiSuccess {Object[]} consumptions.friends  array of JSON objects for friends associated with this consumption.
  *   @apiSuccess {Number}   consumptions.friends.id   ID of friend
  *   @apiSuccess {String}   consumptions.friends.name  name of friend
+ *   @apiSuccess {Number}   consumptions.friends.consumption_id  consumption_id of friend
+ *   @apiSuccess {Number}   consumptions.friends.owner  owner of friend
  *  @apiSuccess {Number} consumptions.owner  id of the owner of the consumption
  *
  * @apiSuccessExample Success-Response:
@@ -127,13 +129,19 @@ router.post('/', function(req, res, next) {
  *          "date": "1445648036",
  *          "drug": {
  *            "id": 1,
- *            "name": "Oral",
+ *            "name": "Aspirin",
  *            "unit": "mg",
+ *          },
+ *          "method": {
+ *            "id": 1,
+ *            "name": "oral"
  *          },
  *          "experience_id": 1,
  *          "friends": [{
  *            "id": 1,
- *            "name": "John Smith"
+ *            "name": "John Smith",
+ *            "consumption_id": 1,
+ *            "owner": 1
  *          }],
  *          "id": 1,
  *          "location": "San Juan",
@@ -188,109 +196,99 @@ router.get('/', function(req, res, next) {
     }
 
     // get the consumptions
-    db.all("SELECT * FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
-      $id: req.body.id,
-      $owner: req.supID
-    }, function(err, consumptions) {
-      if (err) {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(400).send(JSON.stringify({
-          experience: err
-        }));
-        return;
-      }
-
-      // no consumptions returned; nothing for that ID
-      if (consumptions.length === 0) {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(404).send();
-        return;
-      }
-
-      // layout where each consumption will go
-      var allConsumptions = [];
-
-      consumptions.forEach(function(consumption, index) {
-        // set up the drug array
-        var drugData = {};
-        //only load if we have drugs in this con (though that should never happen)
-        if (consumption.drug_id !== undefined) {
-          drugData.id = consumption.drug_id;
-          drugData.name = consumption.name;
-          drugData.unit = consumption.unit;
+    db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
+      " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id" +
+      " WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
+        $id: req.body.id,
+        $owner: req.supID
+      },
+      function(err, consumptions) {
+        if (err) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400).send(JSON.stringify({
+            experience: err
+          }));
+          return;
         }
 
-        // set up the method array
-        var methodData = {};
-        //only load if we have methods in this con (though that should never happen)
-        if (consumption.method_id !== undefined) {
-          methodData.id = consumption.method_id;
-          methodData.name = consumption.unit;
+        // no consumptions returned; nothing for that ID
+        if (consumptions.length === 0) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(404).send();
+          return;
         }
 
-        // we have a consumption; let's parse the friends into it
-        db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
-          $id: req.body.id,
-          $owner: req.supID
-        }, function(err, friends) {
-          if (err) {
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400).send(JSON.stringify({
-              experience: err
-            }));
-            return;
+        // layout where each consumption will go
+        var allConsumptions = [];
+
+        consumptions.forEach(function(consumption, index) {
+          // set up the drug array
+          var drugData = {};
+          //only load if we have drugs in this con (though that should never happen)
+          if (consumption.drug_id !== undefined) {
+            drugData.id = consumption.drug_id;
+            drugData.name = consumption.dname;
+            drugData.unit = consumption.unit;
           }
 
-          // default is empty Friends
-          var friendsData = [];
-
-          // we have friends for this consumption
-          if (friends.length > 0) {
-            friends.forEach(function(friend) {
-              friendsData.push({
-                "name": friend.name,
-                "id": friend.id
-              });
-            });
+          // set up the method array
+          var methodData = {};
+          //only load if we have methods in this con (though that should never happen)
+          if (consumption.method_id !== undefined) {
+            methodData.id = consumption.method_id;
+            methodData.name = consumption.mname;
           }
 
-          // assemble our consumption
-          var compiledConsumption = {
-            id: consumption.id,
-            date: consumption.date,
-            count: consumption.count,
-            experience_id: consumption.experience_id,
-            drug: drugData,
-            method: methodData,
-            location: consumption.location,
-            friends: friendsData,
-            owner: req.supID
-          };
+          // we have a consumption; let's parse the friends into it
+          db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
+            $id: consumption.cid,
+            $owner: req.supID
+          }, function(err, friends) {
+            if (err) {
+              res.setHeader('Content-Type', 'application/json');
+              res.status(400).send(JSON.stringify({
+                experience: err
+              }));
+              return;
+            }
 
-          // shove it in our big object
-          allConsumptions.push(compiledConsumption);
-
-          // if we've run through all consumptions, load the experience data and fire it
-          if (index == consumptions.length - 1) {
-            var fullExperience = {
-              date: experience[0].date,
-              id: experience[0].id,
-              notes: experience[0].notes,
-              owner: experience[0].owner,
-              panicmsg: experience[0].panicmsg,
-              rating_id: experience[0].rating_id,
-              title: experience[0].title,
-              ttime: experience[0].ttime,
-              consumptions: allConsumptions
+            // assemble our consumption
+            var compiledConsumption = {
+              id: consumption.cid,
+              date: consumption.date,
+              count: consumption.count,
+              experience_id: consumption.experience_id,
+              drug: drugData,
+              method: methodData,
+              location: consumption.location,
+              friends: friends,
+              owner: req.supID
             };
 
-            // bombs away
-            res.setHeader('Content-Type', 'application/json');
-            res.status(200).send(fullExperience);
-          }
+            // shove it in our big object
+            allConsumptions.push(compiledConsumption);
+
+            // if we've run through all consumptions, load the experience data and fire it
+            if (index == consumptions.length - 1) {
+              var fullExperience = {
+                date: experience[0].date,
+                id: experience[0].id,
+                notes: experience[0].notes,
+                owner: experience[0].owner,
+                panicmsg: experience[0].panicmsg,
+                rating_id: experience[0].rating_id,
+                title: experience[0].title,
+                ttime: experience[0].ttime,
+                consumptions: allConsumptions
+              };
+
+              // bombs away
+              res.setHeader('Content-Type', 'application/json');
+              res.status(200).send(fullExperience);
+            }
+          });
         });
       });
-    });
   });
 });
 
@@ -504,6 +502,8 @@ router.put('/', function(req, res, next) {
  *   @apiSuccess {Object[]} experiences.consumptions.friends  array of JSON objects for friends associated with this consumption.
  *    @apiSuccess {Number}   experiences.consumptions.friends.id   ID of friend
  *    @apiSuccess {String}   experiences.consumptions.friends.name  name of friend
+ *    @apiSuccess {Number}   experiences.consumptions.friends.consumption_id   consumption_id of friend
+ *    @apiSuccess {Number}   experiences.consumptions.friends.owner   owner of friend
  *   @apiSuccess {Number} experiences.consumptions.owner  id of the owner of the consumption
  *
  * @apiParam {Number} [startdate]  Unix timestamp of beginning of date range to select
@@ -534,17 +534,19 @@ router.put('/', function(req, res, next) {
  *         "experience_id": 1,
  *         "drug": {
  *           "id": 1,
- *           "name": "Oral",
+ *           "name": "Aspirin",
  *           "unit": "mg"
  *         },
  *         "method": {
  *           "id": 1,
- *           "name": "mg"
+ *           "name": "oral"
  *         },
  *         "location": "San Juan",
  *         "friends": [{
  *           "id": 1,
- *           "name": "John Smith"
+ *           "name": "John Smith",
+ *           "consumption_id": 1,
+ *           "owner": 1
  *         }],
  *         "owner": 1
  *       }]
@@ -632,123 +634,114 @@ router.get('/search', function(req, res, next) {
 
       experiences.forEach(function(singleExperience, experienceIndex) {
         // get consumptions for each experience
-        db.all("SELECT * FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id WHERE C.experience_id = $id AND C.owner = $owner ORDER BY date DESC", {
-          $id: singleExperience.id,
-          $owner: req.supID
-        }, function(err, consumptions) {
-          if (err) {
-            res.setHeader('Content-Type', 'application/json');
-            res.status(400).send(JSON.stringify({
-              experience: err
-            }));
-            return;
-          }
-
-          // no consumptions returned; push the experience with no consumptions
-          if (consumptions.length === 0) {
-            singleExperience.consumptions = [];
-            allExperiences.push(singleExperience);
-
-            // if we've covered all the experiences, fire it off
-            if (experienceIndex == experiences.length - 1) {
-              // bombs away
+        db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
+          " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id" +
+          " WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
+            $id: singleExperience.id,
+            $owner: req.supID
+          },
+          function(err, consumptions) {
+            if (err) {
               res.setHeader('Content-Type', 'application/json');
-              res.status(200).send(allExperiences);
-            } else {
-              // we're not done; just return so we can keep processing experiences
+              res.status(400).send(JSON.stringify({
+                experience: err
+              }));
               return;
             }
-          }
 
-          // layout where each consumption will go
-          var allConsumptions = [];
+            // no consumptions returned; push the experience with no consumptions
+            if (consumptions.length === 0) {
+              singleExperience.consumptions = [];
+              allExperiences.push(singleExperience);
 
-          consumptions.forEach(function(consumption, index) {
-            // set up the drug array
-            var drugData = {};
-            //only load if we have drugs in this con (though that should never happen)
-            if (consumption.drug_id !== undefined) {
-              drugData.id = consumption.drug_id;
-              drugData.name = consumption.name;
-              drugData.unit = consumption.unit;
-            }
-
-            // set up the method array
-            var methodData = {};
-            //only load if we have methods in this con (though that should never happen)
-            if (consumption.method_id !== undefined) {
-              methodData.id = consumption.method_id;
-              methodData.name = consumption.unit;
-            }
-
-            // we have a consumption; let's parse the friends into it
-            db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
-              $id: consumption.id,
-              $owner: req.supID
-            }, function(err, friends) {
-              if (err) {
+              // if we've covered all the experiences, fire it off
+              if (experienceIndex == experiences.length - 1) {
+                // bombs away
                 res.setHeader('Content-Type', 'application/json');
-                res.status(400).send(JSON.stringify({
-                  experience: err
-                }));
+                res.status(200).send(allExperiences);
+                return;
+              } else {
+                // we're not done; just return so we can keep processing experiences
                 return;
               }
+            }
 
-              // default is empty Friends
-              var friendsData = [];
+            // layout where each consumption will go
+            var allConsumptions = [];
 
-              // we have friends for this consumption
-              if (friends.length > 0) {
-                friends.forEach(function(friend) {
-                  friendsData.push({
-                    "name": friend.name,
-                    "id": friend.id
-                  });
-                });
+            consumptions.forEach(function(consumption, index) {
+              // set up the drug array
+              var drugData = {};
+              //only load if we have drugs in this con (though that should never happen)
+              if (consumption.drug_id !== undefined) {
+                drugData.id = consumption.drug_id;
+                drugData.name = consumption.dname;
+                drugData.unit = consumption.unit;
               }
 
-              // assemble our consumption
-              var compiledConsumption = {
-                id: consumption.id,
-                date: consumption.date,
-                count: consumption.count,
-                experience_id: consumption.experience_id,
-                drug: drugData,
-                method: methodData,
-                location: consumption.location,
-                friends: friendsData,
-                owner: req.supID
-              };
+              // set up the method array
+              var methodData = {};
+              //only load if we have methods in this con (though that should never happen)
+              if (consumption.method_id !== undefined) {
+                methodData.id = consumption.method_id;
+                methodData.name = consumption.mname;
+              }
 
-              // shove it in our big object
-              allConsumptions.push(compiledConsumption);
+              // we have a consumption; let's parse the friends into it
+              db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
+                $id: consumption.cid,
+                $owner: req.supID
+              }, function(err, friends) {
+                if (err) {
+                  res.setHeader('Content-Type', 'application/json');
+                  res.status(400).send(JSON.stringify({
+                    experience: err
+                  }));
+                  return;
+                }
 
-              // if we've run through all consumptions, load the experience data
-              if (index == consumptions.length - 1) {
-                var fullExperience = {
-                  date: singleExperience.date,
-                  id: singleExperience.id,
-                  notes: singleExperience.notes,
-                  owner: singleExperience.owner,
-                  panicmsg: singleExperience.panicmsg,
-                  rating_id: singleExperience.rating_id,
-                  title: singleExperience.title,
-                  ttime: singleExperience.ttime,
-                  consumptions: allConsumptions
+                // assemble our consumption
+                var compiledConsumption = {
+                  id: consumption.cid,
+                  date: consumption.date,
+                  count: consumption.count,
+                  experience_id: consumption.experience_id,
+                  drug: drugData,
+                  method: methodData,
+                  location: consumption.location,
+                  friends: friends,
+                  owner: req.supID
                 };
 
-                allExperiences.push(fullExperience);
+                // shove it in our big object
+                allConsumptions.push(compiledConsumption);
 
-                // we've done all the experiences
-                if (experienceIndex == experiences.length - 1) {
-                  // bombs away
-                  res.setHeader('Content-Type', 'application/json');
-                  res.status(200).send(allExperiences);
+                // if we've run through all consumptions, load the experience data
+                if (index == consumptions.length - 1) {
+                  var fullExperience = {
+                    date: singleExperience.date,
+                    id: singleExperience.id,
+                    notes: singleExperience.notes,
+                    owner: singleExperience.owner,
+                    panicmsg: singleExperience.panicmsg,
+                    rating_id: singleExperience.rating_id,
+                    title: singleExperience.title,
+                    ttime: singleExperience.ttime,
+                    consumptions: allConsumptions
+                  };
+
+                  allExperiences.push(fullExperience);
+
+                  // we've done all the experiences
+                  if (experienceIndex == experiences.length - 1) {
+                    // bombs away
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(200).send(allExperiences);
+                  }
                 }
-              }
+              });
             });
           });
-        });
       });
     });
   }
