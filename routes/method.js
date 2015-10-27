@@ -326,7 +326,7 @@ router.delete('/', function(req, res, next) {
 /**
  * @api {get} /method/all Get a unique list of all methods owned by the user
  * @apiName GetAllMethods
- * @apiGroup Drug
+ * @apiGroup Method
  *
  * @apiPermission ValidUserBasicAuthRequired
  *

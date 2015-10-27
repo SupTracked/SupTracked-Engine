@@ -369,11 +369,25 @@ router.delete('/', function(req, res, next) {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     [{
- *       location: 'Maine',
- *       use_count: 1
+ *       "id": 2,
+ *       "name": "Ibuprofen",
+ *       "unit": "mg",
+ *       "notes": "Ibuprofen is a painkiller",
+ *       "classification": "COX inhibitor",
+ *       "family": "NSAID",
+ *       "rarity": "Common",
+ *       "use_count": 0,
+ *       "owner": 1
  *     }, {
- *       location: 'San Juan',
- *       use_count: 1
+ *       "id": 1,
+ *       "name": "Phenylpiracetam",
+ *       "unit": "mg",
+ *       "notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",
+ *       "classification": "AMPA modulator",
+ *       "family": "*racetam",
+ *       "rarity": "Common",
+ *       "use_count": 0,
+ *       "owner": 1
  *     }]
  */
 router.get('/all', function(req, res, next) {
