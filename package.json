@@ -7,8 +7,8 @@
   "license": "MIT",
   "scripts": {
     "start": "node ./bin/www",
-    "test": "mocha",
-    "postinstall": "mocha"
+    "test": "mocha --recursive",
+    "postinstall": "mocha --recursive"
   },
   "dependencies": {
     "basic-auth": "^1.0.3",
