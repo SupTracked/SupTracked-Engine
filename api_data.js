@@ -510,6 +510,20 @@ define({ "api": [
             "group": "Success 200",
             "type": "<p>Number</p> ",
             "optional": false,
+            "field": "friends.consumption_id",
+            "description": "<p>consumption_id of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "friends.owner",
+            "description": "<p>owner of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
             "field": "owner",
             "description": "<p>id of the owner of the consumption</p> "
           }
@@ -518,7 +532,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n   \"id\": 3,\n   \"date\": 1445543583,\n   \"count\": 3,\n   \"experience_id\": \"1\",\n   \"drug\": [\n       \"id\": 1,\n       \"name\": \"phenylpiracetam\",\n       \"unit\": \"mg\"\n    ],\n   \"method\": [\n       \"id\": 1,\n       \"name\": \"oral\"\n    ],\n   \"location\": \"San Juan\",\n   \"friends\": [\n       {\"name\": \"John Smith\", \"id\": 321},\n       {\"name\": \"Frank Johnson\", \"id\": 964}\n    ],\n   \"owner\": 1\n}",
+          "content": "HTTP/1.1 200 OK\n{\n   \"id\": 3,\n   \"date\": 1445543583,\n   \"count\": 3,\n   \"experience_id\": \"1\",\n   \"drug\": [\n       \"id\": 1,\n       \"name\": \"phenylpiracetam\",\n       \"unit\": \"mg\"\n    ],\n   \"method\": [\n       \"id\": 1,\n       \"name\": \"oral\",\n       \"consumption_id\": 1,\n       \"owner\": 1\n    ],\n   \"location\": \"San Juan\",\n   \"friends\": [\n       {\"name\": \"John Smith\", \"id\": 321},\n       {\"name\": \"Frank Johnson\", \"id\": 964}\n    ],\n   \"owner\": 1\n}",
           "type": "json"
         }
       ]
@@ -700,6 +714,20 @@ define({ "api": [
             "group": "Success 200",
             "type": "<p>Number</p> ",
             "optional": false,
+            "field": "consumptions.friends.consumption_id",
+            "description": "<p>consumption_id of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "consumptions.friends.owner",
+            "description": "<p>owner of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
             "field": "consumptions.owner",
             "description": "<p>id of the owner of the consumption</p> "
           }
@@ -708,7 +736,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n  \"consumptions\": [{\n    \"count\": 2,\n    \"date\": \"1445648036\",\n    \"drug\": {\n      \"id\": 1,\n      \"name\": \"Oral\",\n      \"unit\": \"mg\",\n    },\n    \"experience_id\": 1,\n    \"friends\": [{\n      \"id\": 1,\n      \"name\": \"John Smith\"\n    }],\n    \"id\": 1,\n    \"location\": \"San Juan\",\n    \"method\": {\n      \"id\": 1,\n      \"name\": \"mg\"\n    },\n    \"owner\": 1\n  }]\n}",
+          "content": "HTTP/1.1 200 OK\n{\n  \"consumptions\": [{\n    \"count\": 2,\n    \"date\": \"1445648036\",\n    \"drug\": {\n      \"id\": 1,\n      \"name\": \"Aspirin\",\n      \"unit\": \"mg\",\n    },\n    \"experience_id\": 1,\n    \"friends\": [{\n      \"id\": 1,\n      \"name\": \"John Smith\",\n      \"consumption_id\": 1,\n      \"owner\": 1\n    }],\n    \"id\": 1,\n    \"location\": \"San Juan\",\n    \"method\": {\n      \"id\": 1,\n      \"name\": \"oral\"\n    },\n    \"owner\": 1\n  }]\n}",
           "type": "json"
         }
       ]
@@ -749,7 +777,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/friend",
+    "url": "/friends",
     "title": "Get a unique list of friends by name",
     "name": "GetFriendList",
     "group": "Consumption",
@@ -772,50 +800,338 @@ define({ "api": [
             "group": "Success 200",
             "type": "<p>Object[]</p> ",
             "optional": false,
-            "field": "friends",
-            "description": "<p>json array of friends.</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>Object[]</p> ",
-            "optional": false,
             "field": "friends.friend",
             "description": "<p>JSON array for individual friend</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>Number</p> ",
-            "optional": false,
-            "field": "friends.friend.id",
-            "description": "<p>friend's id.</p> "
           },
           {
             "group": "Success 200",
             "type": "<p>String</p> ",
             "optional": false,
             "field": "friends.friend.name",
-            "description": "<p>friend's name.</p> "
+            "description": "<p>friend's name</p> "
           },
           {
             "group": "Success 200",
-            "type": "<p>Number</p> ",
+            "type": "<p>String</p> ",
             "optional": false,
-            "field": "friends.friend.consumption_id",
-            "description": "<p>consumption ID association for friend</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>Number</p> ",
-            "optional": false,
-            "field": "friends.friend.owner",
-            "description": "<p>ID of the owner for friend</p> "
+            "field": "friends.friend.use_count",
+            "description": "<p>number of consumptions the friend is in</p> "
           }
         ]
       },
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\nfriends: [\n   {\"id\": 1, \"consumption_id\": 7\", \"name\": \"John Smith\"}\n   {\"id\": 2, \"consumption_id\": 4\", \"name\": \"Micahel Johnson\"}\n]",
+          "content": "HTTP/1.1 200 OK\nfriends: [\n   {\"name\": \"John Smith\"}\n   {\"name\": \"Michael Johnson\"}\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/consumption.js",
+    "groupTitle": "Consumption"
+  },
+  {
+    "type": "get",
+    "url": "/consumption/search",
+    "title": "Retrieve an array of experiences with consumptions that match the provided criteria",
+    "name": "SearchConsumption",
+    "group": "Consumption",
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "experiences",
+            "description": "<p>JSON array of full experiences</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.id",
+            "description": "<p>id of the experience</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.date",
+            "description": "<p>date of the experience</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.ttime",
+            "description": "<p>id of the consumption for which T-0:00 time format is based off</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "experiences.title",
+            "description": "<p>title of the experience</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "experiences.notes",
+            "description": "<p>notes for the experience</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "experiences.panicmsg",
+            "description": "<p>user's panic message for the created experience</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.rating_id",
+            "description": "<p>rating of general experience quality</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.owner",
+            "description": "<p>id of the owner of the experience</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "experiences.consumptions",
+            "description": "<p>array of consumptions for the experience</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.id",
+            "description": "<p>id of the consumption</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.date",
+            "description": "<p>Unix timestamp of the date and time of the consumption</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.count",
+            "description": "<p>numerical quantity as measured by the drug's unit</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.experience_id",
+            "description": "<p>ID of the experience the consumption is part of</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.drug",
+            "description": "<p>JSON object of drug</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.drug.id",
+            "description": "<p>ID of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.drug.name",
+            "description": "<p>name of drug</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.drug.unit",
+            "description": "<p>unit of drug</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.method",
+            "description": "<p>JSON object of method</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.method.id",
+            "description": "<p>ID of method</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.method.name",
+            "description": "<p>name of method</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.location",
+            "description": "<p>location of the consumption</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.friends",
+            "description": "<p>array of JSON objects for friends associated with this consumption.</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.friends.id",
+            "description": "<p>ID of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.friends.name",
+            "description": "<p>name of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.friends.consumption_id",
+            "description": "<p>consumption_id of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.friends.owner",
+            "description": "<p>owner of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.owner",
+            "description": "<p>id of the owner of the consumption</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[{\n  \"date\": 1445543583,\n  \"id\": 1,\n  \"notes\": null,\n  \"owner\": 1,\n  \"panicmsg\": null,\n  \"rating_id\": null,\n  \"title\": \"My Title\",\n  \"ttime\": null,\n  \"consumptions\": [{\n    \"id\": 1,\n    \"date\": \"1445648036\",\n    \"count\": 2,\n    \"experience_id\": 1,\n    \"drug\": {\n      \"id\": 1,\n      \"name\": \"Aspirin\",\n      \"unit\": \"mg\"\n    },\n    \"method\": {\n      \"id\": 1,\n      \"name\": \"oral\"\n    },\n    \"location\": \"San Juan\",\n    \"friends\": [{\n      \"id\": 1,\n      \"name\": \"John Smith\"\n    }],\n    \"owner\": 1\n  }]\n}]",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "startdate",
+            "description": "<p>Unix timestamp of beginning of date range to select</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "enddate",
+            "description": "<p>Unix timestamp of end of date range to select</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number[]</p> ",
+            "optional": true,
+            "field": "drug_id",
+            "description": "<p>array of drug ids to search for</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number[]</p> ",
+            "optional": true,
+            "field": "method_id",
+            "description": "<p>array of method ids to search for</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": true,
+            "field": "location",
+            "description": "<p>string that must be contained in the location field</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "limit",
+            "description": "<p>only return this number of rows</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "offset",
+            "description": "<p>offset the returned number of rows by this amount (requires limit)</p> "
+          }
+        ]
+      }
+    },
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "noResults",
+            "description": "<p>no experiences or consumptions match the provided criteria</p> "
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "needCriteria",
+            "description": "<p>no experiences match the provided criteria (at least one must be provided)</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 Not Found Bad Request",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"consumption\": \"at least one field must be provided\"\n}",
           "type": "json"
         }
       ]
@@ -1116,7 +1432,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/drug/all",
-    "title": "Get a unique list of all drugs owned by the user",
+    "title": "Get a unique list of all drugs owned by the user, ordered from most used to least used",
     "name": "GetAllDrugs",
     "group": "Drug",
     "permission": [
@@ -1127,13 +1443,6 @@ define({ "api": [
     "success": {
       "fields": {
         "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "<p>Number</p> ",
-            "optional": false,
-            "field": "drugcount",
-            "description": "<p>number of unique drugs</p> "
-          },
           {
             "group": "Success 200",
             "type": "<p>Object[]</p> ",
@@ -1201,6 +1510,13 @@ define({ "api": [
             "group": "Success 200",
             "type": "<p>Number</p> ",
             "optional": false,
+            "field": "drugs.drug.use_count",
+            "description": "<p>number of times that the drug has been used in consumptions</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
             "field": "drugs.drug.owner",
             "description": "<p>id of the owner of the drug</p> "
           }
@@ -1209,7 +1525,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\nfriends: [\n   {\"id\": 1, \"consumption_id\": 7\", \"name\": \"John Smith\"}\n   {\"id\": 2, \"consumption_id\": 4\", \"name\": \"Micahel Johnson\"}\n]",
+          "content": "HTTP/1.1 200 OK\n[{\n  location: 'Maine',\n  use_count: 1\n}, {\n  location: 'San Juan',\n  use_count: 1\n}]",
           "type": "json"
         }
       ]
@@ -1232,13 +1548,6 @@ define({ "api": [
     "success": {
       "fields": {
         "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "<p>Number</p> ",
-            "optional": false,
-            "field": "methodcount",
-            "description": "<p>number of unique methods</p> "
-          },
           {
             "group": "Success 200",
             "type": "<p>Object[]</p> ",
@@ -1278,6 +1587,13 @@ define({ "api": [
             "group": "Success 200",
             "type": "<p>Number</p> ",
             "optional": false,
+            "field": "methods.method.use_count",
+            "description": "<p>number of times that the method has been used in consumptions</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
             "field": "methods.method.owner",
             "description": "<p>id of the owner of the method</p> "
           }
@@ -1286,7 +1602,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\nfriends: [\n   {\"id\": 1, \"consumption_id\": 7\", \"name\": \"John Smith\"}\n   {\"id\": 2, \"consumption_id\": 4\", \"name\": \"Micahel Johnson\"}\n]",
+          "content": "HTTP/1.1 200 OK\n[{\n  \"id\": 1,\n  \"name\": \"Oral\",\n  \"icon\": \"data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=\",\n  \"use_count\": 3,\n  \"owner\": 1\n}, {\n  \"id\": 2,\n  \"name\": \"Bucal\",\n  \"icon\": \"data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=\",\n  \"use_count\": 1,\n  \"owner\": 1\n}]",
           "type": "json"
         }
       ]
@@ -1882,6 +2198,20 @@ define({ "api": [
             "group": "Success 200",
             "type": "<p>Number</p> ",
             "optional": false,
+            "field": "consumptions.friends.consumption_id",
+            "description": "<p>consumption_id of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "consumptions.friends.owner",
+            "description": "<p>owner of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
             "field": "consumptions.owner",
             "description": "<p>id of the owner of the consumption</p> "
           }
@@ -1890,7 +2220,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n   \"date\": 1445543583,\n   \"id\": 1,\n   \"notes\": \"This is great.\",\n   \"owner\": 1,\n   \"panicmsg\": \"Oh snap help me!\",\n   \"rating_id\": 3,\n   \"title\": \"Great Time\",\n   \"ttime\": null,\n   \"consumptions\": [{\n     \"count\": 2,\n     \"date\": \"1445648036\",\n     \"drug\": {\n       \"id\": 1,\n       \"name\": \"Oral\",\n       \"unit\": \"mg\",\n     },\n     \"experience_id\": 1,\n     \"friends\": [{\n       \"id\": 1,\n       \"name\": \"John Smith\"\n     }],\n     \"id\": 1,\n     \"location\": \"San Juan\",\n       \"id\": 1,\n       \"name\": \"mg\"\n     },\n     \"owner\": 1\n   }]\n}",
+          "content": "HTTP/1.1 200 OK\n{\n   \"date\": 1445543583,\n   \"id\": 1,\n   \"notes\": \"This is great.\",\n   \"owner\": 1,\n   \"panicmsg\": \"Oh snap help me!\",\n   \"rating_id\": 3,\n   \"title\": \"Great Time\",\n   \"ttime\": null,\n   \"consumptions\": [{\n     \"count\": 2,\n     \"date\": \"1445648036\",\n     \"drug\": {\n       \"id\": 1,\n       \"name\": \"Aspirin\",\n       \"unit\": \"mg\",\n     },\n     \"method\": {\n       \"id\": 1,\n       \"name\": \"oral\"\n     },\n     \"experience_id\": 1,\n     \"friends\": [{\n       \"id\": 1,\n       \"name\": \"John Smith\",\n       \"consumption_id\": 1,\n       \"owner\": 1\n     }],\n     \"id\": 1,\n     \"location\": \"San Juan\",\n       \"id\": 1,\n       \"name\": \"mg\"\n     },\n     \"owner\": 1\n   }]\n}",
           "type": "json"
         }
       ]
@@ -2117,6 +2447,20 @@ define({ "api": [
             "group": "Success 200",
             "type": "<p>Number</p> ",
             "optional": false,
+            "field": "experiences.consumptions.friends.consumption_id",
+            "description": "<p>consumption_id of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "experiences.consumptions.friends.owner",
+            "description": "<p>owner of friend</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
             "field": "experiences.consumptions.owner",
             "description": "<p>id of the owner of the consumption</p> "
           }
@@ -2125,7 +2469,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n[{\n  \"date\": 1445543583,\n  \"id\": 1,\n  \"notes\": null,\n  \"owner\": 1,\n  \"panicmsg\": null,\n  \"rating_id\": null,\n  \"title\": \"My Title\",\n  \"ttime\": null,\n  \"consumptions\": [{\n    \"id\": 1,\n    \"date\": \"1445648036\",\n    \"count\": 2,\n    \"experience_id\": 1,\n    \"drug\": {\n      \"id\": 1,\n      \"name\": \"Oral\",\n      \"unit\": \"mg\"\n    },\n    \"method\": {\n      \"id\": 1,\n      \"name\": \"mg\"\n    },\n    \"location\": \"San Juan\",\n    \"friends\": [{\n      \"id\": 1,\n      \"name\": \"John Smith\"\n    }],\n    \"owner\": 1\n  }]\n}]",
+          "content": "HTTP/1.1 200 OK\n[{\n  \"date\": 1445543583,\n  \"id\": 1,\n  \"notes\": null,\n  \"owner\": 1,\n  \"panicmsg\": null,\n  \"rating_id\": null,\n  \"title\": \"My Title\",\n  \"ttime\": null,\n  \"consumptions\": [{\n    \"id\": 1,\n    \"date\": \"1445648036\",\n    \"count\": 2,\n    \"experience_id\": 1,\n    \"drug\": {\n      \"id\": 1,\n      \"name\": \"Aspirin\",\n      \"unit\": \"mg\"\n    },\n    \"method\": {\n      \"id\": 1,\n      \"name\": \"oral\"\n    },\n    \"location\": \"San Juan\",\n    \"friends\": [{\n      \"id\": 1,\n      \"name\": \"John Smith\",\n      \"consumption_id\": 1,\n      \"owner\": 1\n    }],\n    \"owner\": 1\n  }]\n}]",
           "type": "json"
         }
       ]
@@ -2197,7 +2541,7 @@ define({ "api": [
             "group": "Error 4xx",
             "optional": false,
             "field": "noResults",
-            "description": "<p>no experiences match the provided criteris</p> "
+            "description": "<p>no experiences match the provided criteria</p> "
           }
         ]
       },
@@ -2321,6 +2665,69 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "routes/experience.js",
     "groupTitle": "Experience"
+  },
+  {
+    "type": "get",
+    "url": "/consumption/locations",
+    "title": "Get a unique list of all locations used in consumptions owned by the user, ordered from most used to least used",
+    "name": "GetAllConsumptionLocations",
+    "group": "Location",
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "locationcount",
+            "description": "<p>number of unique locations</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "locations",
+            "description": "<p>json array of locations.</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "locations.location",
+            "description": "<p>JSON array for individual locations</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "locations.location.name",
+            "description": "<p>location name</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "locations.location.use_count",
+            "description": "<p>number of times that the location has been used in consumptions</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[{\n  location: 'Maine',\n  use_count: 1\n}, {\n  location: 'San Juan',\n  use_count: 1\n}]",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/consumption.js",
+    "groupTitle": "Location"
   },
   {
     "type": "post",
