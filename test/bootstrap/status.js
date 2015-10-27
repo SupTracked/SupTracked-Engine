@@ -27,7 +27,7 @@ describe('status', function() {
       .get('/status/db')
       .expect(200, {
         online: true,
-        tables: 6
+        tables: 7
       }, done);
   });
 });
