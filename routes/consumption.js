@@ -768,7 +768,7 @@ router.post('/friend', function(req, res, next) {
 });
 
 /**
- * @api {get} /friend Get a unique list of friends by name
+ * @api {get} /friends Get a unique list of friends by name
  * @apiName GetFriendList
  * @apiGroup Consumption
  *
@@ -776,24 +776,21 @@ router.post('/friend', function(req, res, next) {
  * @apiPermission ValidUserBasicAuthRequired
  *
  * @apiSuccess {Number}   friendcount number of unique friends
- * @apiSuccess {Object[]} friends json array of friends.
  *  @apiSuccess {Object[]} friends.friend  JSON array for individual friend
- *    @apiSuccess {Number}   friends.friend.id  friend's id.
- *    @apiSuccess {String}   friends.friend.name  friend's name.
- *    @apiSuccess {Number}   friends.friend.consumption_id  consumption ID association for friend
- *    @apiSuccess {Number}   friends.friend.owner  ID of the owner for friend
+ *    @apiSuccess {String}   friends.friend.name  friend's name
+ *    @apiSuccess {String}   friends.friend.use_count  number of consumptions the friend is in
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     friends: [
- *        {"id": 1, "consumption_id": 7", "name": "John Smith"}
- *        {"id": 2, "consumption_id": 4", "name": "Micahel Johnson"}
+ *        {"name": "John Smith"}
+ *        {"name": "Michael Johnson"}
  *     ]
  *
  */
-router.get('/friend', function(req, res, next) {
+router.get('/friends', function(req, res, next) {
   // get friends
-  db.all("SELECT * FROM friends WHERE owner = $owner GROUP BY name", {
+  db.all("SELECT name, sum((SELECT count(*) as count FROM consumptions as C WHERE C.id = F.consumption_id)) as use_count FROM friends F WHERE F.owner = $owner GROUP BY name ORDER BY use_count DESC;", {
     $owner: req.supID
   }, function(err, friends) {
     if (err) {
@@ -804,10 +801,7 @@ router.get('/friend', function(req, res, next) {
       return;
     }
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify({
-      friendcount: friends.length,
-      friends: friends
-    }));
+    res.status(200).send(friends);
   });
 });
 
@@ -1198,6 +1192,48 @@ router.get('/search', function(req, res, next) {
           });
         });
       });
+  });
+});
+
+/**
+ * @api {get} /consumption/locations Get a unique list of all locations used in consumptions owned by the user, ordered from most used to least used
+ * @apiName GetAllConsumptionLocations
+ * @apiGroup Location
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number}   locationcount number of unique locations
+ * @apiSuccess {Object[]} locations json array of locations.
+ *  @apiSuccess {Object[]} locations.location  JSON array for individual locations
+ *    @apiSuccess {String}   locations.location.name  location name
+ *    @apiSuccess {String}   locations.location.use_count  number of times that the location has been used in consumptions
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *       location: 'Maine',
+ *       use_count: 1
+ *     }, {
+ *       location: 'San Juan',
+ *       use_count: 1
+ *     }]
+ *
+ */
+router.get('/locations', function(req, res, next) {
+  // get locations
+  db.all("SELECT location, count(*) as use_count from consumptions WHERE owner = $owner GROUP BY location ORDER BY use_count DESC", {
+    $owner: req.supID
+  }, function(err, locations) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        location: err
+      }));
+      return;
+    }
+
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(locations);
   });
 });
 
