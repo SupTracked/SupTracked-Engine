@@ -20,6 +20,8 @@ if (process.env.NODE_ENV == "test") {
   db = new sqlite3.Database(config.db.location);
 }
 
+// db.on('trace', function(query){ console.log(query); });
+
 /**
  * Get port from environment and store in Express.
  */
