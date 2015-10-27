@@ -341,14 +341,16 @@ describe('method', function() {
                   .expect(200, {
                     "methodcount": 2,
                     "methods": [{
-                      "id": 2,
-                      "name": "Bucal",
-                      "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=",
-                      "owner": 1
-                    }, {
                       "id": 1,
                       "name": "Oral",
                       "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=",
+                      "use_count": 0,
+                      "owner": 1
+                    }, {
+                      "id": 2,
+                      "name": "Bucal",
+                      "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=",
+                      "use_count": 0,
                       "owner": 1
                     }]
                   }, done);

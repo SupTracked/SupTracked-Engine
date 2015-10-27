@@ -348,7 +348,7 @@ router.delete('/', function(req, res, next) {
 });
 
 /**
- * @api {get} /drug/all Get a unique list of all drugs owned by the user
+ * @api {get} /drug/all Get a unique list of all drugs owned by the user, ordered from most used to least used
  * @apiName GetAllDrugs
  * @apiGroup Drug
  *
@@ -364,19 +364,14 @@ router.delete('/', function(req, res, next) {
  *    @apiSuccess {String}   drugs.drug.classification  drug name
  *    @apiSuccess {String}   drugs.drug.family  drug family
  *    @apiSuccess {String}   drugs.drug.rarity  drug rarity
+ *    @apiSuccess {Number}   drugs.drug.use_count  number of times that the drug has been used in consumptions
  *    @apiSuccess {Number}   drugs.drug.owner  id of the owner of the drug
  *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     friends: [
- *        {"id": 1, "consumption_id": 7", "name": "John Smith"}
- *        {"id": 2, "consumption_id": 4", "name": "Micahel Johnson"}
- *     ]
  *
  */
 router.get('/all', function(req, res, next) {
   // get drugs
-  db.all("SELECT * FROM drugs WHERE owner = $owner GROUP BY name", {
+  db.all("SELECT *, (SELECT count(*) as count FROM consumptions as C WHERE C.drug_id = D.id) as use_count FROM drugs D WHERE D.owner = $owner GROUP BY name ORDER BY use_count DESC", {
     $owner: req.supID
   }, function(err, drugs) {
     if (err) {

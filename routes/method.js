@@ -336,19 +336,14 @@ router.delete('/', function(req, res, next) {
  *    @apiSuccess {Number}   methods.method.id  method id.
  *    @apiSuccess {String}   methods.method.name  method name
  *    @apiSuccess {String}   methods.method.icon  method icon
+ *    @apiSuccess {Number}   methods.method.use_count  number of times that the method has been used in consumptions
  *    @apiSuccess {Number}   methods.method.owner  id of the owner of the method
  *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     friends: [
- *        {"id": 1, "consumption_id": 7", "name": "John Smith"}
- *        {"id": 2, "consumption_id": 4", "name": "Micahel Johnson"}
- *     ]
  *
  */
 router.get('/all', function(req, res, next) {
   // get drugs
-  db.all("SELECT * FROM methods WHERE owner = $owner GROUP BY name", {
+  db.all("SELECT *, (SELECT count(*) as count FROM consumptions as C WHERE C.method_id = M.id) as use_count FROM methods M WHERE M.owner = $owner ORDER BY use_count DESC", {
     $owner: req.supID
   }, function(err, methods) {
     if (err) {
