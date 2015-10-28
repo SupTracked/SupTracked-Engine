@@ -15,5 +15,3 @@ TODO
       set count
       duplicate to now
       jump to now
-
-  add other owner check to delete; update drug, method, experience, consumption
