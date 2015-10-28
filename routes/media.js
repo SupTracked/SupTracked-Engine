@@ -398,4 +398,113 @@ router.delete('/', function(req, res, next) {
   });
 });
 
+/**
+ * @api {put} /media Update a media object
+ * @apiName UpdateMedia
+ * @apiGroup Media
+ *
+ * @apiParam {Number} id  id of the media
+ * @apiParam {String} [title]  title of the image
+ * @apiParam {String} [tags]  tags for the image
+ * @apiParam {String} [date]  date the image was taken
+ * @apiParam {String} [association_type]  what type of object the media should be associated with; "drug" or "experience"
+ * @apiParam {Number} [association]  id of the associated drug or experience
+ * @apiParam {Number} [explicit]  1 indicates that the content is explicit
+ * @apiParam {Number} [favorite]  1 indicates that the content is a favorite piece of content
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *
+ * @apiError noFields no fields to set were provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "media": "no fields provided"
+ *     }
+ *
+ * @apiError illegalField a field to update was send that is not permitted (must be in above list)
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "media": "custom field requested that is not permitted"
+ *     }
+ */
+router.put('/', function(req, res, next) {
+  var permittedFields = ['title', 'tags', 'association_type', 'association', 'explicit', 'favorite', 'id'];
+
+  //no fields were provided
+  if (Object.keys(req.body).length === 0 || req.body === undefined) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      media: "no fields provided"
+    }));
+    return;
+  }
+
+  if (Object.keys(req.body).every(function(field) {
+      return permittedFields.indexOf(field) >= 0;
+    })) {
+    // all the keys of the request body (AKA all requested fields) are allowed; let them pass
+
+    // assemble the query
+    var columns = Object.keys(req.body).join(', ');
+    var updateVals = [];
+    var dataArray = {};
+
+    // set the column1 = value1, etc. for the update
+    Object.keys(req.body).forEach(function(columnName) {
+      updateVals.push(columnName + ' = $' + columnName);
+    });
+
+    db.all("SELECT * FROM media WHERE id = $id AND owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err, media) {
+      if (err) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          media: err
+        }));
+        return;
+      }
+
+      // no media returned; nothing for that ID
+      if (media.length === 0) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(404).send();
+        return;
+      }
+
+      var query = 'UPDATE media SET ' + updateVals.join(', ') + ' WHERE id = $id AND owner = $owner';
+      dataArray.$owner = req.supID;
+
+      // loop through each key and build the JSON object of bindings for sqlite
+      Object.keys(req.body).forEach(function(columnName) {
+        dataArray["$" + columnName] = req.body[columnName];
+      });
+
+      db.run(query, dataArray, function(err) {
+        if (err) {
+          res.status(500).send();
+          return;
+        }
+
+        // all done. loaded and ready.
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).send();
+      });
+    });
+  } else {
+    // they tried to send an unsupported key; kick 'em out
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      media: "custom field requested that is not permitted"
+    }));
+  }
+});
+
 module.exports = router;
