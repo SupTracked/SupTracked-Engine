@@ -7,7 +7,7 @@ TODO
       rename image
       tag image
     consumptions
-      list current
-      set count
+      list in most recent experience
+      set count (replaced increment)
       duplicate to now
       jump to now
