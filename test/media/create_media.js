@@ -4,9 +4,14 @@ var request = require('supertest');
 require = require('really-need');
 var rimraf = require('rimraf');
 var config = require('../../config');
+var mkdirp = require('mkdirp');
 
 describe('media create', function() {
   var server;
+
+  before(function(done) {
+    mkdirp(config.media.test_location, done);
+  });
 
   beforeEach(function() {
     server = require('../../bin/www', {

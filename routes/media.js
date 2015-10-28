@@ -5,18 +5,16 @@ var fs = require('fs');
 var path = require('path');
 
 if (process.env.NODE_ENV == "test") {
-  // make the directory if it doesn't exist
-  var mkdirp = require('mkdirp');
-  mkdirp(config.media.test_location);
-
   var uploadLocation = config.media.test_location;
 } else {
   var uploadLocation = config.media.location;
 }
 
+
 var upload = multer({
   dest: uploadLocation
 });
+
 var express = require('express');
 var router = express.Router();
 
@@ -391,9 +389,10 @@ router.delete('/', function(req, res, next) {
       }
 
       // deleted the media; now kill the file
-      fs.unlink(media[0].filename, function() {
+      rimraf(media[0].filename, function() {
         res.setHeader('Content-Type', 'application/json');
         res.status(200).send();
+        return;
       });
     });
   });

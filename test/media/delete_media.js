@@ -4,9 +4,14 @@ var request = require('supertest');
 require = require('really-need');
 var rimraf = require('rimraf');
 var config = require('../../config');
+var mkdirp = require('mkdirp');
 
 describe('media delete', function() {
   var server;
+
+  before(function(done) {
+    mkdirp(config.media.test_location, done);
+  });
 
   beforeEach(function() {
     server = require('../../bin/www', {
@@ -64,14 +69,9 @@ describe('media delete', function() {
               .field('association', '1')
               .field('tags', 'test tag')
               .field('date', 1445995224)
-              .end(function() {
-                request(server)
-                  .delete('/media')
-                  .auth('myusername', 'MyPassword')
-                  .set('Content-Type', 'application/json')
-                  .send('{"id": 1}')
-                  .expect(200, done);
-              });
+              .expect(201, {
+                "id": 1
+              }, done);
           });
       });
   });
