@@ -291,7 +291,7 @@ router.post('/', formData.array(), function(req, res, next) {
             }
             var time = new Date();
             db.run("UPDATE experiences SET notes = $notes WHERE id = $id", {
-                $notes: experiences[0].notes + "\n" + time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds(),
+                $notes: experiences[0].notes + "\n" + time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds() + " -- " + req.body.Body,
                 $id: experiences[0].id
               },
               function(err) {
