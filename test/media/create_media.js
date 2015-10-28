@@ -1,3 +1,8 @@
+/* globals it,describe,beforeEach,afterEach,before,after */
+// -W020 because we have to override the node require to use really-need for cache busting
+/*jshint -W020 */
+"use strict";
+
 process.env.NODE_ENV = 'test';
 
 var request = require('supertest');
@@ -28,7 +33,7 @@ describe('media create', function() {
   });
 
   function isBigEnough(res) {
-    if (res.header['content-length'] != 6769908) {
+    if (res.header['content-length'] !== 6769908) {
       return "file not big enough";
     }
   }

@@ -1,3 +1,5 @@
+/* globals db */
+"use strict";
 var express = require('express');
 var path = require('path');
 var morgan = require('morgan');
@@ -17,6 +19,44 @@ var method = require('./routes/method');
 var media = require('./routes/media');
 
 var app = express();
+
+/**
+ * Basic Auth/DB auth system
+ */
+function auth(req, res, next) {
+  function unauthorized(res) {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+    res.status(401).send();
+    return;
+  }
+
+  var user = basicAuth(req);
+
+  if (!user || !user.name || !user.pass) {
+    return unauthorized(res);
+  }
+
+  db.get("SELECT * FROM users where username = $username", {
+    $username: user.name
+  }, function(err, row) {
+    if (row === undefined) {
+      // I never knew you
+      return unauthorized(res);
+    }
+
+    // we've heard of them; is the password correct?
+    bcrypt.compare(user.pass, row.password, function(err, result) {
+      if (result) {
+        // good to go; add their ID to the request
+        req.supID = row.id;
+        req.supUser = user.name;
+        next();
+      } else {
+        return unauthorized(res);
+      }
+    });
+  });
+}
 
 // logging
 if (process.env.NODE_ENV !== 'test') {
@@ -68,41 +108,5 @@ app.use(function(err, req, res, next) {
   }
 });
 
-/**
- * Basic Auth/DB auth system
- */
-function auth(req, res, next) {
-  function unauthorized(res) {
-    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-    res.status(401).send();
-    return;
-  }
 
-  var user = basicAuth(req);
-
-  if (!user || !user.name || !user.pass) {
-    return unauthorized(res);
-  }
-
-  db.get("SELECT * FROM users where username = $username", {
-    $username: user.name
-  }, function(err, row) {
-    if (row === undefined) {
-      // I never knew you
-      return unauthorized(res);
-    }
-
-    // we've heard of them; is the password correct?
-    bcrypt.compare(user.pass, row.password, function(err, result) {
-      if (result) {
-        // good to go; add their ID to the request
-        req.supID = row.id;
-        req.supUser = user.name;
-        next();
-      } else {
-        return unauthorized(res);
-      }
-    });
-  });
-}
 module.exports = app;

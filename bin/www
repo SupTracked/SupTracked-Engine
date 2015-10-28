@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* globals db */
+"use strict";
 
 /**
  * Module dependencies.
@@ -9,15 +11,80 @@ var http = require('http');
 var config = require('../config');
 var sqlite3 = require('sqlite3').verbose();
 var q = require('q');
-startTime = new Date();
+var startTime = new Date();
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+  log('SupTracked is listening on ' + bind);
+}
+
+/**
+ * create a log function that doesn't poop all over our test output
+ */
+function log(string) {
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(string);
+  }
+}
 
 /**
  * Ensure database is up and running
  */
-if (process.env.NODE_ENV == "test") {
-  db = new sqlite3.Database(config.db.test_location);
+if (process.env.NODE_ENV === "test") {
+  GLOBAL.db = new sqlite3.Database(config.db.test_location);
 } else {
-  db = new sqlite3.Database(config.db.location);
+  GLOBAL.db = new sqlite3.Database(config.db.location);
 }
 
 // db.on('trace', function(query){ console.log(query); });
@@ -104,68 +171,3 @@ q.fcall(
     'icon TEXT, ' +
     'owner INTEGER)')
 ).then(server.listen(port)).then(module.exports = server);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  log('SupTracked is listening on ' + bind);
-}
-
-/**
- * create a log function that doesn't poop all over our test output
- */
-function log(string) {
-  if (process.env.NODE_ENV !== 'test') {
-    console.log(string);
-  }
-}

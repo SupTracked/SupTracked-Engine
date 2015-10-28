@@ -1,3 +1,5 @@
+/* globals db */
+"use strict";
 var express = require('express');
 var router = express.Router();
 
@@ -269,7 +271,7 @@ router.get('/', function(req, res, next) {
             allConsumptions.push(compiledConsumption);
 
             // if we've run through all consumptions, load the experience data and fire it
-            if (index == consumptions.length - 1) {
+            if (index === consumptions.length - 1) {
               var fullExperience = {
                 date: experience[0].date,
                 id: experience[0].id,
@@ -675,7 +677,7 @@ router.get('/search', function(req, res, next) {
               allExperiences.push(singleExperience);
 
               // if we've covered all the experiences, fire it off
-              if (experienceIndex == experiences.length - 1) {
+              if (experienceIndex === experiences.length - 1) {
                 // bombs away
                 res.setHeader('Content-Type', 'application/json');
                 res.status(200).send(allExperiences);
@@ -737,7 +739,7 @@ router.get('/search', function(req, res, next) {
                 allConsumptions.push(compiledConsumption);
 
                 // if we've run through all consumptions, load the experience data
-                if (index == consumptions.length - 1) {
+                if (index === consumptions.length - 1) {
                   var fullExperience = {
                     date: singleExperience.date,
                     id: singleExperience.id,
@@ -753,7 +755,7 @@ router.get('/search', function(req, res, next) {
                   allExperiences.push(fullExperience);
 
                   // we've done all the experiences
-                  if (experienceIndex == experiences.length - 1) {
+                  if (experienceIndex === experiences.length - 1) {
                     // bombs away
                     res.setHeader('Content-Type', 'application/json');
                     res.status(200).send(allExperiences);

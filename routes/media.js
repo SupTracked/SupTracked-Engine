@@ -1,10 +1,12 @@
+/* globals db */
+"use strict";
 var config = require('../config');
 var multer = require('multer');
 var rimraf = require('rimraf');
 var fs = require('fs');
 var path = require('path');
 
-if (process.env.NODE_ENV == "test") {
+if (process.env.NODE_ENV === "test") {
   var uploadLocation = config.media.test_location;
 } else {
   var uploadLocation = config.media.location;
@@ -85,7 +87,7 @@ router.post('/', upload.single('image'), function(req, res, next) {
   }
 
   // make sure the association_type is valid
-  if (req.body.association_type != 'drug' && req.body.association_type != 'experience') {
+  if (req.body.association_type !== 'drug' && req.body.association_type !== 'experience') {
     // kill the uploaded file (it exists because we got this far)
     rimraf(req.file.destination + req.file.filename, function() {
       // file is deleted; tell about the problem
