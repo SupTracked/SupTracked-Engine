@@ -55,6 +55,38 @@ describe('method update', function() {
       });
   });
 
+  it('denies update on another user', function testMethodUpdateOtherUser(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .post('/register')
+          .set('Content-Type', 'application/json')
+          .send('{"username": "myotherusername", "password": "MyPassword"}')
+          .end(function() {
+            // create a new method
+            request(server)
+              .post('/method')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"name": "Oral",' +
+                '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
+                '}')
+              .end(function() {
+                // edit that method
+                request(server)
+                  .put('/method')
+                  .auth('myotherusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"id": 1, "name": "Mouth"}')
+                  .expect(404, done);
+              });
+          });
+      });
+  });
+
   it('denies method update with an invalid field', function testMethodUpdateInvalid(done) {
     request(server)
       .post('/register')
@@ -67,7 +99,7 @@ describe('method update', function() {
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"name": "Oral",' +
-            '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=",' +
+            '"icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="' +
             '}')
           .end(function() {
             // edit that method

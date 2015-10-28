@@ -432,36 +432,56 @@ router.put('/', function(req, res, next) {
     })) {
     // all the keys of the request body (AKA all requested fields) are allowed; let them pass
 
-    // assemble the query
-    var columns = Object.keys(req.body).join(', ');
-    var updateVals = [];
-    var dataArray = {};
-
-    // set the column1 = value1, etc. for the update
-    Object.keys(req.body).forEach(function(columnName) {
-      updateVals.push(columnName + ' = $' + columnName);
-    });
-
-    var query = 'UPDATE experiences SET ' + updateVals.join(', ') + ' WHERE id = $expid AND owner = $owner';
-    dataArray.$owner = req.supID;
-
-    // loop through each key and build the JSON object of bindings for sqlite
-    Object.keys(req.body).forEach(function(columnName) {
-      dataArray["$" + columnName] = req.body[columnName];
-    });
-
-    // add the experience ID
-    dataArray.$expid = req.body.id;
-
-    db.run(query, dataArray, function(err) {
+    db.all("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err, experience) {
       if (err) {
-        res.status(500).send();
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          experience: err
+        }));
         return;
       }
 
-      // all done. loaded and ready.
-      res.setHeader('Content-Type', 'application/json');
-      res.status(200).send();
+      // no experiences returned; nothing for that ID
+      if (experience.length === 0) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(404).send();
+        return;
+      }
+
+      // assemble the query
+      var columns = Object.keys(req.body).join(', ');
+      var updateVals = [];
+      var dataArray = {};
+
+      // set the column1 = value1, etc. for the update
+      Object.keys(req.body).forEach(function(columnName) {
+        updateVals.push(columnName + ' = $' + columnName);
+      });
+
+      var query = 'UPDATE experiences SET ' + updateVals.join(', ') + ' WHERE id = $expid AND owner = $owner';
+      dataArray.$owner = req.supID;
+
+      // loop through each key and build the JSON object of bindings for sqlite
+      Object.keys(req.body).forEach(function(columnName) {
+        dataArray["$" + columnName] = req.body[columnName];
+      });
+
+      // add the experience ID
+      dataArray.$expid = req.body.id;
+
+      db.run(query, dataArray, function(err) {
+        if (err) {
+          res.status(500).send();
+          return;
+        }
+
+        // all done. loaded and ready.
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).send();
+      });
     });
   } else {
     // they tried to send an unsupported key; kick 'em out

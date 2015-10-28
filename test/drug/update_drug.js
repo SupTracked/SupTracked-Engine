@@ -63,6 +63,42 @@ describe('drug update', function() {
       });
   });
 
+  it('denies update on another user', function testDrugUpdateOtherUser(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .post('/register')
+          .set('Content-Type', 'application/json')
+          .send('{"username": "myotherusername", "password": "MyPassword"}')
+          .end(function() {
+            // create a new drug
+            request(server)
+              .post('/drug')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"name": "Phenylpiracetam",' +
+                '"unit": "mg",' +
+                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
+                '"classification": "AMPA modulator",' +
+                '"family": "*racetam",' +
+                '"rarity": "Common"' +
+                '}')
+              .end(function() {
+                // edit that drug
+                request(server)
+                  .put('/drug')
+                  .auth('myotherusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"id": 1, "unit": "grains"}')
+                  .expect(404, done);
+              });
+          });
+      });
+  });
+
   it('denies drug update with an invalid field', function testDrugUpdateInvalid(done) {
     request(server)
       .post('/register')

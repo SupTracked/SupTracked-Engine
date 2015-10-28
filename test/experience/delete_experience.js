@@ -47,6 +47,36 @@ describe('experience delete', function() {
       });
   });
 
+  it('refuses delete on another user', function testExperienceDeletionOtherUser(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .post('/register')
+          .set('Content-Type', 'application/json')
+          .send('{"username": "myotherusername", "password": "MyPassword"}')
+          .end(function() {
+            // make the experience
+            request(server)
+              .post('/experience')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"title": "My Title", "date": 1445543583}')
+              .end(function() {
+                // delete the experience
+                request(server)
+                  .delete('/experience')
+                  .auth('myotherusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"id": 1}')
+                  .expect(404, done);
+              });
+          });
+      });
+  });
+
   it('refuses to delete without ID', function testExperienceDeletionNoID(done) {
     request(server)
       .post('/register')

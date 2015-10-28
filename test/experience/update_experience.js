@@ -109,6 +109,36 @@ describe('experience update', function() {
       });
   });
 
+  it('denies update on another user', function testExperienceUpdateOtherUser(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .post('/register')
+          .set('Content-Type', 'application/json')
+          .send('{"username": "myotherusername", "password": "MyPassword"}')
+          .end(function() {
+            // create a new experience
+            request(server)
+              .post('/experience')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"title": "My Title", "date": 1445543583}')
+              .end(function() {
+                // edit that experience
+                request(server)
+                  .put('/experience')
+                  .auth('myotherusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"id": 1, "title": "My New Title"}')
+                  .expect(404, done);
+              });
+          });
+      });
+  });
+
   it('denies experience update with an invalid field', function testExperienceUpdateInvalid(done) {
     request(server)
       .post('/register')

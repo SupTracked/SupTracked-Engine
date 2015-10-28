@@ -543,34 +543,54 @@ router.put('/', function(req, res, next) {
     })) {
     // all the keys of the request body (AKA all requested fields) are allowed; let them pass
 
-    // assemble the query
-    var columns = Object.keys(req.body).join(', ');
-    var updateVals = [];
-    var dataArray = {};
-
-    // set the column1 = value1, etc. for the update
-    Object.keys(req.body).forEach(function(columnName) {
-      updateVals.push(columnName + ' = $' + columnName);
-    });
-
-    var query = 'UPDATE consumptions SET ' + updateVals.join(', ') + ' WHERE id = $conid AND owner = $owner';
-    dataArray.$owner = req.supID;
-    dataArray.$conid = req.body.id;
-
-    // loop through each key and build the JSON object of bindings for sqlite
-    Object.keys(req.body).forEach(function(columnName) {
-      dataArray["$" + columnName] = req.body[columnName];
-    });
-
-    db.run(query, dataArray, function(err) {
+    db.all("SELECT * FROM consumptions WHERE owner = $owner AND id = $id", {
+      $owner: req.supID,
+      $id: req.body.id
+    }, function(err, consumptions) {
       if (err) {
-        res.status(500).send();
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          consumption: err
+        }));
         return;
       }
 
-      // all done. loaded and ready.
-      res.setHeader('Content-Type', 'application/json');
-      res.status(200).send();
+      if (consumptions.length === 0) {
+        // they don't own that consumption
+        res.setHeader('Content-Type', 'application/json');
+        res.status(404).send();
+        return;
+      }
+
+      // assemble the query
+      var columns = Object.keys(req.body).join(', ');
+      var updateVals = [];
+      var dataArray = {};
+
+      // set the column1 = value1, etc. for the update
+      Object.keys(req.body).forEach(function(columnName) {
+        updateVals.push(columnName + ' = $' + columnName);
+      });
+
+      var query = 'UPDATE consumptions SET ' + updateVals.join(', ') + ' WHERE id = $conid AND owner = $owner';
+      dataArray.$owner = req.supID;
+      dataArray.$conid = req.body.id;
+
+      // loop through each key and build the JSON object of bindings for sqlite
+      Object.keys(req.body).forEach(function(columnName) {
+        dataArray["$" + columnName] = req.body[columnName];
+      });
+
+      db.run(query, dataArray, function(err) {
+        if (err) {
+          res.status(500).send();
+          return;
+        }
+
+        // all done. loaded and ready.
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).send();
+      });
     });
   } else {
     // they tried to send an unsupported key; kick 'em out

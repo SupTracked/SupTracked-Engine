@@ -213,23 +213,43 @@ router.put('/', function(req, res, next) {
       updateVals.push(columnName + ' = $' + columnName);
     });
 
-    var query = 'UPDATE drugs SET ' + updateVals.join(', ') + ' WHERE id = $id AND owner = $owner';
-    dataArray.$owner = req.supID;
-
-    // loop through each key and build the JSON object of bindings for sqlite
-    Object.keys(req.body).forEach(function(columnName) {
-      dataArray["$" + columnName] = req.body[columnName];
-    });
-
-    db.run(query, dataArray, function(err) {
+    db.all("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
+      $id: req.body.id,
+      $owner: req.supID
+    }, function(err, drug) {
       if (err) {
-        res.status(500).send();
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          drug: err
+        }));
         return;
       }
 
-      // all done. loaded and ready.
-      res.setHeader('Content-Type', 'application/json');
-      res.status(200).send();
+      // no drugs returned; nothing for that ID
+      if (drug.length === 0) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(404).send();
+        return;
+      }
+
+      var query = 'UPDATE drugs SET ' + updateVals.join(', ') + ' WHERE id = $id AND owner = $owner';
+      dataArray.$owner = req.supID;
+
+      // loop through each key and build the JSON object of bindings for sqlite
+      Object.keys(req.body).forEach(function(columnName) {
+        dataArray["$" + columnName] = req.body[columnName];
+      });
+
+      db.run(query, dataArray, function(err) {
+        if (err) {
+          res.status(500).send();
+          return;
+        }
+
+        // all done. loaded and ready.
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).send();
+      });
     });
   } else {
     // they tried to send an unsupported key; kick 'em out

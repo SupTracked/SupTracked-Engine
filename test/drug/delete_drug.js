@@ -51,6 +51,40 @@ describe('drug delete', function() {
       });
   });
 
+  it('refuses delete on another user', function testDrugDeletionOtherUser(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .post('/register')
+          .set('Content-Type', 'application/json')
+          .send('{"username": "myotherusername", "password": "MyPassword"}')
+          .end(function() {
+            request(server)
+              .post('/drug')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"name": "Phenylpiracetam",' +
+                '"unit": "mg",' +
+                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
+                '"classification": "AMPA modulator",' +
+                '"family": "*racetam",' +
+                '"rarity": "Common"' +
+                '}')
+              .end(function() {
+                request(server)
+                  .delete('/drug')
+                  .auth('myotherusername', 'MyPassword')
+                  .set('Content-Type', 'application/json')
+                  .send('{"id": 1}')
+                  .expect(404, done);
+              });
+          });
+      });
+  });
+
   it('refuses delete on no ID', function testDrugDeletionNoID(done) {
     request(server)
       .post('/register')
