@@ -17,6 +17,7 @@ var consumption = require('./routes/consumption');
 var drug = require('./routes/drug');
 var method = require('./routes/method');
 var media = require('./routes/media');
+var twilio = require('./routes/twilio');
 
 var app = express();
 
@@ -83,6 +84,7 @@ app.use('/consumption', consumption);
 app.use('/drug', drug);
 app.use('/method', method);
 app.use('/media', media);
+app.use('/twilio', twilio);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
