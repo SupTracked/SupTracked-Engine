@@ -1432,7 +1432,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/drug/all",
-    "title": "Get a unique list of all drugs owned by the user, ordered from most used to least used",
+    "title": "Get a unique list of all drugs owned by the user",
     "name": "GetAllDrugs",
     "group": "Drug",
     "permission": [
@@ -2651,6 +2651,743 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "routes/consumption.js",
     "groupTitle": "Location"
+  },
+  {
+    "type": "post",
+    "url": "/media",
+    "title": "Create a media entry (must use multipart form)",
+    "name": "CreateMedia",
+    "group": "Media",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "<p>File</p> ",
+            "optional": false,
+            "field": "image",
+            "description": "<p>the desired image</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "title",
+            "description": "<p>title of the image</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": true,
+            "field": "tags",
+            "description": "<p>tags for the image</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": true,
+            "field": "date",
+            "description": "<p>date the image was taken (leave blank for current date and time)</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "association_type",
+            "description": "<p>what type of object the media should be associated with; &quot;drug&quot; or &quot;experience&quot;</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "association",
+            "description": "<p>id of the associated drug or experience</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "explicit",
+            "description": "<p>1 indicates that the content is explicit (defaults to 0)</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "favorite",
+            "description": "<p>1 indicates that the content is a favorite piece of content (defaults to 0)</p> "
+          }
+        ]
+      }
+    },
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "id",
+            "description": "<p>id of the created media</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 201 Created\n{\n  \"id\": 3,\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "missingField",
+            "description": "<p>a required field was missing</p> "
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "badAssociationType",
+            "description": "<p>associationType was not &quot;drug&quot; or &quot;experience&quot;</p> "
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "badAssociation",
+            "description": "<p>association was not found with the given ID</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"media\": \"file, title, association_type, and association required\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"media\": \"associationType was not 'drug' or 'experience'\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"media\": \"association not found\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/media.js",
+    "groupTitle": "Media"
+  },
+  {
+    "type": "delete",
+    "url": "/media",
+    "title": "Delete a media object",
+    "name": "DeleteMedia",
+    "group": "Media",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the media</p> "
+          }
+        ]
+      }
+    },
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "missingID",
+            "description": "<p>id was not provided</p> "
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "noRecords",
+            "description": "<p>no media exists for the given ID</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"media\": \"id must be provided\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 Not Found",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/media.js",
+    "groupTitle": "Media"
+  },
+  {
+    "type": "get",
+    "url": "/media",
+    "title": "Get a JSON object of a media object",
+    "name": "GetMedia",
+    "group": "Media",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the desired media</p> "
+          }
+        ]
+      }
+    },
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "id",
+            "description": "<p>id of the media</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "title",
+            "description": "<p>title of the image</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "tags",
+            "description": "<p>tags for the image</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "date",
+            "description": "<p>date the image was taken</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "association_type",
+            "description": "<p>what type of object the media should be associated with; &quot;drug&quot; or &quot;experience&quot;</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "association",
+            "description": "<p>id of the associated drug or experience</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "explicit",
+            "description": "<p>1 indicates that the content is explicit</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "favorite",
+            "description": "<p>1 indicates that the content is a favorite piece of content</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "owner",
+            "description": "<p>id of the owner</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"id\": 1,\n   \"title\": \"Me\",\n   \"tags\": \"selfie me\",\n   \"date\": 1445995224,\n   \"association_type\": \"experience\",\n   \"association\": \"1\",\n   \"explicit\": 0,\n   \"favorite\": 1,\n   \"owner\": 1\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "missingID",
+            "description": "<p>id was not provided</p> "
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "noRecords",
+            "description": "<p>no results found for the given ID</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"media\": \"id must be provided\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 Not Found",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/media.js",
+    "groupTitle": "Media"
+  },
+  {
+    "type": "get",
+    "url": "/media/file",
+    "title": "Get an image file",
+    "name": "GetMediaFile",
+    "group": "Media",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the desired media</p> "
+          }
+        ]
+      }
+    },
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "id",
+            "description": "<p>id of the media</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[image file]",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "missingID",
+            "description": "<p>id was not provided</p> "
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "noRecords",
+            "description": "<p>no results found for the given ID</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"media\": \"id must be provided\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 Not Found",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/media.js",
+    "groupTitle": "Media"
+  },
+  {
+    "type": "get",
+    "url": "/media/search",
+    "title": "Retrieve an array of media that match the provided criteria",
+    "name": "SearchMedia",
+    "group": "Media",
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "media",
+            "description": "<p>JSON array of media</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "media.id",
+            "description": "<p>id of the media</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "media.title",
+            "description": "<p>title of the image</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "media.tags",
+            "description": "<p>tags for the image</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "media.date",
+            "description": "<p>date the image was taken</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "media.association_type",
+            "description": "<p>what type of object the media should be associated with; &quot;drug&quot; or &quot;experience&quot;</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "media.association",
+            "description": "<p>id of the associated drug or experience (requires association type)</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "media.explicit",
+            "description": "<p>1 indicates that the content is explicit</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "media.favorite",
+            "description": "<p>1 indicates that the content is a favorite piece of content</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "media.owner",
+            "description": "<p>id of the owner</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"id\": 1,\n   \"title\": \"Me\",\n   \"tags\": \"selfie me\",\n   \"date\": 1445995224,\n   \"association_type\": \"experience\",\n   \"association\": \"1\",\n   \"explicit\": 0,\n   \"favorite\": 1,\n   \"owner\": 1\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "startdate",
+            "description": "<p>Unix timestamp of beginning of date range to select</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "enddate",
+            "description": "<p>Unix timestamp of end of date range to select</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": true,
+            "field": "title",
+            "description": "<p>title of the image</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": true,
+            "field": "tags",
+            "description": "<p>tags for the image</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": true,
+            "field": "association_type",
+            "description": "<p>what type of object the media should be associated with; &quot;drug&quot; or &quot;experience&quot;</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "association",
+            "description": "<p>id of the associated drug or experience</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "explicit",
+            "description": "<p>1 indicates that the content is explicit</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "favorite",
+            "description": "<p>1 indicates that the content is a favorite piece of content</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "limit",
+            "description": "<p>only return this number of rows</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "offset",
+            "description": "<p>offset the returned number of rows by this amount (requires limit)</p> "
+          }
+        ]
+      }
+    },
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "noResults",
+            "description": "<p>no experiences or consumptions match the provided criteria</p> "
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "needCriteria",
+            "description": "<p>no experiences match the provided criteria (at least one must be provided)</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 Not Found Bad Request",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"media\": \"at least one field must be provided\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/media.js",
+    "groupTitle": "Media"
+  },
+  {
+    "type": "put",
+    "url": "/media",
+    "title": "Update a media object",
+    "name": "UpdateMedia",
+    "group": "Media",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "id",
+            "description": "<p>id of the media</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": true,
+            "field": "title",
+            "description": "<p>title of the image</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": true,
+            "field": "tags",
+            "description": "<p>tags for the image</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": true,
+            "field": "date",
+            "description": "<p>date the image was taken</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": true,
+            "field": "association_type",
+            "description": "<p>what type of object the media should be associated with; &quot;drug&quot; or &quot;experience&quot;</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "association",
+            "description": "<p>id of the associated drug or experience</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "explicit",
+            "description": "<p>1 indicates that the content is explicit</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "favorite",
+            "description": "<p>1 indicates that the content is a favorite piece of content</p> "
+          }
+        ]
+      }
+    },
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "noFields",
+            "description": "<p>no fields to set were provided</p> "
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "illegalField",
+            "description": "<p>a field to update was send that is not permitted (must be in above list)</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"media\": \"no fields provided\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"media\": \"custom field requested that is not permitted\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/media.js",
+    "groupTitle": "Media"
   },
   {
     "type": "post",
