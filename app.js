@@ -59,9 +59,11 @@ app.use(function(err, req, res, next) {
 
   if (err.status) {
     console.log(err);
+    console.log(err.stack);
     res.status(err.status).send(err);
   } else {
     console.log(err);
+    console.log(err.stack);
     res.status(500).send(err);
   }
 });
