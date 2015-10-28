@@ -507,4 +507,174 @@ router.put('/', function(req, res, next) {
   }
 });
 
+/**
+ * @api {get} /media/search Retrieve an array of media that match the provided criteria
+ * @apiName SearchMedia
+ * @apiGroup Media
+ *
+ * @apiSuccess {Object[]} media  JSON array of media
+ * @apiSuccess {Number} media.id  id of the media
+ * @apiSuccess {String} media.title  title of the image
+ * @apiSuccess {String} media.tags  tags for the image
+ * @apiSuccess {String} media.date  date the image was taken
+ * @apiSuccess {String} media.association_type  what type of object the media should be associated with; "drug" or "experience"
+ * @apiSuccess {Number} media.association  id of the associated drug or experience (requires association type)
+ * @apiSuccess {Number} media.explicit  1 indicates that the content is explicit
+ * @apiSuccess {Number} media.favorite  1 indicates that the content is a favorite piece of content
+ * @apiSuccess {Number} media.owner   id of the owner
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *        "id": 1,
+ *        "title": "Me",
+ *        "tags": "selfie me",
+ *        "date": 1445995224,
+ *        "association_type": "experience",
+ *        "association": "1",
+ *        "explicit": 0,
+ *        "favorite": 1,
+ *        "owner": 1
+ *     }
+ *
+ * @apiParam {Number} [startdate]  Unix timestamp of beginning of date range to select
+ * @apiParam {Number} [enddate]  Unix timestamp of end of date range to select
+ * @apiParam {String} [title]  title of the image
+ * @apiParam {String} [tags]  tags for the image
+ * @apiParam {String} [association_type]  what type of object the media should be associated with; "drug" or "experience"
+ * @apiParam {Number} [association]  id of the associated drug or experience
+ * @apiParam {Number} [explicit]  1 indicates that the content is explicit
+ * @apiParam {Number} [favorite]  1 indicates that the content is a favorite piece of content
+ * @apiParam {Number} [limit]  only return this number of rows
+ * @apiParam {Number} [offset]  offset the returned number of rows by this amount (requires limit)
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiError noResults no experiences or consumptions match the provided criteria
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found Bad Request
+ *
+ * @apiError needCriteria no experiences match the provided criteria (at least one must be provided)
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "media": "at least one field must be provided"
+ *     }
+ */
+router.get('/search', function(req, res, next) {
+  // start assembling the query
+  var queryData = {};
+  var query = "";
+  var searchCriteria = [];
+  var limitCriteria = "";
+  var limitOffset = "";
+
+  if (req.body !== undefined && Object.keys(req.body).length > 0) {
+    if ("limit" in req.body) {
+      if (parseInt(req.body.limit)) {
+        // we have a parseable int
+        limitOffset += " LIMIT " + parseInt(req.body.limit);
+      }
+    }
+
+    if ("offset" in req.body) {
+      if (parseInt(req.body.offset)) {
+        // we have a parseable int
+        limitOffset += "," + parseInt(req.body.offset);
+      }
+    }
+
+    // get date range
+    if ("startdate" in req.body && "enddate" in req.body) {
+      searchCriteria.push("date BETWEEN $startdate AND $enddate");
+      queryData.$startdate = req.body.startdate;
+      queryData.$enddate = req.body.enddate;
+    }
+
+    // get title
+    if ("title" in req.body) {
+      searchCriteria.push("title LIKE '%' || $title || '%'");
+      queryData.$title = req.body.title;
+    }
+
+    // get tags
+    if ("tags" in req.body) {
+      searchCriteria.push("tags LIKE '%' || $tags || '%'");
+      queryData.$tags = req.body.tags;
+    }
+
+    // get association_type
+    if ("association_type" in req.body) {
+      searchCriteria.push("association_type = $association_type");
+      queryData.$association_type = req.body.association_type;
+    }
+
+    // get association
+    if ("association" in req.body) {
+      searchCriteria.push("association = $association");
+      queryData.$association = req.body.association;
+    }
+
+    // get explicit
+    if ("explicit" in req.body) {
+      searchCriteria.push("explicit = $explicit");
+      queryData.$explicit = req.body.explicit;
+    }
+
+    // get favorite
+    if ("favorite" in req.body) {
+      searchCriteria.push("favorite = $favorite");
+      queryData.$favorite = req.body.favorite;
+    }
+  } else {
+    // no headers... we need SOMETHING here. use experience search if you don't care
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send({
+      media: "at least one field must be provided"
+    });
+    return;
+  }
+
+  // slap the limit and offset
+  query = "SELECT title, tags, date, association_type, association, explicit, favorite, owner FROM media";
+
+  query += " WHERE";
+
+  if (searchCriteria.length > 0) {
+    // we know we have search criteria; add it
+    query += " " + searchCriteria.join(" AND ");
+    query += " AND owner = $owner";
+    queryData.$owner = req.supID;
+  } else {
+    query += " owner = $owner";
+    queryData.$owner = req.supID;
+  }
+
+  query += " ORDER BY date desc";
+  query += limitOffset;
+
+  // get the media
+  db.all(query, queryData, function(err, media) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        media: err
+      }));
+      return;
+    }
+
+    // no media returned
+    if (media.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    // fire them off
+    res.status(200).send(media);
+  });
+});
+
 module.exports = router;
