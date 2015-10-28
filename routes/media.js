@@ -1,17 +1,38 @@
+var config = require('../config');
+var multer = require('multer');
+var rimraf = require('rimraf');
+var fs = require('fs');
+var path = require('path');
+
+if (process.env.NODE_ENV == "test") {
+  // make the directory if it doesn't exist
+  var mkdirp = require('mkdirp');
+  mkdirp(config.media.test_location);
+
+  var uploadLocation = config.media.test_location;
+} else {
+  var uploadLocation = config.media.location;
+}
+
+var upload = multer({
+  dest: uploadLocation
+});
 var express = require('express');
 var router = express.Router();
 
 /**
- * @api {post} /media Create a media entry
+ * @api {post} /media Create a media entry (must use multipart form)
  * @apiName CreateMedia
  * @apiGroup Media
  *
  * @apiParam {File} image  the desired image
  * @apiParam {String} title  title of the image
  * @apiParam {String} [tags]  tags for the image
- * @apiParam {String} [date]  date the image was taken (leave blank for EXIF detection)
- * @apiParam {String} association_type  "drug" or "experience"
+ * @apiParam {String} [date]  date the image was taken (leave blank for current date and time)
+ * @apiParam {String} association_type  what type of object the media should be associated with; "drug" or "experience"
  * @apiParam {Number} association  id of the associated drug or experience
+ * @apiParam {Number} [explicit]  1 indicates that the content is explicit (defaults to 0)
+ * @apiParam {Number} [favorite]  1 indicates that the content is a favorite piece of content (defaults to 0)
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
@@ -28,80 +49,161 @@ var router = express.Router();
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Bad Request
  *     {
- *       "drug": "name, unit, notes, classification, family, and rarity required"
+ *       "media": "file, title, association_type, and association required"
+ *     }
+ *
+ * @apiError badAssociationType associationType was not "drug" or "experience"
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "media": "associationType was not 'drug' or 'experience'"
+ *     }
+ *
+ * @apiError badAssociation association was not found with the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "media": "association not found"
  *     }
  */
- 
-router.post('/', function(req, res, next) {
+
+router.post('/', upload.single('image'), function(req, res, next) {
   // not enough fields were provided
-  if (req.body === undefined || !("name" in req.body) ||
-    !("unit" in req.body) || !("notes" in req.body) ||
-    !("classification" in req.body) || !("family" in req.body) ||
-    !("rarity" in req.body)) {
+  if (req.body === undefined || req.file === undefined ||
+    !("title" in req.body) || !("association_type" in req.body) ||
+    !("association" in req.body)) {
+    // kill the uploaded file if it exists
+    if (req.file !== undefined && fs.existsSync(req.file.destination + req.file.filename)) {
+      rimraf(req.file.destination + req.file.filename);
+    }
+
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      drug: "name, unit, notes, classification, family, and rarity required"
+      media: "file, title, notes, association_type, and association required"
     }));
     return;
   }
 
-  // stick it in
-  db.run("INSERT INTO drugs (name, unit, notes, classification, family, rarity, owner)" +
-    " VALUES ($name, $unit, $notes, $classification, $family, $rarity, $owner)", {
-      $name: req.body.name,
-      $unit: req.body.unit,
-      $notes: req.body.notes,
-      $classification: req.body.classification,
-      $family: req.body.family,
-      $rarity: req.body.rarity,
-      $owner: req.supID
-    },
-    function(err) {
-      if (err) {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(400).send(JSON.stringify({
-          drug: err
-        }));
-        return;
+  // make sure the association_type is valid
+  if (req.body.association_type != 'drug' && req.body.association_type != 'experience') {
+    // kill the uploaded file (it exists because we got this far)
+    rimraf(req.file.destination + req.file.filename, function() {
+      // file is deleted; tell about the problem
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        media: "association_type was not 'drug' or 'experience'"
+      }));
+      return;
+    });
+    return;
+  }
+
+  // make sure the association actually exists
+  // (low risk of injection because we were explicit in checking above)
+  db.all("SELECT * FROM " + req.body.association_type + "s WHERE id = $id AND owner = $owner", {
+    $id: req.body.association,
+    $owner: req.supID
+  }, function(err, association) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        media: err
+      }));
+      return;
+    }
+
+    if (association.length > 0) {
+      // compile out optional parameters
+      if (req.body.tags === undefined) {
+        req.body.tags = '';
       }
 
-      // you dun gud
-      res.setHeader('Content-Type', 'application/json');
-      res.status(201).send(JSON.stringify({
-        id: this.lastID
-      }));
-    });
+      if (req.body.explicit === undefined) {
+        req.body.explicit = 0;
+      }
+
+      if (req.body.favorite === undefined) {
+        req.body.favorite = 0;
+      }
+
+      if (req.body.date === undefined) {
+        req.body.date = Math.floor(Date.now() / 1000);
+      }
+
+
+      // insert it
+      db.run("INSERT INTO media (filename, title, tags, date, association_type, association, explicit, favorite, owner)" +
+        " VALUES ($filename, $title, $tags, $date, $association_type, $association, $explicit, $favorite, $owner)", {
+          $filename: req.file.destination + req.file.filename,
+          $title: req.body.title,
+          $tags: req.body.tags,
+          $date: req.body.date,
+          $association_type: req.body.association_type,
+          $association: req.body.association,
+          $explicit: req.body.explicit,
+          $favorite: req.body.favorite,
+          $owner: req.supID
+        },
+        function(err) {
+          if (err) {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400).send(JSON.stringify({
+              media: err
+            }));
+            return;
+          }
+          res.setHeader('Content-Type', 'application/json');
+          res.status(201).send(JSON.stringify({
+            id: this.lastID
+          }));
+        });
+    } else {
+      // no association found
+      rimraf(req.file.destination + req.file.filename, function() {
+        // file is deleted; tell about the problem
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({
+          media: "association not found"
+        }));
+        return;
+      });
+    }
+  });
 });
 
 /**
- * @api {get} /drug Get a JSON object of an drug
- * @apiName GetDrug
- * @apiGroup Drug
+ * @api {get} /media Get a JSON object of a media object
+ * @apiName GetMedia
+ * @apiGroup Media
  *
- * @apiParam {Number} id  ID of the desired drug
+ * @apiParam {Number} id  ID of the desired media
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
- * @apiSuccess {Number} id  id of the drug
- * @apiSuccess {String} name  name of the drug
- * @apiSuccess {String} unit  unit of measurement for the drug
- * @apiSuccess {String} notes  notes about the drug
- * @apiSuccess {String} classification  drug classification
- * @apiSuccess {String} family  drug's chemical family
- * @apiSuccess {String} rarity  drug rarity
- * @apiSuccess {Number} owner  id of the owner of the experience
+ * @apiSuccess {Number} id  id of the media
+ * @apiSuccess {String} title  title of the image
+ * @apiSuccess {String} tags  tags for the image
+ * @apiSuccess {String} date  date the image was taken
+ * @apiSuccess {String} association_type  what type of object the media should be associated with; "drug" or "experience"
+ * @apiSuccess {Number} association  id of the associated drug or experience
+ * @apiSuccess {Number} explicit  1 indicates that the content is explicit
+ * @apiSuccess {Number} favorite  1 indicates that the content is a favorite piece of content
+ * @apiSuccess {Number} owner   id of the owner
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *        "id": 1,
- *        "name": "Phenylpiracetam",
- *        "unit": "mg",
- *        "notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",
- *        "classification": "AMPA modulator",
- *        "family": "*racetam",
- *        "rarity": "Common",
- *        "owner" 1
+ *        "title": "Me",
+ *        "tags": "selfie me",
+ *        "date": 1445995224,
+ *        "association_type": "experience",
+ *        "association": "1",
+ *        "explicit": 0,
+ *        "favorite": 1,
+ *        "owner": 1
  *     }
  *
  * @apiError missingID id was not provided
@@ -109,7 +211,7 @@ router.post('/', function(req, res, next) {
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Bad Request
  *     {
- *       "drug": "id must be provided"
+ *       "media": "id must be provided"
  *     }
  *
  * @apiError noRecords no results found for the given ID
@@ -122,133 +224,113 @@ router.get('/', function(req, res, next) {
   if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      drug: "id must be provided"
+      media: "id must be provided"
     }));
     return;
   }
 
   // get the entry
-  db.all("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM media WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, drug) {
+  }, function(err, media) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
-        drug: err
+        media: err
       }));
       return;
     }
 
     // no drugs returned; nothing for that ID
-    if (drug.length === 0) {
+    if (media.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
     }
 
-    // return the drug
+    // pop out the filename
+    media[0].filename = undefined;
+
+    // return the media
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(drug[0]));
+    res.status(200).send(JSON.stringify(media[0]));
   });
 });
 
 /**
- * @api {put} /drug Update a drug
- * @apiName UpdateDrug
- * @apiGroup Drug
+ * @api {get} /media/file Get an image file
+ * @apiName GetMediaFile
+ * @apiGroup Media
  *
- * @apiParam {Number} id  id of the drug
- * @apiParam {String} [name]  name of the drug
- * @apiParam {String} [unit]  unit of measurement for the drug
- * @apiParam {String} [notes]  notes about the drug
- * @apiParam {String} [classification]  drug classification
- * @apiParam {String} [family]  drug's chemical family
- * @apiParam {String} [rarity]  drug rarity
+ * @apiParam {Number} id  ID of the desired media
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
+ * @apiSuccess {Number} id  id of the media
+ *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
+ *     [image file]
  *
- * @apiError noFields no fields to set were provided
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "drug": "no fields provided"
- *     }
- *
- * @apiError illegalField a field to update was send that is not permitted (must be in above list)
+ * @apiError missingID id was not provided
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Bad Request
  *     {
- *       "drug": "custom field requested that is not permitted"
+ *       "media": "id must be provided"
  *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
  */
-router.put('/', function(req, res, next) {
-  var permittedFields = ['name', 'unit', 'notes', 'classification', 'family', 'rarity', 'id'];
-
-  //no fields were provided
-  if (Object.keys(req.body).length === 0 || req.body === undefined) {
+router.get('/file', function(req, res, next) {
+  // not enough fields were provided
+  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      drug: "no fields provided"
+      media: "id must be provided"
     }));
     return;
   }
 
-  if (Object.keys(req.body).every(function(field) {
-      return permittedFields.indexOf(field) >= 0;
-    })) {
-    // all the keys of the request body (AKA all requested fields) are allowed; let them pass
-
-    // assemble the query
-    var columns = Object.keys(req.body).join(', ');
-    var updateVals = [];
-    var dataArray = {};
-
-    // set the column1 = value1, etc. for the update
-    Object.keys(req.body).forEach(function(columnName) {
-      updateVals.push(columnName + ' = $' + columnName);
-    });
-
-    var query = 'UPDATE drugs SET ' + updateVals.join(', ') + ' WHERE id = $id AND owner = $owner';
-    dataArray.$owner = req.supID;
-
-    // loop through each key and build the JSON object of bindings for sqlite
-    Object.keys(req.body).forEach(function(columnName) {
-      dataArray["$" + columnName] = req.body[columnName];
-    });
-
-    db.run(query, dataArray, function(err) {
-      if (err) {
-        res.status(500).send();
-        return;
-      }
-
-      // all done. loaded and ready.
+  // get the entry
+  db.all("SELECT * FROM media WHERE id = $id AND owner = $owner", {
+    $id: req.body.id,
+    $owner: req.supID
+  }, function(err, media) {
+    if (err) {
       res.setHeader('Content-Type', 'application/json');
-      res.status(200).send();
-    });
-  } else {
-    // they tried to send an unsupported key; kick 'em out
-    res.setHeader('Content-Type', 'application/json');
-    res.status(400).send(JSON.stringify({
-      drug: "custom field requested that is not permitted"
-    }));
-  }
+      res.status(400).send(JSON.stringify({
+        media: err
+      }));
+      return;
+    }
+
+    // no drugs returned; nothing for that ID
+    if (media.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    // return the media
+    res.sendFile(path.resolve(media[0].filename));
+    return;
+  });
 });
 
 /**
- * @api {delete} /drug Delete a drug
- * @apiName DeleteDrug
- * @apiGroup Drug
+ * @api {delete} /media Delete a media object
+ * @apiName DeleteMedia
+ * @apiGroup Media
  *
- * @apiParam {Number} id  ID of the drug
+ * @apiParam {Number} id  ID of the media
  *
  * @apiPermission ValidUserBasicAuthRequired
+ *
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -258,19 +340,10 @@ router.put('/', function(req, res, next) {
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Bad Request
  *     {
- *       "drug": "id must be provided"
+ *       "media": "id must be provided"
  *     }
  *
- * @apiError inUse drug is currently used in a consumption; followed by array of full consumptions it's used in
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "drug": "drug in use",
- *       "consumptions": [array of consumption objects]
- *     }
- *
- * @apiError noRecords no results found for the given ID
+ * @apiError noRecords no media exists for the given ID
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not Found
@@ -280,132 +353,49 @@ router.delete('/', function(req, res, next) {
   if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
-      drug: "id must be provided"
+      media: "id must be provided"
     }));
     return;
   }
 
   // get the entry
-  db.all("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
+  db.all("SELECT * FROM media WHERE id = $id AND owner = $owner", {
     $id: req.body.id,
     $owner: req.supID
-  }, function(err, drug) {
+  }, function(err, media) {
     if (err) {
       res.setHeader('Content-Type', 'application/json');
       res.status(400).send(JSON.stringify({
-        drug: err
+        media: err
       }));
       return;
     }
 
     // no drugs returned; nothing for that ID
-    if (drug.length === 0) {
+    if (media.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
       return;
     }
 
-    // makes sure it's not in consumptions
-    db.all("SELECT * FROM consumptions WHERE drug_id = $id AND owner = $owner", {
+    db.run("DELETE FROM media WHERE id = $id AND owner = $owner", {
       $id: req.body.id,
       $owner: req.supID
-    }, function(err, consumption) {
+    }, function(err) {
       if (err) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
-          drug: err
+          media: err
         }));
         return;
       }
 
-      if (consumption.length > 0) {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(400).send(JSON.stringify({
-          drug: "drug in use",
-          consumptions: consumption
-        }));
-        return;
-      }
-
-      // we're clear; delete it
-      db.run("DELETE FROM drugs WHERE id = $id AND owner = $owner", {
-        $id: req.body.id,
-        $owner: req.supID
-      }, function(err) {
-        if (err) {
-          res.setHeader('Content-Type', 'application/json');
-          res.status(400).send(JSON.stringify({
-            drug: err
-          }));
-          return;
-        }
-
-        // deleted the drug
+      // deleted the media; now kill the file
+      fs.unlink(media[0].filename, function() {
         res.setHeader('Content-Type', 'application/json');
         res.status(200).send();
       });
     });
-  });
-});
-
-/**
- * @api {get} /drug/all Get a unique list of all drugs owned by the user
- * @apiName GetAllDrugs
- * @apiGroup Drug
- *
- * @apiPermission ValidUserBasicAuthRequired
- *
- * @apiSuccess {Object[]} drugs json array of drugs.
- *  @apiSuccess {Object[]} drugs.drug  JSON array for individual drug
- *    @apiSuccess {Number}   drugs.drug.id  drug id.
- *    @apiSuccess {String}   drugs.drug.name  drug name
- *    @apiSuccess {String}   drugs.drug.unit  drug name
- *    @apiSuccess {String}   drugs.drug.notes  drug name
- *    @apiSuccess {String}   drugs.drug.classification  drug name
- *    @apiSuccess {String}   drugs.drug.family  drug family
- *    @apiSuccess {String}   drugs.drug.rarity  drug rarity
- *    @apiSuccess {Number}   drugs.drug.use_count  number of times that the drug has been used in consumptions
- *    @apiSuccess {Number}   drugs.drug.owner  id of the owner of the drug
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     [{
- *       "id": 2,
- *       "name": "Ibuprofen",
- *       "unit": "mg",
- *       "notes": "Ibuprofen is a painkiller",
- *       "classification": "COX inhibitor",
- *       "family": "NSAID",
- *       "rarity": "Common",
- *       "use_count": 0,
- *       "owner": 1
- *     }, {
- *       "id": 1,
- *       "name": "Phenylpiracetam",
- *       "unit": "mg",
- *       "notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",
- *       "classification": "AMPA modulator",
- *       "family": "*racetam",
- *       "rarity": "Common",
- *       "use_count": 0,
- *       "owner": 1
- *     }]
- */
-router.get('/all', function(req, res, next) {
-  // get drugs
-  db.all("SELECT *, (SELECT count(*) as count FROM consumptions as C WHERE C.drug_id = D.id) as use_count FROM drugs D WHERE D.owner = $owner GROUP BY name ORDER BY use_count DESC", {
-    $owner: req.supID
-  }, function(err, drugs) {
-    if (err) {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(400).send(JSON.stringify({
-        drug: err
-      }));
-      return;
-    }
-
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(drugs);
   });
 });
 
