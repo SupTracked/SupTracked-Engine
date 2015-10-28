@@ -1,10 +1,7 @@
 TODO
 
   Media
-    Add media with file, title, subtitle, tags, date, drug or experience association
     Update media, including favorite or explicit
-    Remove media by ID
-    Get media by ID
     Search for media by title, subtitle, tags, date range, limit, offset, experience OR drug
 
   twilio endpoints
@@ -20,3 +17,5 @@ TODO
       jump to now
 
   consider io.js compatible hashing platform
+
+  add other owner check to delete; update drug, method, experience, consumption
