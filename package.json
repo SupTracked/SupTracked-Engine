@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node ./bin/www",
-    "test": "mocha --recursive",
+    "test": "mocha --recursive && jshint .",
     "postinstall": "mocha --recursive",
     "lint": "jshint ."
   },
