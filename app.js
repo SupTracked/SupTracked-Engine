@@ -58,8 +58,10 @@ app.use(function(err, req, res, next) {
   }
 
   if (err.status) {
+    console.log(err);
     res.status(err.status).send(err);
   } else {
+    console.log(err);
     res.status(500).send(err);
   }
 });
