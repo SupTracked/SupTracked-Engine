@@ -165,6 +165,14 @@ q.fcall(
     'favorite INTEGER, ' +
     'owner INTEGER);' +
     ' ' +
+    'CREATE TABLE IF NOT EXISTS "audit" ' +
+    '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+    'date INTEGER, ' +
+    'ip TEXT, ' +
+    'useragent TEXT, ' +
+    'action TEXT, ' +
+    'owner INTEGER);' +
+    ' ' +
     'CREATE TABLE IF NOT EXISTS "methods" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
     'name TEXT, ' +

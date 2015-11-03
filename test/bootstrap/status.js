@@ -32,7 +32,7 @@ describe('status', function() {
       .get('/status/db')
       .expect(200, {
         online: true,
-        tables: 7
+        tables: 8
       }, done);
   });
 });

@@ -45,14 +45,38 @@ function auth(req, res, next) {
       return unauthorized(res);
     }
 
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress ||
+             req.socket.remoteAddress || req.connection.socket.remoteAddress;
+
     // we've heard of them; is the password correct?
     bcrypt.compare(user.pass, row.password, function(err, result) {
       if (result) {
         // good to go; add their ID to the request
         req.supID = row.id;
         req.supUser = user.name;
+
+        // make an eudit entry
+         db.run("INSERT INTO audit (date, ip, useragent, action, owner)" +
+          " VALUES ($date, $ip, $useragent, $action, $owner)", {
+            $date: Math.floor(Date.now() / 1000),
+            $ip: ip,
+            $useragent: req.headers['user-agent'],
+            $action: req.originalUrl,
+            $owner: row.id
+          });
+
         next();
       } else {
+        // build and insert the audit entry
+        db.run("INSERT INTO audit (date, ip, useragent, action, owner)" +
+          " VALUES ($date, $ip, $useragent, $action, $owner)", {
+            $date: Math.floor(Date.now() / 1000),
+            $ip: ip,
+            $useragent: req.headers['user-agent'],
+            $action: req.originalUrl + '(bad auth)',
+            $owner: row.id
+          });
+
         return unauthorized(res);
       }
     });

@@ -41,7 +41,55 @@ router.get('/', function(req, res, next) {
 });
 
 /**
- * @api {put} /user Update an experience
+ * @api {get} /user/audit Get user audit data
+ * @apiName GetUserAudit
+ * @apiGroup User
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiParam {Number} [limit]  limit of entries to return (defaults to 100)
+ *
+ * @apiSuccess {Object[]} entry  JSON object of audit entry
+ *  @apiSuccess {Number}   entry.id   ID of entry
+ *  @apiSuccess {String}   entry.date  timestamp of entry
+ *  @apiSuccess {String}   entry.ip  origin ip of the request
+ *  @apiSuccess {String}   entry.useragent  origin useragent of the request
+ *  @apiSuccess {String}   entry.action  url accessed
+ *  @apiSuccess {String}   entry.owner  id of the user
+ *
+ * @apiError noLimit no limit was provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "user": "no limit provided"
+ *     }
+ *
+ */
+router.get('/audit', function(req, res, next) {
+  if (Object.keys(req.body).length === 0 || req.body === undefined ||
+  req.body.limit === undefined) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({user: "no limit provided"}));
+    return;
+  }
+
+  db.all("SELECT * FROM audit WHERE id = $id ORDER BY date DESC LIMIT $limit", {
+    $id: req.supID,
+    $limit: parseInt(req.body.limit)
+  }, function(err, audit) {
+    if(err){
+      res.status(500).send();
+      return;
+    }
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(audit);
+  });
+});
+
+/**
+ * @api {put} /user Update an user
  * @apiName UpdateUser
  * @apiGroup User
  *
