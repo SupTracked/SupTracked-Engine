@@ -4065,9 +4065,111 @@ define({ "api": [
     "groupTitle": "User"
   },
   {
+    "type": "get",
+    "url": "/user/audit",
+    "title": "Get user audit data",
+    "name": "GetUserAudit",
+    "group": "User",
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "<p>Number</p> ",
+            "optional": true,
+            "field": "limit",
+            "description": "<p>limit of entries to return (defaults to 100)</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "entry",
+            "description": "<p>JSON object of audit entry</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "entry.id",
+            "description": "<p>ID of entry</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "entry.date",
+            "description": "<p>timestamp of entry</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "entry.ip",
+            "description": "<p>origin ip of the request</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "entry.useragent",
+            "description": "<p>origin useragent of the request</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "entry.action",
+            "description": "<p>url accessed</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "entry.owner",
+            "description": "<p>id of the user</p> "
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "noLimit",
+            "description": "<p>no limit was provided</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"user\": \"no limit provided\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/user.js",
+    "groupTitle": "User"
+  },
+  {
     "type": "put",
     "url": "/user",
-    "title": "Update an experience",
+    "title": "Update an user",
     "name": "UpdateUser",
     "group": "User",
     "parameter": {
