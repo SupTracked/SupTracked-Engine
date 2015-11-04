@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var basicAuth = require('basic-auth');
 var bcrypt = require('bcrypt');
+var cors = require('cors');
 
 // route loading
 var status = require('./routes/status');
@@ -20,6 +21,7 @@ var media = require('./routes/media');
 var twilio = require('./routes/twilio');
 
 var app = express();
+app.use(cors());
 
 /**
  * Basic Auth/DB auth system
