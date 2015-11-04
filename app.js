@@ -57,7 +57,8 @@ function auth(req, res, next) {
         req.supID = row.id;
         req.supUser = user.name;
 
-        // make an eudit entry
+        // make an eudit entry if this isn't a standard user check
+        if(req.originalUrl !== '/user'){
          db.run("INSERT INTO audit (date, ip, useragent, action, owner)" +
           " VALUES ($date, $ip, $useragent, $action, $owner)", {
             $date: Math.floor(Date.now() / 1000),
@@ -66,6 +67,7 @@ function auth(req, res, next) {
             $action: req.originalUrl,
             $owner: row.id
           });
+        }
 
         next();
       } else {
