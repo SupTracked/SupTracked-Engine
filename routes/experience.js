@@ -39,7 +39,8 @@ var router = express.Router();
  */
 router.post('/', function(req, res, next) {
   // not enough fields were provided
-  if (req.body === undefined || !("title" in req.body) || !("date" in req.body)) {
+  if (req.body === undefined || !("title" in req.body) || !("date" in req.body) ||
+      req.body.title.length < 1) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
       experience: "title and valid date required"
