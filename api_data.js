@@ -376,7 +376,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/consumption",
+    "url": "/consumption/:id",
     "title": "Get a JSON object of a consumption",
     "name": "GetConsumption",
     "group": "Consumption",
@@ -573,7 +573,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/consumption/experience",
+    "url": "/consumption/experience/:id",
     "title": "Get a JSON object of all consumptions from a given experience",
     "name": "GetConsumptionsByExp",
     "group": "Consumption",
@@ -832,7 +832,7 @@ define({ "api": [
     "groupTitle": "Consumption"
   },
   {
-    "type": "get",
+    "type": "post",
     "url": "/consumption/search",
     "title": "Retrieve an array of experiences with consumptions that match the provided criteria",
     "name": "SearchConsumption",
@@ -1536,7 +1536,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/drug",
+    "url": "/drug/:id",
     "title": "Get a JSON object of an drug",
     "name": "GetDrug",
     "group": "Drug",
@@ -1924,7 +1924,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/experience",
+    "url": "/experience/:id",
     "title": "Get a JSON object of an experience",
     "name": "GetExperience",
     "group": "Experience",
@@ -2183,7 +2183,7 @@ define({ "api": [
     "groupTitle": "Experience"
   },
   {
-    "type": "get",
+    "type": "post",
     "url": "/experience/search",
     "title": "Retrieve an array of experiences that match the provided criteria",
     "name": "SearchExperience",
@@ -2859,7 +2859,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/media",
+    "url": "/media/:id",
     "title": "Get a JSON object of a media object",
     "name": "GetMedia",
     "group": "Media",
@@ -2993,7 +2993,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/media/file",
+    "url": "/media/file/:id",
     "title": "Get an image file",
     "name": "GetMediaFile",
     "group": "Media",
@@ -3070,7 +3070,7 @@ define({ "api": [
     "groupTitle": "Media"
   },
   {
-    "type": "get",
+    "type": "post",
     "url": "/media/search",
     "title": "Retrieve an array of media that match the provided criteria",
     "name": "SearchMedia",
@@ -3620,7 +3620,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/method",
+    "url": "/method/:id",
     "title": "Get a JSON object of a method",
     "name": "GetMethod",
     "group": "Method",
