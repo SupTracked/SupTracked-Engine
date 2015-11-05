@@ -183,10 +183,8 @@ describe('twilio', function() {
                   .field('MediaUrl0', "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150&fm=jpg")
                   .end(function() {
                     request(server)
-                      .get('/media')
+                      .get('/media/1')
                       .auth('myusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"id": 1}')
                       .expect(isValidMedia)
                       .expect(200, done);
                   });
@@ -222,10 +220,8 @@ describe('twilio', function() {
                   .field('MediaUrl0', "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150&fm=jpg")
                   .end(function() {
                     request(server)
-                      .get('/media')
+                      .get('/media/1')
                       .auth('myusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"id": 1}')
                       .expect(isBigEnough)
                       .expect(200, done);
                   });
@@ -262,18 +258,14 @@ describe('twilio', function() {
                   .field('MediaUrl1', "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150&fm=jpg")
                   .end(function() {
                     request(server)
-                      .get('/media')
+                      .get('/media/1')
                       .auth('myusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"id": 1}')
                       .expect(isValidMedia)
                       .expect(200)
                       .end(function() {
                         request(server)
-                          .get('/media')
+                          .get('/media/2')
                           .auth('myusername', 'MyPassword')
-                          .set('Content-Type', 'application/json')
-                          .send('{"id": 2}')
                           .expect(isValidMedia)
                           .expect(200, done);
                       });

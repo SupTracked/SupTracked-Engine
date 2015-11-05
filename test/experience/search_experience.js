@@ -28,12 +28,12 @@ describe('experience search', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .get('/experience/search')
+          .post('/experience/search')
           .auth('myusername', 'MyPassword')
           .expect(404, done);
       });
   });
-  
+
   it('returns experience on empty search', function testExperienceSearchEmpty(done) {
     request(server)
       .post('/register')
@@ -49,7 +49,7 @@ describe('experience search', function() {
           .end(function() {
             // run an empty search
             request(server)
-              .get('/experience/search')
+              .post('/experience/search')
               .auth('myusername', 'MyPassword')
               .expect(200, [{
                 id: 1,
@@ -116,7 +116,7 @@ describe('experience search', function() {
                           .send('{"consumption_id": 1, "name": "John Smith"}')
                           .end(function() {
                             request(server)
-                              .get('/experience/search')
+                              .post('/experience/search')
                               .auth('myusername', 'MyPassword')
                               .set('Content-Type', 'application/json')
                               .expect(200, [{
@@ -181,7 +181,7 @@ describe('experience search', function() {
               .send('{"title": "Cows", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .get('/experience/search')
+                  .post('/experience/search')
                   .auth('myusername', 'MyPassword')
                   .set('Content-Type', 'application/json')
                   .send('{"limit": 1}')
@@ -223,7 +223,7 @@ describe('experience search', function() {
               .end(function() {
                 // run a request with a limit and an offset
                 request(server)
-                  .get('/experience/search')
+                  .post('/experience/search')
                   .auth('myusername', 'MyPassword')
                   .set('Content-Type', 'application/json')
                   .send('{"limit": 1, "offset": 1}')
@@ -265,7 +265,7 @@ describe('experience search', function() {
               .end(function() {
                 // search on title
                 request(server)
-                  .get('/experience/search')
+                  .post('/experience/search')
                   .auth('myusername', 'MyPassword')
                   .set('Content-Type', 'application/json')
                   .send('{"title": "Cows"}')
@@ -314,7 +314,7 @@ describe('experience search', function() {
                   .end(function() {
                     // search for the notes
                     request(server)
-                      .get('/experience/search')
+                      .post('/experience/search')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
                       .send('{"notes": "Cool"}')
@@ -364,7 +364,7 @@ describe('experience search', function() {
                   .end(function() {
                     // search for the rating
                     request(server)
-                      .get('/experience/search')
+                      .post('/experience/search')
                       .auth('myusername', 'MyPassword')
                       .set('Content-Type', 'application/json')
                       .send('{"rating_id": 2}')
@@ -407,7 +407,7 @@ describe('experience search', function() {
               .end(function() {
                 // search for the daterange
                 request(server)
-                  .get('/experience/search')
+                  .post('/experience/search')
                   .auth('myusername', 'MyPassword')
                   .set('Content-Type', 'application/json')
                   .send('{"startdate": 1440000000, "enddate": 1460000000}')

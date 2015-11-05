@@ -75,86 +75,6 @@ router.post('/', function(req, res, next) {
 });
 
 /**
- * @api {get} /drug Get a JSON object of an drug
- * @apiName GetDrug
- * @apiGroup Drug
- *
- * @apiParam {Number} id  ID of the desired drug
- *
- * @apiPermission ValidUserBasicAuthRequired
- *
- * @apiSuccess {Number} id  id of the drug
- * @apiSuccess {String} name  name of the drug
- * @apiSuccess {String} unit  unit of measurement for the drug
- * @apiSuccess {String} notes  notes about the drug
- * @apiSuccess {String} classification  drug classification
- * @apiSuccess {String} family  drug's chemical family
- * @apiSuccess {String} rarity  drug rarity
- * @apiSuccess {Number} owner  id of the owner of the experience
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *        "id": 1,
- *        "name": "Phenylpiracetam",
- *        "unit": "mg",
- *        "notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",
- *        "classification": "AMPA modulator",
- *        "family": "*racetam",
- *        "rarity": "Common",
- *        "owner" 1
- *     }
- *
- * @apiError missingID id was not provided
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "drug": "id must be provided"
- *     }
- *
- * @apiError noRecords no results found for the given ID
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- */
-router.get('/', function(req, res, next) {
-  // not enough fields were provided
-  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
-    res.setHeader('Content-Type', 'application/json');
-    res.status(400).send(JSON.stringify({
-      drug: "id must be provided"
-    }));
-    return;
-  }
-
-  // get the entry
-  db.all("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
-    $id: req.body.id,
-    $owner: req.supID
-  }, function(err, drug) {
-    if (err) {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(400).send(JSON.stringify({
-        drug: err
-      }));
-      return;
-    }
-
-    // no drugs returned; nothing for that ID
-    if (drug.length === 0) {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(404).send();
-      return;
-    }
-
-    // return the drug
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(drug[0]));
-  });
-});
-
-/**
  * @api {put} /drug Update a drug
  * @apiName UpdateDrug
  * @apiGroup Drug
@@ -427,6 +347,87 @@ router.get('/all', function(req, res, next) {
 
     res.setHeader('Content-Type', 'application/json');
     res.status(200).send(drugs);
+  });
+});
+
+
+/**
+ * @api {get} /drug/:id Get a JSON object of an drug
+ * @apiName GetDrug
+ * @apiGroup Drug
+ *
+ * @apiParam {Number} id  ID of the desired drug
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number} id  id of the drug
+ * @apiSuccess {String} name  name of the drug
+ * @apiSuccess {String} unit  unit of measurement for the drug
+ * @apiSuccess {String} notes  notes about the drug
+ * @apiSuccess {String} classification  drug classification
+ * @apiSuccess {String} family  drug's chemical family
+ * @apiSuccess {String} rarity  drug rarity
+ * @apiSuccess {Number} owner  id of the owner of the experience
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *        "id": 1,
+ *        "name": "Phenylpiracetam",
+ *        "unit": "mg",
+ *        "notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",
+ *        "classification": "AMPA modulator",
+ *        "family": "*racetam",
+ *        "rarity": "Common",
+ *        "owner" 1
+ *     }
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "drug": "id must be provided"
+ *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ */
+router.get('/:id', function(req, res, next) {
+  // not enough fields were provided
+  if (req.params === {} || isNaN(req.params.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      drug: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.all("SELECT * FROM drugs WHERE id = $id AND owner = $owner", {
+    $id: req.params.id,
+    $owner: req.supID
+  }, function(err, drug) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        drug: err
+      }));
+      return;
+    }
+
+    // no drugs returned; nothing for that ID
+    if (drug.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    // return the drug
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(JSON.stringify(drug[0]));
   });
 });
 

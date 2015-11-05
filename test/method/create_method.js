@@ -49,10 +49,8 @@ describe('method create', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .get('/method')
+          .get('/method/1')
           .auth('myusername', 'MyPassword')
-          .set('Content-Type', 'application/json')
-          .send('{"id": 1}')
           .expect(404, done);
       });
   });
@@ -66,10 +64,7 @@ describe('method create', function() {
         request(server)
           .post('/method')
           .auth('myusername', 'MyPassword')
-          .set('Content-Type', 'application/json')
-          .expect(400, {
-            "method": "name and icon required"
-          }, done);
+          .expect(400, {"method": "name and icon required"}, done);
       });
   });
 
@@ -107,10 +102,8 @@ describe('method create', function() {
             '}')
           .end(function() {
             request(server)
-              .get('/method')
+              .get('/method/1')
               .auth('myusername', 'MyPassword')
-              .set('Content-Type', 'application/json')
-              .send('{"id": 1}')
               .expect(200, {
                 "id": 1,
                 "name": "Oral",

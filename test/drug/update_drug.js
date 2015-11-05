@@ -49,10 +49,8 @@ describe('drug update', function() {
               .end(function() {
                 // request and check that it was updated
                 request(server)
-                  .get('/drug')
+                  .get('/drug/1')
                   .auth('myusername', 'MyPassword')
-                  .set('Content-Type', 'application/json')
-                  .send('{"id": 1}')
                   .expect(200, {
                     "id": 1,
                     "name": "Phenylpiracetam",

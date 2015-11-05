@@ -28,10 +28,9 @@ describe('consumptions for experience', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .get('/consumption')
+          .get('/consumption/1')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"id": 1}')
           .expect(404, done);
       });
   });
@@ -43,11 +42,9 @@ describe('consumptions for experience', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .get('/consumption')
+          .get('/consumption/1')
           .auth('myusername', 'MyPassword')
-          .expect(400, {
-            "consumption": "id must be provided"
-          }, done);
+          .expect(404, done);
       });
   });
 
@@ -61,9 +58,7 @@ describe('consumptions for experience', function() {
           .get('/consumption')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .expect(400, {
-            "consumption": "id must be provided"
-          }, done);
+          .expect(404, done);
       });
   });
 
@@ -117,10 +112,8 @@ describe('consumptions for experience', function() {
                           .send('{"consumption_id": 1, "name": "John Smith"}')
                           .end(function() {
                             request(server)
-                              .get('/consumption/experience')
+                              .get('/consumption/experience/1')
                               .auth('myusername', 'MyPassword')
-                              .set('Content-Type', 'application/json')
-                              .send('{"id": 1}')
                               .expect(200, [{
                                 "id": 1,
                                 "date": "1445648036",
@@ -159,10 +152,9 @@ describe('consumptions for experience', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .get('/consumption/experience')
+          .get('/consumption/experience/1')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"id": 1}')
           .expect(404, done);
       });
   });

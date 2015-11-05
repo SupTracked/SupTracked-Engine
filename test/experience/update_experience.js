@@ -72,10 +72,8 @@ describe('experience update', function() {
                           .end(function() {
                             // request and check that it was updated
                             request(server)
-                              .get('/experience')
+                              .get('/experience/1')
                               .auth('myusername', 'MyPassword')
-                              .set('Content-Type', 'application/json')
-                              .send('{"id": 1}')
                               .expect(200, {
                                 "date": 1445543583,
                                 "id": 1,

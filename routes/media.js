@@ -174,92 +174,7 @@ router.post('/', upload.single('image'), function(req, res, next) {
 });
 
 /**
- * @api {get} /media Get a JSON object of a media object
- * @apiName GetMedia
- * @apiGroup Media
- *
- * @apiParam {Number} id  ID of the desired media
- *
- * @apiPermission ValidUserBasicAuthRequired
- *
- * @apiSuccess {Number} id  id of the media
- * @apiSuccess {String} title  title of the image
- * @apiSuccess {String} tags  tags for the image
- * @apiSuccess {String} date  date the image was taken
- * @apiSuccess {String} association_type  what type of object the media should be associated with; "drug" or "experience"
- * @apiSuccess {Number} association  id of the associated drug or experience
- * @apiSuccess {Number} explicit  1 indicates that the content is explicit
- * @apiSuccess {Number} favorite  1 indicates that the content is a favorite piece of content
- * @apiSuccess {Number} owner   id of the owner
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *        "id": 1,
- *        "title": "Me",
- *        "tags": "selfie me",
- *        "date": 1445995224,
- *        "association_type": "experience",
- *        "association": "1",
- *        "explicit": 0,
- *        "favorite": 1,
- *        "owner": 1
- *     }
- *
- * @apiError missingID id was not provided
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "media": "id must be provided"
- *     }
- *
- * @apiError noRecords no results found for the given ID
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- */
-router.get('/', function(req, res, next) {
-  // not enough fields were provided
-  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
-    res.setHeader('Content-Type', 'application/json');
-    res.status(400).send(JSON.stringify({
-      media: "id must be provided"
-    }));
-    return;
-  }
-
-  // get the entry
-  db.all("SELECT * FROM media WHERE id = $id AND owner = $owner", {
-    $id: req.body.id,
-    $owner: req.supID
-  }, function(err, media) {
-    if (err) {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(400).send(JSON.stringify({
-        media: err
-      }));
-      return;
-    }
-
-    // no drugs returned; nothing for that ID
-    if (media.length === 0) {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(404).send();
-      return;
-    }
-
-    // pop out the filename
-    media[0].filename = undefined;
-
-    // return the media
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(media[0]));
-  });
-});
-
-/**
- * @api {get} /media/file Get an image file
+ * @api {get} /media/file/:id Get an image file
  * @apiName GetMediaFile
  * @apiGroup Media
  *
@@ -286,9 +201,9 @@ router.get('/', function(req, res, next) {
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not Found
  */
-router.get('/file', function(req, res, next) {
+router.get('/file/:id', function(req, res, next) {
   // not enough fields were provided
-  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
+  if (req.params === {} || isNaN(req.params.id)) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
       media: "id must be provided"
@@ -298,7 +213,7 @@ router.get('/file', function(req, res, next) {
 
   // get the entry
   db.all("SELECT * FROM media WHERE id = $id AND owner = $owner", {
-    $id: req.body.id,
+    $id: req.params.id,
     $owner: req.supID
   }, function(err, media) {
     if (err) {
@@ -510,7 +425,7 @@ router.put('/', function(req, res, next) {
 });
 
 /**
- * @api {get} /media/search Retrieve an array of media that match the provided criteria
+ * @api {post} /media/search Retrieve an array of media that match the provided criteria
  * @apiName SearchMedia
  * @apiGroup Media
  *
@@ -565,7 +480,7 @@ router.put('/', function(req, res, next) {
  *       "media": "at least one field must be provided"
  *     }
  */
-router.get('/search', function(req, res, next) {
+router.post('/search', function(req, res, next) {
   // start assembling the query
   var queryData = {};
   var query = "";
@@ -676,6 +591,91 @@ router.get('/search', function(req, res, next) {
 
     // fire them off
     res.status(200).send(media);
+  });
+});
+
+/**
+ * @api {get} /media/:id Get a JSON object of a media object
+ * @apiName GetMedia
+ * @apiGroup Media
+ *
+ * @apiParam {Number} id  ID of the desired media
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number} id  id of the media
+ * @apiSuccess {String} title  title of the image
+ * @apiSuccess {String} tags  tags for the image
+ * @apiSuccess {String} date  date the image was taken
+ * @apiSuccess {String} association_type  what type of object the media should be associated with; "drug" or "experience"
+ * @apiSuccess {Number} association  id of the associated drug or experience
+ * @apiSuccess {Number} explicit  1 indicates that the content is explicit
+ * @apiSuccess {Number} favorite  1 indicates that the content is a favorite piece of content
+ * @apiSuccess {Number} owner   id of the owner
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *        "id": 1,
+ *        "title": "Me",
+ *        "tags": "selfie me",
+ *        "date": 1445995224,
+ *        "association_type": "experience",
+ *        "association": "1",
+ *        "explicit": 0,
+ *        "favorite": 1,
+ *        "owner": 1
+ *     }
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "media": "id must be provided"
+ *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ */
+router.get('/:id', function(req, res, next) {
+  // not enough fields were provided
+  if (req.params === {} || isNaN(req.params.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      media: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.all("SELECT * FROM media WHERE id = $id AND owner = $owner", {
+    $id: req.params.id,
+    $owner: req.supID
+  }, function(err, media) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        media: err
+      }));
+      return;
+    }
+
+    // no drugs returned; nothing for that ID
+    if (media.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    // pop out the filename
+    media[0].filename = undefined;
+
+    // return the media
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(JSON.stringify(media[0]));
   });
 });
 

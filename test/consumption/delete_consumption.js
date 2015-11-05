@@ -126,10 +126,9 @@ describe('consumption delete', function() {
                           .end(function() {
                             // request the deleted consumption
                             request(server)
-                              .get('/consumption')
+                              .get('/consumption/1')
                               .auth('myusername', 'MyPassword')
                               .set('Content-Type', 'application/json')
-                              .send('{"id": 1}')
                               .expect(404, done);
                           });
                       });

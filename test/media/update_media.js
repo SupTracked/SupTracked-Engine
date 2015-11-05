@@ -67,10 +67,8 @@ describe('media update', function() {
                   .send('{"id": 1, "title": "My Different Title"}')
                   .end(function() {
                     request(server)
-                      .get('/media')
+                      .get('/media/1')
                       .auth('myusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"id": 1}')
                       .expect(200, {
                         id: 1,
                         title: 'My Different Title',

@@ -64,78 +64,6 @@ router.post('/', function(req, res, next) {
 });
 
 /**
- * @api {get} /method Get a JSON object of a method
- * @apiName GetMethod
- * @apiGroup Method
- *
- * @apiParam {Number} id  ID of the desired method
- *
- * @apiPermission ValidUserBasicAuthRequired
- *
- * @apiSuccess {Number} id  id of the method
- * @apiSuccess {String} name  name of the method
- * @apiSuccess {String} icon  data URI for the method icon
- * @apiSuccess {String} owner  method owner id
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *        "id": 1,
- *        "name": "Oral",
- *        "icon": "mg",
- *        "owner": 1,
- *     }
- *
- * @apiError missingID id was not provided
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "method": "id must be provided"
- *     }
- *
- * @apiError noRecords no results found for the given ID
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- */
-router.get('/', function(req, res, next) {
-  // not enough fields were provided
-  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
-    res.setHeader('Content-Type', 'application/json');
-    res.status(400).send(JSON.stringify({
-      method: "id must be provided"
-    }));
-    return;
-  }
-
-  // get the entry
-  db.all("SELECT * FROM methods WHERE id = $id AND owner = $owner", {
-    $id: req.body.id,
-    $owner: req.supID
-  }, function(err, method) {
-    if (err) {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(400).send(JSON.stringify({
-        method: err
-      }));
-      return;
-    }
-
-    // no methods returned; nothing for that ID
-    if (method.length === 0) {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(404).send();
-      return;
-    }
-
-    // return the method
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(JSON.stringify(method[0]));
-  });
-});
-
-/**
  * @api {put} /method Update a method
  * @apiName UpdateMethod
  * @apiGroup Method
@@ -391,6 +319,78 @@ router.get('/all', function(req, res, next) {
 
     res.setHeader('Content-Type', 'application/json');
     res.status(200).send(methods);
+  });
+});
+
+/**
+ * @api {get} /method/:id Get a JSON object of a method
+ * @apiName GetMethod
+ * @apiGroup Method
+ *
+ * @apiParam {Number} id  ID of the desired method
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number} id  id of the method
+ * @apiSuccess {String} name  name of the method
+ * @apiSuccess {String} icon  data URI for the method icon
+ * @apiSuccess {String} owner  method owner id
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *        "id": 1,
+ *        "name": "Oral",
+ *        "icon": "mg",
+ *        "owner": 1,
+ *     }
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "method": "id must be provided"
+ *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ */
+router.get('/:id', function(req, res, next) {
+  // not enough fields were provided
+  if (req.params === {} || isNaN(req.params.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      method: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.all("SELECT * FROM methods WHERE id = $id AND owner = $owner", {
+    $id: req.params.id,
+    $owner: req.supID
+  }, function(err, method) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        method: err
+      }));
+      return;
+    }
+
+    // no methods returned; nothing for that ID
+    if (method.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    // return the method
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(JSON.stringify(method[0]));
   });
 });
 

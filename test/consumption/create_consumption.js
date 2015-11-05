@@ -251,10 +251,9 @@ describe('consumption create', function() {
                       .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                       .end(function() {
                         request(server)
-                          .get('/consumption')
+                          .get('/consumption/1')
                           .auth('myusername', 'MyPassword')
                           .set('Content-Type', 'application/json')
-                          .send('{"id": 1}')
                           .expect(200, {
                             "id": 1,
                             "date": "1445648036",
@@ -289,9 +288,7 @@ describe('consumption create', function() {
         request(server)
           .get('/consumption')
           .auth('myusername', 'MyPassword')
-          .expect(400, {
-            "consumption": "id must be provided"
-          }, done);
+          .expect(404, done);
       });
   });
 
@@ -305,9 +302,7 @@ describe('consumption create', function() {
           .get('/consumption')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .expect(400, {
-            "consumption": "id must be provided"
-          }, done);
+          .expect(404, done);
       });
   });
 
@@ -318,10 +313,9 @@ describe('consumption create', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .get('/consumption')
+          .get('/consumption/1')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"id": 2}')
           .expect(404, done);
       });
   });

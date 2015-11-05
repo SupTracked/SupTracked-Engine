@@ -46,10 +46,8 @@ describe('drug delete', function() {
               .send('{"id": 1}')
               .end(function() {
                 request(server)
-                  .get('/drug')
+                  .get('/drug/1')
                   .auth('myusername', 'MyPassword')
-                  .set('Content-Type', 'application/json')
-                  .send('{"id": 1}')
                   .expect(404, done);
               });
           });

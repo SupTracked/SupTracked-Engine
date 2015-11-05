@@ -116,10 +116,8 @@ describe('media delete', function() {
                   .send('{"id": 1}')
                   .end(function() {
                     request(server)
-                      .get('/media')
+                      .get('/media/1')
                       .auth('myusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"id": 1}')
                       .expect(404, done);
                   });
               });

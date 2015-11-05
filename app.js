@@ -24,8 +24,8 @@ var app = express();
 app.use(cors());
 
 /**
- * Basic Auth/DB auth system
- */
+* Basic Auth/DB auth system
+*/
 function auth(req, res, next) {
   function unauthorized(res) {
     res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
@@ -48,7 +48,7 @@ function auth(req, res, next) {
     }
 
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress ||
-             req.socket.remoteAddress || req.connection.socket.remoteAddress;
+    req.socket.remoteAddress || req.connection.socket.remoteAddress;
 
     // we've heard of them; is the password correct?
     bcrypt.compare(user.pass, row.password, function(err, result) {
@@ -59,7 +59,7 @@ function auth(req, res, next) {
 
         // make an eudit entry if this isn't a standard user check
         if(req.originalUrl !== '/user'){
-         db.run("INSERT INTO audit (date, ip, useragent, action, owner)" +
+          db.run("INSERT INTO audit (date, ip, useragent, action, owner)" +
           " VALUES ($date, $ip, $useragent, $action, $owner)", {
             $date: Math.floor(Date.now() / 1000),
             $ip: ip,
@@ -73,13 +73,13 @@ function auth(req, res, next) {
       } else {
         // build and insert the audit entry
         db.run("INSERT INTO audit (date, ip, useragent, action, owner)" +
-          " VALUES ($date, $ip, $useragent, $action, $owner)", {
-            $date: Math.floor(Date.now() / 1000),
-            $ip: ip,
-            $useragent: req.headers['user-agent'],
-            $action: req.originalUrl + '(bad auth)',
-            $owner: row.id
-          });
+        " VALUES ($date, $ip, $useragent, $action, $owner)", {
+          $date: Math.floor(Date.now() / 1000),
+          $ip: ip,
+          $useragent: req.headers['user-agent'],
+          $action: req.originalUrl + '(bad auth)',
+          $owner: row.id
+        });
 
         return unauthorized(res);
       }
@@ -128,12 +128,16 @@ app.use(function(err, req, res, next) {
   }
 
   if (err.status) {
-    console.log(err);
-    console.log(err.stack);
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(err);
+      console.log(err.stack);
+    }
     res.status(err.status).send(err);
   } else {
-    console.log(err);
-    console.log(err.stack);
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(err);
+      console.log(err.stack);
+    }
     res.status(500).send(err);
   }
 });

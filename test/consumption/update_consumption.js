@@ -124,10 +124,9 @@ describe('consumption update', function() {
                           .send('{"id": 1, "count": 17}')
                           .end(function() {
                             request(server)
-                              .get('/consumption')
+                              .get('/consumption/1')
                               .auth('myusername', 'MyPassword')
                               .set('Content-Type', 'application/json')
-                              .send('{"id": 1}')
                               .expect(200, {
                                 "id": 1,
                                 "date": "1445648036",

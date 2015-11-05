@@ -28,7 +28,7 @@ describe('consumption search', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .get('/consumption/search')
+          .post('/consumption/search')
           .auth('myusername', 'MyPassword')
           .expect(400, {
             "consumption": "at least one field must be provided"
@@ -43,7 +43,7 @@ describe('consumption search', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .get('/consumption/search')
+          .post('/consumption/search')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
           .send('{"drug_id": 1}')
@@ -137,7 +137,7 @@ describe('consumption search', function() {
                                           .send('{"consumption_id": 1, "name": "John Smith"}')
                                           .end(function() {
                                             request(server)
-                                              .get('/consumption/search')
+                                              .post('/consumption/search')
                                               .auth('myusername', 'MyPassword')
                                               .set('Content-Type', 'application/json')
                                               .send('{"drug_id": 1}')
@@ -271,7 +271,7 @@ describe('consumption search', function() {
                                           .send('{"consumption_id": 1, "name": "John Smith"}')
                                           .end(function() {
                                             request(server)
-                                              .get('/consumption/search')
+                                              .post('/consumption/search')
                                               .auth('myusername', 'MyPassword')
                                               .set('Content-Type', 'application/json')
                                               .send('{"method_id": 1}')
@@ -405,7 +405,7 @@ describe('consumption search', function() {
                                           .send('{"consumption_id": 1, "name": "John Smith"}')
                                           .end(function() {
                                             request(server)
-                                              .get('/consumption/search')
+                                              .post('/consumption/search')
                                               .auth('myusername', 'MyPassword')
                                               .set('Content-Type', 'application/json')
                                               .send('{"startdate": 1430000000, "enddate": 1450000000}')
@@ -538,7 +538,7 @@ describe('consumption search', function() {
                                           .send('{"consumption_id": 1, "name": "John Smith"}')
                                           .end(function() {
                                             request(server)
-                                              .get('/consumption/search')
+                                              .post('/consumption/search')
                                               .auth('myusername', 'MyPassword')
                                               .set('Content-Type', 'application/json')
                                               .send('{"location": "Juan"}')
@@ -671,7 +671,7 @@ describe('consumption search', function() {
                                           .send('{"consumption_id": 1, "name": "John Smith"}')
                                           .end(function() {
                                             request(server)
-                                              .get('/consumption/search')
+                                              .post('/consumption/search')
                                               .auth('myusername', 'MyPassword')
                                               .set('Content-Type', 'application/json')
                                               .send('{"location": " ", "limit": 1}')
@@ -800,7 +800,7 @@ describe('consumption search', function() {
                                           .send('{"consumption_id": 1, "name": "John Smith"}')
                                           .end(function() {
                                             request(server)
-                                              .get('/consumption/search')
+                                              .post('/consumption/search')
                                               .auth('myusername', 'MyPassword')
                                               .set('Content-Type', 'application/json')
                                               .send('{"location": " ", "limit": 1, "offset": 1}')

@@ -45,10 +45,8 @@ describe('method update', function() {
               .end(function() {
                 // request and check that it was updated
                 request(server)
-                  .get('/method')
+                  .get('/method/1')
                   .auth('myusername', 'MyPassword')
-                  .set('Content-Type', 'application/json')
-                  .send('{"id": 1}')
                   .expect(200, {
                     "id": 1,
                     "name": "Oral",

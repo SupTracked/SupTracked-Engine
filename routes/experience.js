@@ -80,222 +80,6 @@ router.post('/', function(req, res, next) {
 });
 
 /**
- * @api {get} /experience Get a JSON object of an experience
- * @apiName GetExperience
- * @apiGroup Experience
- *
- * @apiParam {Number} id  ID of the desired experience
- *
- * @apiPermission ValidUserBasicAuthRequired
- *
- * @apiSuccess {Number} id  id of the experience
- * @apiSuccess {Number} date  date of the experience
- * @apiSuccess {Number} ttime  id of the consumption for which T-0:00 time format is based off
- * @apiSuccess {String} title  title of the experience
- * @apiSuccess {String} notes  notes for the experience
- * @apiSuccess {String} panicmsg  user's panic message for the created experience
- * @apiSuccess {Number} rating_id  rating of general experience quality
- * @apiSuccess {Number} owner  id of the owner of the experience
- * @apiSuccess {Object[]} consumptions  array of consumptions for the experience
- *  @apiSuccess {Number} consumptions.id  id of the consumption
- *  @apiSuccess {Number} consumptions.date  Unix timestamp of the date and time of the consumption
- *  @apiSuccess {Number} consumptions.count  numerical quantity as measured by the drug's unit
- *  @apiSuccess {Number} consumptions.experience_id  ID of the experience the consumption is part of
- *  @apiSuccess {Object[]} consumptions.drug  JSON object of drug
- *   @apiSuccess {Number}   consumptions.drug.id   ID of friend
- *   @apiSuccess {String}   consumptions.drug.name  name of drug
- *   @apiSuccess {String}   consumptions.drug.unit  unit of drug
- *  @apiSuccess {Object[]} consumptions.method  JSON object of method
- *   @apiSuccess {Number}   consumptions.method.id   ID of method
- *   @apiSuccess {String}   consumptions.method.name  name of method
- *  @apiSuccess {String} consumptions.location  location of the consumption
- *  @apiSuccess {Object[]} consumptions.friends  array of JSON objects for friends associated with this consumption.
- *   @apiSuccess {Number}   consumptions.friends.id   ID of friend
- *   @apiSuccess {String}   consumptions.friends.name  name of friend
- *   @apiSuccess {Number}   consumptions.friends.consumption_id  consumption_id of friend
- *   @apiSuccess {Number}   consumptions.friends.owner  owner of friend
- *  @apiSuccess {Number} consumptions.owner  id of the owner of the consumption
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *        "date": 1445543583,
- *        "id": 1,
- *        "notes": "This is great.",
- *        "owner": 1,
- *        "panicmsg": "Oh snap help me!",
- *        "rating_id": 3,
- *        "title": "Great Time",
- *        "ttime": null,
- *        "consumptions": [{
- *          "count": 2,
- *          "date": "1445648036",
- *          "drug": {
- *            "id": 1,
- *            "name": "Aspirin",
- *            "unit": "mg",
- *          },
- *          "method": {
- *            "id": 1,
- *            "name": "oral"
- *          },
- *          "experience_id": 1,
- *          "friends": [{
- *            "id": 1,
- *            "name": "John Smith",
- *            "consumption_id": 1,
- *            "owner": 1
- *          }],
- *          "id": 1,
- *          "location": "San Juan",
- *            "id": 1,
- *            "name": "mg"
- *          },
- *          "owner": 1
- *        }]
- *     }
- *
- * @apiError missingID id was not provided
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "experience": "id must be provided"
- *     }
- *
- * @apiError noRecords no results found for the given ID
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- */
-router.get('/', function(req, res, next) {
-  // not enough fields were provided
-  if (req.body === undefined || !("id" in req.body) || isNaN(req.body.id)) {
-    res.setHeader('Content-Type', 'application/json');
-    res.status(400).send(JSON.stringify({
-      experience: "id must be provided"
-    }));
-    return;
-  }
-
-  // get the entry
-  db.all("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
-    $id: req.body.id,
-    $owner: req.supID
-  }, function(err, experience) {
-    if (err) {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(400).send(JSON.stringify({
-        experience: err
-      }));
-      return;
-    }
-
-    // no experience
-    if (experience.length === 0) {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(404).send();
-      return;
-    }
-
-    // get the consumptions
-    db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
-      " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id" +
-      " WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
-        $id: req.body.id,
-        $owner: req.supID
-      },
-      function(err, consumptions) {
-        if (err) {
-          res.setHeader('Content-Type', 'application/json');
-          res.status(400).send(JSON.stringify({
-            experience: err
-          }));
-          return;
-        }
-
-        // no consumptions returned; nothing for that ID
-        if (consumptions.length === 0) {
-          res.setHeader('Content-Type', 'application/json');
-          res.status(404).send();
-          return;
-        }
-
-        // layout where each consumption will go
-        var allConsumptions = [];
-
-        consumptions.forEach(function(consumption, index) {
-          // set up the drug array
-          var drugData = {};
-          //only load if we have drugs in this con (though that should never happen)
-          if (consumption.drug_id !== undefined) {
-            drugData.id = consumption.drug_id;
-            drugData.name = consumption.dname;
-            drugData.unit = consumption.unit;
-          }
-
-          // set up the method array
-          var methodData = {};
-          //only load if we have methods in this con (though that should never happen)
-          if (consumption.method_id !== undefined) {
-            methodData.id = consumption.method_id;
-            methodData.name = consumption.mname;
-          }
-
-          // we have a consumption; let's parse the friends into it
-          db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
-            $id: consumption.cid,
-            $owner: req.supID
-          }, function(err, friends) {
-            if (err) {
-              res.setHeader('Content-Type', 'application/json');
-              res.status(400).send(JSON.stringify({
-                experience: err
-              }));
-              return;
-            }
-
-            // assemble our consumption
-            var compiledConsumption = {
-              id: consumption.cid,
-              date: consumption.date,
-              count: consumption.count,
-              experience_id: consumption.experience_id,
-              drug: drugData,
-              method: methodData,
-              location: consumption.location,
-              friends: friends,
-              owner: req.supID
-            };
-
-            // shove it in our big object
-            allConsumptions.push(compiledConsumption);
-
-            // if we've run through all consumptions, load the experience data and fire it
-            if (index === consumptions.length - 1) {
-              var fullExperience = {
-                date: experience[0].date,
-                id: experience[0].id,
-                notes: experience[0].notes,
-                owner: experience[0].owner,
-                panicmsg: experience[0].panicmsg,
-                rating_id: experience[0].rating_id,
-                title: experience[0].title,
-                ttime: experience[0].ttime,
-                consumptions: allConsumptions
-              };
-
-              // bombs away
-              res.setHeader('Content-Type', 'application/json');
-              res.status(200).send(fullExperience);
-            }
-          });
-        });
-      });
-  });
-});
-
-/**
  * @api {delete} /experience Delete an experience
  * @apiName DeleteExperience
  * @apiGroup Experience
@@ -496,7 +280,7 @@ router.put('/', function(req, res, next) {
 });
 
 /**
- * @api {get} /experience/search Retrieve an array of experiences that match the provided criteria
+ * @api {post} /experience/search Retrieve an array of experiences that match the provided criteria
  * @apiName SearchExperience
  * @apiGroup Experience
  *
@@ -581,7 +365,7 @@ router.put('/', function(req, res, next) {
  *     HTTP/1.1 404 Not Found Bad Request
  *
  */
-router.get('/search', function(req, res, next) {
+router.post('/search', function(req, res, next) {
   // get our limits and offset
   var limitOffset = "";
 
@@ -768,6 +552,222 @@ router.get('/search', function(req, res, next) {
       });
     });
   }
+});
+
+/**
+ * @api {get} /experience/:id Get a JSON object of an experience
+ * @apiName GetExperience
+ * @apiGroup Experience
+ *
+ * @apiParam {Number} id  ID of the desired experience
+ *
+ * @apiPermission ValidUserBasicAuthRequired
+ *
+ * @apiSuccess {Number} id  id of the experience
+ * @apiSuccess {Number} date  date of the experience
+ * @apiSuccess {Number} ttime  id of the consumption for which T-0:00 time format is based off
+ * @apiSuccess {String} title  title of the experience
+ * @apiSuccess {String} notes  notes for the experience
+ * @apiSuccess {String} panicmsg  user's panic message for the created experience
+ * @apiSuccess {Number} rating_id  rating of general experience quality
+ * @apiSuccess {Number} owner  id of the owner of the experience
+ * @apiSuccess {Object[]} consumptions  array of consumptions for the experience
+ *  @apiSuccess {Number} consumptions.id  id of the consumption
+ *  @apiSuccess {Number} consumptions.date  Unix timestamp of the date and time of the consumption
+ *  @apiSuccess {Number} consumptions.count  numerical quantity as measured by the drug's unit
+ *  @apiSuccess {Number} consumptions.experience_id  ID of the experience the consumption is part of
+ *  @apiSuccess {Object[]} consumptions.drug  JSON object of drug
+ *   @apiSuccess {Number}   consumptions.drug.id   ID of friend
+ *   @apiSuccess {String}   consumptions.drug.name  name of drug
+ *   @apiSuccess {String}   consumptions.drug.unit  unit of drug
+ *  @apiSuccess {Object[]} consumptions.method  JSON object of method
+ *   @apiSuccess {Number}   consumptions.method.id   ID of method
+ *   @apiSuccess {String}   consumptions.method.name  name of method
+ *  @apiSuccess {String} consumptions.location  location of the consumption
+ *  @apiSuccess {Object[]} consumptions.friends  array of JSON objects for friends associated with this consumption.
+ *   @apiSuccess {Number}   consumptions.friends.id   ID of friend
+ *   @apiSuccess {String}   consumptions.friends.name  name of friend
+ *   @apiSuccess {Number}   consumptions.friends.consumption_id  consumption_id of friend
+ *   @apiSuccess {Number}   consumptions.friends.owner  owner of friend
+ *  @apiSuccess {Number} consumptions.owner  id of the owner of the consumption
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *        "date": 1445543583,
+ *        "id": 1,
+ *        "notes": "This is great.",
+ *        "owner": 1,
+ *        "panicmsg": "Oh snap help me!",
+ *        "rating_id": 3,
+ *        "title": "Great Time",
+ *        "ttime": null,
+ *        "consumptions": [{
+ *          "count": 2,
+ *          "date": "1445648036",
+ *          "drug": {
+ *            "id": 1,
+ *            "name": "Aspirin",
+ *            "unit": "mg",
+ *          },
+ *          "method": {
+ *            "id": 1,
+ *            "name": "oral"
+ *          },
+ *          "experience_id": 1,
+ *          "friends": [{
+ *            "id": 1,
+ *            "name": "John Smith",
+ *            "consumption_id": 1,
+ *            "owner": 1
+ *          }],
+ *          "id": 1,
+ *          "location": "San Juan",
+ *            "id": 1,
+ *            "name": "mg"
+ *          },
+ *          "owner": 1
+ *        }]
+ *     }
+ *
+ * @apiError missingID id was not provided
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "experience": "id must be provided"
+ *     }
+ *
+ * @apiError noRecords no results found for the given ID
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ */
+router.get('/:id', function(req, res, next) {
+  // not enough fields were provided
+  if (req.params === {} || isNaN(req.params.id)) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(400).send(JSON.stringify({
+      experience: "id must be provided"
+    }));
+    return;
+  }
+
+  // get the entry
+  db.all("SELECT * FROM experiences WHERE id = $id AND owner = $owner", {
+    $id: req.params.id,
+    $owner: req.supID
+  }, function(err, experience) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        experience: err
+      }));
+      return;
+    }
+
+    // no experience
+    if (experience.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
+    }
+
+    // get the consumptions
+    db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
+      " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id" +
+      " WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
+        $id: req.params.id,
+        $owner: req.supID
+      },
+      function(err, consumptions) {
+        if (err) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400).send(JSON.stringify({
+            experience: err
+          }));
+          return;
+        }
+
+        // no consumptions returned; nothing for that ID
+        if (consumptions.length === 0) {
+          res.setHeader('Content-Type', 'application/json');
+          res.status(404).send();
+          return;
+        }
+
+        // layout where each consumption will go
+        var allConsumptions = [];
+
+        consumptions.forEach(function(consumption, index) {
+          // set up the drug array
+          var drugData = {};
+          //only load if we have drugs in this con (though that should never happen)
+          if (consumption.drug_id !== undefined) {
+            drugData.id = consumption.drug_id;
+            drugData.name = consumption.dname;
+            drugData.unit = consumption.unit;
+          }
+
+          // set up the method array
+          var methodData = {};
+          //only load if we have methods in this con (though that should never happen)
+          if (consumption.method_id !== undefined) {
+            methodData.id = consumption.method_id;
+            methodData.name = consumption.mname;
+          }
+
+          // we have a consumption; let's parse the friends into it
+          db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
+            $id: consumption.cid,
+            $owner: req.supID
+          }, function(err, friends) {
+            if (err) {
+              res.setHeader('Content-Type', 'application/json');
+              res.status(400).send(JSON.stringify({
+                experience: err
+              }));
+              return;
+            }
+
+            // assemble our consumption
+            var compiledConsumption = {
+              id: consumption.cid,
+              date: consumption.date,
+              count: consumption.count,
+              experience_id: consumption.experience_id,
+              drug: drugData,
+              method: methodData,
+              location: consumption.location,
+              friends: friends,
+              owner: req.supID
+            };
+
+            // shove it in our big object
+            allConsumptions.push(compiledConsumption);
+
+            // if we've run through all consumptions, load the experience data and fire it
+            if (index === consumptions.length - 1) {
+              var fullExperience = {
+                date: experience[0].date,
+                id: experience[0].id,
+                notes: experience[0].notes,
+                owner: experience[0].owner,
+                panicmsg: experience[0].panicmsg,
+                rating_id: experience[0].rating_id,
+                title: experience[0].title,
+                ttime: experience[0].ttime,
+                consumptions: allConsumptions
+              };
+
+              // bombs away
+              res.setHeader('Content-Type', 'application/json');
+              res.status(200).send(fullExperience);
+            }
+          });
+        });
+      });
+  });
 });
 
 module.exports = router;

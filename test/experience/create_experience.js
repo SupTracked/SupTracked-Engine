@@ -135,10 +135,8 @@ describe('experience create', function() {
                       .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                       .end(function() {
                         request(server)
-                          .get('/experience')
+                          .get('/experience/1')
                           .auth('myusername', 'MyPassword')
-                          .set('Content-Type', 'application/json')
-                          .send('{"id": 1}')
                           .expect(200, {
                             "date": 1445543583,
                             "id": 1,

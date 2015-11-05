@@ -36,8 +36,6 @@ describe('drug create', function() {
         request(server)
           .get('/drug')
           .auth('myusername', 'MyPassword')
-          .set('Content-Type', 'application/json')
-          .send('{"id": 1}')
           .expect(404, done);
       });
   });
@@ -51,22 +49,6 @@ describe('drug create', function() {
         request(server)
           .post('/drug')
           .auth('myusername', 'MyPassword')
-          .expect(400, {
-            "drug": "name, unit, notes, classification, family, and rarity required"
-          }, done);
-      });
-  });
-
-  it('denies missing fields', function testDrugMissing(done) {
-    request(server)
-      .post('/register')
-      .set('Content-Type', 'application/json')
-      .send('{"username": "myusername", "password": "MyPassword"}')
-      .end(function() {
-        request(server)
-          .post('/drug')
-          .auth('myusername', 'MyPassword')
-          .set('Content-Type', 'application/json')
           .expect(400, {
             "drug": "name, unit, notes, classification, family, and rarity required"
           }, done);
@@ -115,10 +97,8 @@ describe('drug create', function() {
             '}')
           .end(function() {
             request(server)
-              .get('/drug')
+              .get('/drug/1')
               .auth('myusername', 'MyPassword')
-              .set('Content-Type', 'application/json')
-              .send('{"id": 1}')
               .expect(200, {
                 "id": 1,
                 "name": "Phenylpiracetam",

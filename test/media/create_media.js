@@ -178,10 +178,8 @@ describe('media create', function() {
               .field('date', 1445995224)
               .end(function() {
                 request(server)
-                  .get('/media')
+                  .get('/media/1')
                   .auth('myusername', 'MyPassword')
-                  .set('Content-Type', 'application/json')
-                  .send('{"id": 1}')
                   .expect(200, {
                     id: 1,
                     title: 'My Pic',
@@ -227,10 +225,9 @@ describe('media create', function() {
               .field('date', 1445995224)
               .end(function() {
                 request(server)
-                  .get('/media/file')
+                  .get('/media/file/1')
                   .auth('myusername', 'MyPassword')
                   .set('Content-Type', 'application/json')
-                  .send('{"id": 1}')
                   .expect(isBigEnough)
                   .expect(200, done);
               });
@@ -272,10 +269,8 @@ describe('media create', function() {
                   .field('date', 1445995224)
                   .end(function() {
                     request(server)
-                      .get('/media/file')
+                      .get('/media/file/1')
                       .auth('myotherusername', 'MyPassword')
-                      .set('Content-Type', 'application/json')
-                      .send('{"id": 1}')
                       .expect(404, done);
                   });
               });
