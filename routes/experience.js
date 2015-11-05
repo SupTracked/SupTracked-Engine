@@ -691,9 +691,21 @@ router.get('/:id', function(req, res, next) {
 
         // no consumptions returned; nothing for that ID
         if (consumptions.length === 0) {
-          res.setHeader('Content-Type', 'application/json');
-          res.status(404).send();
-          return;
+            var fullExperience = {
+              date: experience[0].date,
+              id: experience[0].id,
+              notes: experience[0].notes,
+              owner: experience[0].owner,
+              panicmsg: experience[0].panicmsg,
+              rating_id: experience[0].rating_id,
+              title: experience[0].title,
+              ttime: experience[0].ttime,
+              consumptions: []
+            };
+
+            // bombs away
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200).send(fullExperience);
         }
 
         // layout where each consumption will go
