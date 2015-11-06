@@ -442,7 +442,7 @@ router.post('/search', function(req, res, next) {
       experiences.forEach(function(singleExperience, experienceIndex) {
         // get consumptions for each experience
         db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
-          " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id" +
+          " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = M.id" +
           " WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
             $id: singleExperience.id,
             $owner: req.supID
@@ -675,7 +675,7 @@ router.get('/:id', function(req, res, next) {
 
     // get the consumptions
     db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
-      " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id" +
+      " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = M.id" +
       " WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
         $id: req.params.id,
         $owner: req.supID

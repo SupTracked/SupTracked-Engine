@@ -778,7 +778,7 @@ router.post('/search', function(req, res, next) {
         experiences.forEach(function(singleExperience, experienceIndex) {
           // get consumptions for each experience
           db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
-            " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id" +
+            " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = M.id" +
             " WHERE C.experience_id = $id AND c.owner = $owner GROUP BY cid ORDER BY date DESC", {
               $id: singleExperience.id,
               $owner: req.supID
@@ -1013,12 +1013,13 @@ router.get('/experience/:id', function(req, res, next) {
 
   // get the entry
   db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
-    " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id" +
+    " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id INNER JOIN methods M ON C.method_id = M.id" +
     " WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
       $id: req.params.id,
       $owner: req.supID
     },
     function(err, consumptions) {
+      console.log(consumptions)
       if (err) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
@@ -1173,7 +1174,7 @@ router.get('/:id', function(req, res, next) {
 
   // get the entry
   db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
-    " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = D.id" +
+    " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = M.id" +
     " WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
       $id: req.params.id,
       $owner: req.supID
