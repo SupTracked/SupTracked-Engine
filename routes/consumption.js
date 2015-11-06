@@ -1019,7 +1019,6 @@ router.get('/experience/:id', function(req, res, next) {
       $owner: req.supID
     },
     function(err, consumptions) {
-      console.log(consumptions)
       if (err) {
         res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({
