@@ -369,7 +369,7 @@ router.delete('/', function(req, res, next) {
  * @apiName AddFriendConsumption
  * @apiGroup Consumption
  *
- * @apiParam {Number} id  id of the consumption
+ * @apiParam {Number} consumption_id  id of the consumption
  * @apiParam {Number} name  name of the friend
  *
  * @apiPermission ValidUserBasicAuthRequired
