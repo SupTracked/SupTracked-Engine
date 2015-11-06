@@ -159,9 +159,31 @@ router.delete('/', function(req, res, next) {
           return;
         }
 
-        // deleted the experience
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).send();
+        db.all("SELECT * FROM media WHERE association_type = 'experience' AND association = $id AND owner = $owner", {
+          $id: req.body.id,
+          $owner: req.supID
+        }, function(err, media) {
+          if (err) {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400).send(JSON.stringify({
+              experience: err
+            }));
+            return;
+          }
+
+          if(media.length > 0){
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400).send(JSON.stringify({
+              experience: "Media associated; please remove before deleting the experience"
+            }));
+            return;
+          }
+
+
+          // deleted the experience
+          res.setHeader('Content-Type', 'application/json');
+          res.status(200).send();
+        });
       });
     });
   });
