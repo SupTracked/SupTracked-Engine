@@ -161,7 +161,7 @@ describe('consumption search', function() {
                                                   },
                                                   "method": {
                                                     "id": 1,
-                                                    "name": "Bucal"
+                                                    "name": "Oral"
                                                   },
                                                   "location": "San Juan",
                                                   "friends": [{
@@ -295,7 +295,7 @@ describe('consumption search', function() {
                                                   },
                                                   "method": {
                                                     "id": 1,
-                                                    "name": "Bucal"
+                                                    "name": "Oral"
                                                   },
                                                   "location": "San Juan",
                                                   "friends": [{
@@ -429,7 +429,7 @@ describe('consumption search', function() {
                                                   },
                                                   "method": {
                                                     "id": 1,
-                                                    "name": "Bucal"
+                                                    "name": "Oral"
                                                   },
                                                   "location": "San Juan",
                                                   "friends": [{
@@ -562,7 +562,7 @@ describe('consumption search', function() {
                                                   },
                                                   "method": {
                                                     "id": 1,
-                                                    "name": "Bucal"
+                                                    "name": "Oral"
                                                   },
                                                   "location": "San Juan",
                                                   "friends": [{
@@ -824,7 +824,7 @@ describe('consumption search', function() {
                                                   },
                                                   "method": {
                                                     "id": 1,
-                                                    "name": "Bucal"
+                                                    "name": "Oral"
                                                   },
                                                   "location": "San Juan",
                                                   "friends": [{
