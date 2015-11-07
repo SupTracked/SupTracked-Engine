@@ -461,7 +461,7 @@ router.post('/search', function(req, res, next) {
 
       var allExperiences = [];
 
-      experiences.forEach(function(singleExperience, experienceIndex) {
+      experiences.forEach(function(singleExperience) {
         // get consumptions for each experience
         db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
           " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = M.id" +
@@ -484,8 +484,9 @@ router.post('/search', function(req, res, next) {
               allExperiences.push(singleExperience);
 
               // if we've covered all the experiences, fire it off
-              if (experienceIndex === experiences.length - 1) {
+              if (allExperiences.length === experiences.length - 1) {
                 // bombs away
+                console.log(allExperiences.length)
                 res.setHeader('Content-Type', 'application/json');
                 res.status(200).send(allExperiences);
                 return;
@@ -562,7 +563,7 @@ router.post('/search', function(req, res, next) {
                   allExperiences.push(fullExperience);
 
                   // we've done all the experiences
-                  if (experienceIndex === experiences.length - 1) {
+                  if (allExperiences.length === experiences.length - 1) {
                     // bombs away
                     res.setHeader('Content-Type', 'application/json');
                     res.status(200).send(allExperiences);
