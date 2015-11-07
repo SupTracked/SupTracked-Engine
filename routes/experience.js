@@ -478,15 +478,15 @@ router.post('/search', function(req, res, next) {
               return;
             }
 
+          
             // no consumptions returned; push the experience with no consumptions
             if (consumptions.length === 0) {
               singleExperience.consumptions = [];
               allExperiences.push(singleExperience);
 
               // if we've covered all the experiences, fire it off
-              if (allExperiences.length === experiences.length - 1) {
+              if (allExperiences.length === experiences.length) {
                 // bombs away
-                console.log(allExperiences.length)
                 res.setHeader('Content-Type', 'application/json');
                 res.status(200).send(allExperiences);
                 return;
@@ -563,7 +563,7 @@ router.post('/search', function(req, res, next) {
                   allExperiences.push(fullExperience);
 
                   // we've done all the experiences
-                  if (allExperiences.length === experiences.length - 1) {
+                  if (allExperiences.length === experiences.length) {
                     // bombs away
                     res.setHeader('Content-Type', 'application/json');
                     res.status(200).send(allExperiences);
