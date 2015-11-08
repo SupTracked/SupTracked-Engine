@@ -49,7 +49,7 @@ describe('method update', function() {
                   .auth('myusername', 'MyPassword')
                   .expect(200, {
                     "id": 1,
-                    "name": "Oral",
+                    "name": "Method",
                     "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=",
                     "owner": 1
                   }, done);
