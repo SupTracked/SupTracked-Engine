@@ -32,21 +32,6 @@ describe('media search', function() {
     rimraf(config.media.test_location, done);
   });
 
-  it('returns 400 when no search criteria is provided', function testMediaSearchNoCriteria(done) {
-    request(server)
-      .post('/register')
-      .set('Content-Type', 'application/json')
-      .send('{"username": "myusername", "password": "MyPassword"}')
-      .end(function() {
-        request(server)
-          .post('/media/search')
-          .auth('myusername', 'MyPassword')
-          .expect(400, {
-            "media": "at least one field must be provided"
-          }, done);
-      });
-  });
-
   it('404s on no results', function testMediaSearch404(done) {
     request(server)
       .post('/register')
@@ -56,9 +41,90 @@ describe('media search', function() {
         request(server)
           .post('/media/search')
           .auth('myusername', 'MyPassword')
-          .set('Content-Type', 'application/json')
-          .send('{"title": "mytitle"}')
           .expect(404, done);
+      });
+  });
+
+  it('returns all results with no criteria', function testMediaSearchNoCriteria(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        // make a drug
+        request(server)
+          .post('/drug')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"name": "Phenylpiracetam",' +
+            '"unit": "mg",' +
+            '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
+            '"classification": "AMPA modulator",' +
+            '"family": "*racetam",' +
+            '"rarity": "Common"' +
+            '}')
+          .end(function() {
+            // make another drug
+            request(server)
+              .post('/drug')
+              .auth('myusername', 'MyPassword')
+              .set('Content-Type', 'application/json')
+              .send('{"name": "Aspirin",' +
+                '"unit": "mg",' +
+                '"notes": "Painkiller",' +
+                '"classification": "COXi",' +
+                '"family": "NSAID",' +
+                '"rarity": "Common"' +
+                '}')
+              .end(function() {
+                // associate it with drug 1
+                request(server)
+                  .post('/media')
+                  .auth('myusername', 'MyPassword')
+                  .attach('image', 'test/test_img.jpg') // supertest is weird; it works from the relative dir of test launch
+                  .field('title', 'My Pic')
+                  .field('association_type', 'drug')
+                  .field('association', '1')
+                  .field('tags', 'test tag')
+                  .field('date', 1445985224)
+                  .end(function() {
+                    // associate it with drug 2
+                    request(server)
+                      .post('/media')
+                      .auth('myusername', 'MyPassword')
+                      .attach('image', 'test/test_img.jpg') // supertest is weird; it works from the relative dir of test launch
+                      .field('title', 'My Other Pic')
+                      .field('association_type', 'drug')
+                      .field('association', '2')
+                      .field('tags', 'test tag')
+                      .field('date', 1445995224)
+                      .end(function() {
+                        request(server)
+                          .post('/media/search')
+                          .auth('myusername', 'MyPassword')
+                          .expect(200, [{
+                            title: 'My Other Pic',
+                            tags: 'test tag',
+                            date: '1445995224',
+                            association_type: 'drug',
+                            association: 2,
+                            explicit: 0,
+                            favorite: 0,
+                            owner: 1
+                          }, {
+                            title: 'My Pic',
+                            tags: 'test tag',
+                            date: '1445985224',
+                            association_type: 'drug',
+                            association: 1,
+                            explicit: 0,
+                            favorite: 0,
+                            owner: 1
+                          }], done);
+                      });
+                  });
+              });
+          });
       });
   });
 

@@ -472,13 +472,6 @@ router.put('/', function(req, res, next) {
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not Found Bad Request
  *
- * @apiError needCriteria no experiences match the provided criteria (at least one must be provided)
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "media": "at least one field must be provided"
- *     }
  */
 router.post('/search', function(req, res, next) {
   // start assembling the query
@@ -545,13 +538,6 @@ router.post('/search', function(req, res, next) {
       searchCriteria.push("favorite = $favorite");
       queryData.$favorite = req.body.favorite;
     }
-  } else {
-    // no headers... we need SOMETHING here. use experience search if you don't care
-    res.setHeader('Content-Type', 'application/json');
-    res.status(400).send({
-      media: "at least one field must be provided"
-    });
-    return;
   }
 
   // slap the limit and offset
