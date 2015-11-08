@@ -41,7 +41,7 @@ router.get('/', function(req, res, next) {
 });
 
 /**
- * @api {get} /user/audit Get user audit data
+ * @api {post} /user/audit Get user audit data
  * @apiName GetUserAudit
  * @apiGroup User
  *
@@ -66,7 +66,7 @@ router.get('/', function(req, res, next) {
  *     }
  *
  */
-router.get('/audit', function(req, res, next) {
+router.post('/audit', function(req, res, next) {
   if (Object.keys(req.body).length === 0 || req.body === undefined ||
   req.body.limit === undefined) {
     req.body.limit = 1000;
