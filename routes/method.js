@@ -94,7 +94,7 @@ router.post('/', function(req, res, next) {
  *     }
  */
 router.put('/', function(req, res, next) {
-  var permittedFields = ['name', 'data', 'id'];
+  var permittedFields = ['name', 'icon', 'id'];
 
   //no fields were provided
   if (Object.keys(req.body).length === 0 || req.body === undefined) {
