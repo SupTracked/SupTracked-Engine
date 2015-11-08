@@ -139,7 +139,7 @@ router.put('/', function(req, res, next) {
         return;
       }
 
-      var query = 'UPDATE method SET ' + updateVals.join(', ') + ' WHERE id = $id AND owner = $owner';
+      var query = 'UPDATE methods SET ' + updateVals.join(', ') + ' WHERE id = $id AND owner = $owner';
       dataArray.$owner = req.supID;
 
       // loop through each key and build the JSON object of bindings for sqlite
