@@ -47,7 +47,7 @@ router.get('/', function(req, res, next) {
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
- * @apiParam {Number} [limit]  limit of entries to return (defaults to 100)
+ * @apiParam {Number} [limit]  limit of entries to return (defaults to 1000)
  *
  * @apiSuccess {Object[]} entry  JSON object of audit entry
  *  @apiSuccess {Number}   entry.id   ID of entry
@@ -69,20 +69,18 @@ router.get('/', function(req, res, next) {
 router.get('/audit', function(req, res, next) {
   if (Object.keys(req.body).length === 0 || req.body === undefined ||
   req.body.limit === undefined) {
-    res.setHeader('Content-Type', 'application/json');
-    res.status(400).send(JSON.stringify({user: "no limit provided"}));
-    return;
+    req.body.limit = 1000;
   }
 
-  db.all("SELECT * FROM audit WHERE id = $id ORDER BY date DESC LIMIT $limit", {
-    $id: req.supID,
+  db.all("SELECT * FROM audit WHERE owner = $owner ORDER BY date DESC LIMIT $limit", {
+    $owner: req.supID,
     $limit: parseInt(req.body.limit)
   }, function(err, audit) {
     if(err){
       res.status(500).send();
       return;
     }
-    
+
     res.setHeader('Content-Type', 'application/json');
     res.status(200).send(audit);
   });
