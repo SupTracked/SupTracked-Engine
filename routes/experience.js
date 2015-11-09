@@ -408,7 +408,7 @@ router.post('/search', function(req, res, next) {
   if ("offset" in req.body) {
     if (parseInt(req.body.offset)) {
       // we have a parseable int
-      limitOffset += "," + parseInt(req.body.offset);
+      limitOffset += " OFFSET " + parseInt(req.body.offset);
     }
   }
 
