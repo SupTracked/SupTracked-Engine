@@ -478,7 +478,7 @@ router.post('/search', function(req, res, next) {
               return;
             }
 
-          
+
             // no consumptions returned; push the experience with no consumptions
             if (consumptions.length === 0) {
               singleExperience.consumptions = [];
@@ -499,7 +499,7 @@ router.post('/search', function(req, res, next) {
             // layout where each consumption will go
             var allConsumptions = [];
 
-            consumptions.forEach(function(consumption, index) {
+            consumptions.forEach(function(consumption) {
               // set up the drug array
               var drugData = {};
               //only load if we have drugs in this con (though that should never happen)
@@ -547,7 +547,7 @@ router.post('/search', function(req, res, next) {
                 allConsumptions.push(compiledConsumption);
 
                 // if we've run through all consumptions, load the experience data
-                if (index === consumptions.length - 1) {
+                if (allConsumptions.length === consumptions.length) {
                   var fullExperience = {
                     date: singleExperience.date,
                     id: singleExperience.id,
