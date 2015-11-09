@@ -633,7 +633,7 @@ describe('media search', function() {
                       .set('Content-Type', 'application/json')
                       .send('{"limit": 1}')
                       .expect(200, [{
-                        id: 1,
+                        id: 2,
                         title: 'My Other Pic',
                         tags: 'notme',
                         date: '1460000000',
