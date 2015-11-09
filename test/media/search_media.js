@@ -103,6 +103,7 @@ describe('media search', function() {
                           .post('/media/search')
                           .auth('myusername', 'MyPassword')
                           .expect(200, [{
+                            id: 2,
                             title: 'My Other Pic',
                             tags: 'test tag',
                             date: '1445995224',
@@ -112,6 +113,7 @@ describe('media search', function() {
                             favorite: 0,
                             owner: 1
                           }, {
+                            id: 1,
                             title: 'My Pic',
                             tags: 'test tag',
                             date: '1445985224',
@@ -188,6 +190,7 @@ describe('media search', function() {
                           .set('Content-Type', 'application/json')
                           .send('{"association_type": "drug", "association": 1}')
                           .expect(200, [{
+                            id: 1,
                             title: 'My Pic',
                             tags: 'test tag',
                             date: '1445995224',
@@ -252,6 +255,7 @@ describe('media search', function() {
                           .set('Content-Type', 'application/json')
                           .send('{"association_type": "experience", "association": 1}')
                           .expect(200, [{
+                            id: 1,
                             title: 'My Pic',
                             tags: 'test tag',
                             date: '1445995224',
@@ -316,6 +320,7 @@ describe('media search', function() {
                       .set('Content-Type', 'application/json')
                       .send('{"startdate": 1430000000, "enddate": 1450000000}')
                       .expect(200, [{
+                        id: 1,
                         title: 'My Pic',
                         tags: 'test tag',
                         date: '1440000000',
@@ -378,6 +383,7 @@ describe('media search', function() {
                       .set('Content-Type', 'application/json')
                       .send('{"explicit": 1}')
                       .expect(200, [{
+                        id: 1,
                         title: 'My Pic',
                         tags: 'test tag',
                         date: '1440000000',
@@ -440,6 +446,7 @@ describe('media search', function() {
                       .set('Content-Type', 'application/json')
                       .send('{"favorite": 1}')
                       .expect(200, [{
+                        id: 1,
                         title: 'My Pic',
                         tags: 'test tag',
                         date: '1440000000',
@@ -502,6 +509,7 @@ describe('media search', function() {
                       .set('Content-Type', 'application/json')
                       .send('{"tags": "test"}')
                       .expect(200, [{
+                        id: 1,
                         title: 'My Pic',
                         tags: 'test tag',
                         date: '1440000000',
@@ -563,6 +571,7 @@ describe('media search', function() {
                       .set('Content-Type', 'application/json')
                       .send('{"title": "Cool"}')
                       .expect(200, [{
+                        id: 1,
                         title: 'My Cool Pic',
                         tags: 'test tag',
                         date: '1440000000',
@@ -624,6 +633,7 @@ describe('media search', function() {
                       .set('Content-Type', 'application/json')
                       .send('{"limit": 1}')
                       .expect(200, [{
+                        id: 1,
                         title: 'My Other Pic',
                         tags: 'notme',
                         date: '1460000000',
@@ -685,6 +695,7 @@ describe('media search', function() {
                       .set('Content-Type', 'application/json')
                       .send('{"limit": 1, "offset": 1}')
                       .expect(200, [{
+                        id: 1,
                         title: 'My Cool Pic',
                         tags: 'test tag',
                         date: '1440000000',
