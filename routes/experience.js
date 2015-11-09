@@ -40,7 +40,7 @@ var router = express.Router();
 router.post('/', function(req, res, next) {
   // not enough fields were provided
   if (req.body === undefined || !("title" in req.body) || !("date" in req.body) ||
-      req.body.title.length < 1) {
+    req.body.title.length < 1) {
     res.setHeader('Content-Type', 'application/json');
     res.status(400).send(JSON.stringify({
       experience: "title and valid date required"
@@ -171,7 +171,7 @@ router.delete('/', function(req, res, next) {
             return;
           }
 
-          if(media.length > 0){
+          if (media.length > 0) {
             res.setHeader('Content-Type', 'application/json');
             res.status(400).send(JSON.stringify({
               experience: "Media associated; please remove before deleting the experience"
@@ -398,183 +398,181 @@ router.post('/search', function(req, res, next) {
   var query = "SELECT * FROM experiences WHERE owner = $owner";
   queryData.$owner = req.supID;
 
-  if (req.body !== undefined) {
-    if ("limit" in req.body) {
-      if (parseInt(req.body.limit)) {
-        // we have a parseable int
-        limitOffset += " LIMIT " + parseInt(req.body.limit);
-      }
+  if ("limit" in req.body) {
+    if (parseInt(req.body.limit)) {
+      // we have a parseable int
+      limitOffset += " LIMIT " + parseInt(req.body.limit);
+    }
+  }
+
+  if ("offset" in req.body) {
+    if (parseInt(req.body.offset)) {
+      // we have a parseable int
+      limitOffset += "," + parseInt(req.body.offset);
+    }
+  }
+
+  // get date range
+  if ("startdate" in req.body && "enddate" in req.body) {
+    query += " AND date BETWEEN $startdate AND $enddate";
+    queryData.$startdate = req.body.startdate;
+    queryData.$enddate = req.body.enddate;
+  }
+
+  // get rating
+  if ("rating_id" in req.body) {
+    query += " AND rating_id = $rating_id";
+    queryData.$rating_id = req.body.rating_id;
+  }
+
+  // get notes
+  if ("notes" in req.body) {
+    query += " AND notes LIKE '%' || $notes || '%'";
+    queryData.$notes = req.body.notes;
+  }
+
+  // get title
+  if ("title" in req.body) {
+    query += " AND title LIKE '%' || $title || '%'";
+    queryData.$title = req.body.title;
+  }
+
+  // slap the limit, offset, and sort on the enddate
+  query += " ORDER BY date DESC";
+  query += limitOffset;
+
+  // get the entries
+  db.all(query, queryData, function(err, experiences) {
+    if (err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({
+        experience: err
+      }));
+      return;
     }
 
-    if ("offset" in req.body) {
-      if (parseInt(req.body.offset)) {
-        // we have a parseable int
-        limitOffset += "," + parseInt(req.body.offset);
-      }
+    // no experiences returned
+    if (experiences.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(404).send();
+      return;
     }
 
-    // get date range
-    if ("startdate" in req.body && "enddate" in req.body) {
-      query += " AND date BETWEEN $startdate AND $enddate";
-      queryData.$startdate = req.body.startdate;
-      queryData.$enddate = req.body.enddate;
-    }
+    var allExperiences = [];
 
-    // get rating
-    if ("rating_id" in req.body) {
-      query += " AND rating_id = $rating_id";
-      queryData.$rating_id = req.body.rating_id;
-    }
+    experiences.forEach(function(singleExperience) {
+      // get consumptions for each experience
+      db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
+        " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = M.id" +
+        " WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
+          $id: singleExperience.id,
+          $owner: req.supID
+        },
+        function(err, consumptions) {
+          if (err) {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(400).send(JSON.stringify({
+              experience: err
+            }));
+            return;
+          }
 
-    // get notes
-    if ("notes" in req.body) {
-      query += " AND notes LIKE '%' || $notes || '%'";
-      queryData.$notes = req.body.notes;
-    }
 
-    // get title
-    if ("title" in req.body) {
-      query += " AND title LIKE '%' || $title || '%'";
-      queryData.$title = req.body.title;
-    }
+          // no consumptions returned; push the experience with no consumptions
+          if (consumptions.length === 0) {
+            singleExperience.consumptions = [];
+            allExperiences.push(singleExperience);
 
-    // slap the limit, offset, and sort on the enddate
-    query += " ORDER BY date DESC";
-    query += limitOffset;
-
-    // get the entries
-    db.all(query, queryData, function(err, experiences) {
-      if (err) {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(400).send(JSON.stringify({
-          experience: err
-        }));
-        return;
-      }
-
-      // no experiences returned
-      if (experiences.length === 0) {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(404).send();
-        return;
-      }
-
-      var allExperiences = [];
-
-      experiences.forEach(function(singleExperience) {
-        // get consumptions for each experience
-        db.all("SELECT *, C.id as cid, D.id as did, M.id as mid, M.name as mname, D.name as dname" +
-          " FROM consumptions C LEFT JOIN drugs D ON C.drug_id = D.id LEFT JOIN methods M ON C.method_id = M.id" +
-          " WHERE C.experience_id = $id AND c.owner = $owner ORDER BY date DESC", {
-            $id: singleExperience.id,
-            $owner: req.supID
-          },
-          function(err, consumptions) {
-            if (err) {
+            // if we've covered all the experiences, fire it off
+            if (allExperiences.length === experiences.length) {
+              // bombs away
               res.setHeader('Content-Type', 'application/json');
-              res.status(400).send(JSON.stringify({
-                experience: err
-              }));
+              res.status(200).send(allExperiences);
+              return;
+            } else {
+              // we're not done; just return so we can keep processing experiences
               return;
             }
+          }
 
+          // layout where each consumption will go
+          var allConsumptions = [];
 
-            // no consumptions returned; push the experience with no consumptions
-            if (consumptions.length === 0) {
-              singleExperience.consumptions = [];
-              allExperiences.push(singleExperience);
-
-              // if we've covered all the experiences, fire it off
-              if (allExperiences.length === experiences.length) {
-                // bombs away
-                res.setHeader('Content-Type', 'application/json');
-                res.status(200).send(allExperiences);
-                return;
-              } else {
-                // we're not done; just return so we can keep processing experiences
-                return;
-              }
+          consumptions.forEach(function(consumption) {
+            // set up the drug array
+            var drugData = {};
+            //only load if we have drugs in this con (though that should never happen)
+            if (consumption.drug_id !== undefined) {
+              drugData.id = consumption.drug_id;
+              drugData.name = consumption.dname;
+              drugData.unit = consumption.unit;
             }
 
-            // layout where each consumption will go
-            var allConsumptions = [];
+            // set up the method array
+            var methodData = {};
+            //only load if we have methods in this con (though that should never happen)
+            if (consumption.method_id !== undefined) {
+              methodData.id = consumption.method_id;
+              methodData.name = consumption.mname;
+            }
 
-            consumptions.forEach(function(consumption) {
-              // set up the drug array
-              var drugData = {};
-              //only load if we have drugs in this con (though that should never happen)
-              if (consumption.drug_id !== undefined) {
-                drugData.id = consumption.drug_id;
-                drugData.name = consumption.dname;
-                drugData.unit = consumption.unit;
+            // we have a consumption; let's parse the friends into it
+            db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
+              $id: consumption.cid,
+              $owner: req.supID
+            }, function(err, friends) {
+              if (err) {
+                res.setHeader('Content-Type', 'application/json');
+                res.status(400).send(JSON.stringify({
+                  experience: err
+                }));
+                return;
               }
 
-              // set up the method array
-              var methodData = {};
-              //only load if we have methods in this con (though that should never happen)
-              if (consumption.method_id !== undefined) {
-                methodData.id = consumption.method_id;
-                methodData.name = consumption.mname;
-              }
+              // assemble our consumption
+              var compiledConsumption = {
+                id: consumption.cid,
+                date: consumption.date,
+                count: consumption.count,
+                experience_id: consumption.experience_id,
+                drug: drugData,
+                method: methodData,
+                location: consumption.location,
+                friends: friends,
+                owner: req.supID
+              };
 
-              // we have a consumption; let's parse the friends into it
-              db.all("SELECT * FROM friends WHERE consumption_id = $id AND owner = $owner", {
-                $id: consumption.cid,
-                $owner: req.supID
-              }, function(err, friends) {
-                if (err) {
-                  res.setHeader('Content-Type', 'application/json');
-                  res.status(400).send(JSON.stringify({
-                    experience: err
-                  }));
-                  return;
-                }
+              // shove it in our big object
+              allConsumptions.push(compiledConsumption);
 
-                // assemble our consumption
-                var compiledConsumption = {
-                  id: consumption.cid,
-                  date: consumption.date,
-                  count: consumption.count,
-                  experience_id: consumption.experience_id,
-                  drug: drugData,
-                  method: methodData,
-                  location: consumption.location,
-                  friends: friends,
-                  owner: req.supID
+              // if we've run through all consumptions, load the experience data
+              if (allConsumptions.length === consumptions.length) {
+                var fullExperience = {
+                  date: singleExperience.date,
+                  id: singleExperience.id,
+                  notes: singleExperience.notes,
+                  owner: singleExperience.owner,
+                  panicmsg: singleExperience.panicmsg,
+                  rating_id: singleExperience.rating_id,
+                  title: singleExperience.title,
+                  ttime: singleExperience.ttime,
+                  consumptions: allConsumptions
                 };
 
-                // shove it in our big object
-                allConsumptions.push(compiledConsumption);
+                allExperiences.push(fullExperience);
 
-                // if we've run through all consumptions, load the experience data
-                if (allConsumptions.length === consumptions.length) {
-                  var fullExperience = {
-                    date: singleExperience.date,
-                    id: singleExperience.id,
-                    notes: singleExperience.notes,
-                    owner: singleExperience.owner,
-                    panicmsg: singleExperience.panicmsg,
-                    rating_id: singleExperience.rating_id,
-                    title: singleExperience.title,
-                    ttime: singleExperience.ttime,
-                    consumptions: allConsumptions
-                  };
-
-                  allExperiences.push(fullExperience);
-
-                  // we've done all the experiences
-                  if (allExperiences.length === experiences.length) {
-                    // bombs away
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(200).send(allExperiences);
-                  }
+                // we've done all the experiences
+                if (allExperiences.length === experiences.length) {
+                  // bombs away
+                  res.setHeader('Content-Type', 'application/json');
+                  res.status(200).send(allExperiences);
                 }
-              });
+              }
             });
           });
-      });
+        });
     });
-  }
+  });
 });
 
 /**
@@ -714,21 +712,21 @@ router.get('/:id', function(req, res, next) {
 
         // no consumptions returned; nothing for that ID
         if (consumptions.length === 0) {
-            var fullExperience = {
-              date: experience[0].date,
-              id: experience[0].id,
-              notes: experience[0].notes,
-              owner: experience[0].owner,
-              panicmsg: experience[0].panicmsg,
-              rating_id: experience[0].rating_id,
-              title: experience[0].title,
-              ttime: experience[0].ttime,
-              consumptions: []
-            };
+          var fullExperience = {
+            date: experience[0].date,
+            id: experience[0].id,
+            notes: experience[0].notes,
+            owner: experience[0].owner,
+            panicmsg: experience[0].panicmsg,
+            rating_id: experience[0].rating_id,
+            title: experience[0].title,
+            ttime: experience[0].ttime,
+            consumptions: []
+          };
 
-            // bombs away
-            res.setHeader('Content-Type', 'application/json');
-            res.status(200).send(fullExperience);
+          // bombs away
+          res.setHeader('Content-Type', 'application/json');
+          res.status(200).send(fullExperience);
         }
 
         // layout where each consumption will go
