@@ -224,7 +224,7 @@ router.get('/file/:id', function(req, res, next) {
       return;
     }
 
-    // no drugs returned; nothing for that ID
+    // nothing for that ID
     if (media.length === 0) {
       res.setHeader('Content-Type', 'application/json');
       res.status(404).send();
