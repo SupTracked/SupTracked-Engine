@@ -541,7 +541,7 @@ router.post('/search', function(req, res, next) {
   }
 
   // slap the limit and offset
-  query = "SELECT title, tags, date, association_type, association, explicit, favorite, owner FROM media";
+  query = "SELECT id, title, tags, date, association_type, association, explicit, favorite, owner FROM media";
 
   query += " WHERE";
 
