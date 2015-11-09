@@ -1037,7 +1037,7 @@ router.get('/experience/:id', function(req, res, next) {
       // layout where each consumption will go
       var allConsumptions = [];
 
-      consumptions.forEach(function(consumption, index) {
+      consumptions.forEach(function(consumption) {
         // set up the drug array
         var drugData = {};
         //only load if we have drugs in this con (though that should never happen)
@@ -1085,7 +1085,7 @@ router.get('/experience/:id', function(req, res, next) {
           allConsumptions.push(compiledConsumption);
 
           // if we've run through all consumptions, return the consumption
-          if (index === consumptions.length - 1) {
+          if (allConsumptions.length === consumptions.length) {
             res.setHeader('Content-Type', 'application/json');
             res.status(200).send(allConsumptions);
           }
