@@ -351,7 +351,7 @@ router.delete('/', function(req, res, next) {
  *     }
  */
 router.put('/', function(req, res, next) {
-  var permittedFields = ['title', 'tags', 'association_type', 'association', 'explicit', 'favorite', 'id'];
+  var permittedFields = ['title', 'tags', 'date', 'association_type', 'association', 'explicit', 'favorite', 'id'];
 
   //no fields were provided
   if (Object.keys(req.body).length === 0 || req.body === undefined) {
