@@ -73,8 +73,7 @@ describe('twilio', function() {
 
   it('denies with no matching number', function testTwilioBadNumber(done) {
     request(server)
-      .get('/twilio')
-      .send({'From': "+15551234", 'Body': "commands"})
+      .get('/twilio?From=%2B15551234&Body=commands')
       .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Ambiguous or no such user</Message></Response>', done);
   });
 
@@ -93,8 +92,7 @@ describe('twilio', function() {
           .send('{"phone": "+15551234"}')
           .end(function() {
             request(server)
-              .get('/twilio')
-              .send({'From': '+15551234', 'Body': 'commands'})
+              .get('/twilio?From=%2B15551234&Body=commands')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>listcon, setcount, dupcon, jumpcon, namemedia</Message></Response>', done);
           });
       });
@@ -115,10 +113,7 @@ describe('twilio', function() {
           .send('{"phone": "+15551234"}')
           .end(function() {
             request(server)
-              .post('/twilio')
-              .field('From', "+15551234")
-              .field('NumMedia', 1)
-              .field('MediaUrl0', "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150&fm=jpg")
+              .get('/twilio?From=%2B15551234&NumMedia=1&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences to add to!</Message></Response>', done);
           });
       });
@@ -145,10 +140,7 @@ describe('twilio', function() {
               .send('{"title": "My Title", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .post('/twilio')
-                  .field('From', "+15551234")
-                  .field('NumMedia', 1)
-                  .field('MediaUrl0', "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150&fm=jpg")
+                  .get('/twilio?From=%2B15551234&NumMedia=1&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Processed 1 object.</Message></Response>', done);
               });
           });
@@ -176,10 +168,7 @@ describe('twilio', function() {
               .send('{"title": "My Title", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .post('/twilio')
-                  .field('From', "+15551234")
-                  .field('NumMedia', 1)
-                  .field('MediaUrl0', "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150&fm=jpg")
+                  .get('/twilio?From=%2B15551234&NumMedia=1&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
                   .end(function() {
                     request(server)
                       .get('/media/1')
@@ -213,10 +202,7 @@ describe('twilio', function() {
               .send('{"title": "My Title", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .post('/twilio')
-                  .field('From', "+15551234")
-                  .field('NumMedia', 1)
-                  .field('MediaUrl0', "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150&fm=jpg")
+                  .get('/twilio?From=%2B15551234&NumMedia=1&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
                   .end(function() {
                     request(server)
                       .get('/media/1')
@@ -250,11 +236,7 @@ describe('twilio', function() {
               .send('{"title": "My Title", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .post('/twilio')
-                  .field('From', "+15551234")
-                  .field('NumMedia', 2)
-                  .field('MediaUrl0', "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150&fm=jpg")
-                  .field('MediaUrl1', "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150&fm=jpg")
+                  .get('/twilio?From=%2B15551234&NumMedia=2&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg&MediaUrl1=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
                   .end(function() {
                     request(server)
                       .get('/media/1')
@@ -289,9 +271,7 @@ describe('twilio', function() {
           .send('{"phone": "+15551234"}')
           .end(function() {
             request(server)
-              .post('/twilio')
-              .field('From', "+15551234")
-              .field('Body', "listcon")
+              .get('/twilio?From=%2B15551234&Body=listcon')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences to add to!</Message></Response>', done);
           });
       });
@@ -319,9 +299,7 @@ describe('twilio', function() {
               .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .post('/twilio')
-                  .field('From', "+15551234")
-                  .field('Body', "listcon")
+                  .get('/twilio?From=%2B15551234&Body=listcon')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>', done);
               });
           });
@@ -387,9 +365,7 @@ describe('twilio', function() {
                               .send('{"count": 6, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                               .end(function() {
                                 request(server)
-                                  .post('/twilio')
-                                  .field('From', "+15551234")
-                                  .field('Body', "listcon")
+                                  .get('/twilio?From=%2B15551234&Body=listcon')
                                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>1: 2 mg Phenylpiracetam, 2: 6 mg Phenylpiracetam</Message></Response>', done);
                               });
                           });
@@ -415,9 +391,7 @@ describe('twilio', function() {
           .send('{"phone": "+15551234"}')
           .end(function() {
             request(server)
-              .post('/twilio')
-              .field('From', "+15551234")
-              .field('Body', "setcount 1 5")
+              .get('/twilio?From=%2B15551234&Body=setcount%201%205')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences!</Message></Response>', done);
           });
       });
@@ -444,9 +418,7 @@ describe('twilio', function() {
               .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .post('/twilio')
-                  .field('From', "+15551234")
-                  .field('Body', "setcount 5")
+                  .get('/twilio?From=%2B15551234&Body=setcount%205')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>', done);
               });
           });
@@ -504,9 +476,7 @@ describe('twilio', function() {
                           .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                           .end(function() {
                             request(server)
-                              .post('/twilio')
-                              .field('From', "+15551234")
-                              .field('Body', "setcount 5")
+                              .get('/twilio?From=%2B15551234&Body=setcount%205')
                               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Updated from 2 to 5 </Message></Response>', done);
                           });
                       });
@@ -567,14 +537,10 @@ describe('twilio', function() {
                           .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                           .end(function() {
                             request(server)
-                              .post('/twilio')
-                              .field('From', "+15551234")
-                              .field('Body', "setcount 5")
+                              .get('/twilio?From=%2B15551234&Body=setcount%205')
                               .end(function() {
                                 request(server)
-                                  .post('/twilio')
-                                  .field('From', "+15551234")
-                                  .field('Body', "listcon")
+                                  .get('/twilio?From=%2B15551234&Body=listcon')
                                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>1: 5 mg Phenylpiracetam</Message></Response>', done);
                               });
                           });
@@ -600,9 +566,7 @@ describe('twilio', function() {
           .send('{"phone": "+15551234"}')
           .end(function() {
             request(server)
-              .post('/twilio')
-              .field('From', "+15551234")
-              .field('Body', "dupcon")
+              .get('/twilio?From=%2B15551234&Body=dupcon')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences!</Message></Response>', done);
           });
       });
@@ -629,9 +593,7 @@ describe('twilio', function() {
               .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .post('/twilio')
-                  .field('From', "+15551234")
-                  .field('Body', "dupcon")
+                  .get('/twilio?From=%2B15551234&Body=dupcon')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>', done);
               });
           });
@@ -689,9 +651,7 @@ describe('twilio', function() {
                           .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                           .end(function() {
                             request(server)
-                              .post('/twilio')
-                              .field('From', "+15551234")
-                              .field('Body', "dupcon")
+                              .get('/twilio?From=%2B15551234&Body=dupcon')
                               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Duplicated consumption.</Message></Response>', done);
                           });
                       });
@@ -752,14 +712,10 @@ describe('twilio', function() {
                           .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                           .end(function() {
                             request(server)
-                              .post('/twilio')
-                              .field('From', "+15551234")
-                              .field('Body', "dupcon")
+                              .get('/twilio?From=%2B15551234&Body=dupcon')
                               .end(function() {
                                 request(server)
-                                  .post('/twilio')
-                                  .field('From', "+15551234")
-                                  .field('Body', "listcon")
+                                  .get('/twilio?From=%2B15551234&Body=listcon')
                                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>1: 2 mg Phenylpiracetam, 2: 2 mg Phenylpiracetam</Message></Response>', done);
                               });
                           });
@@ -785,9 +741,7 @@ describe('twilio', function() {
           .send('{"phone": "+15551234"}')
           .end(function() {
             request(server)
-              .post('/twilio')
-              .field('From', "+15551234")
-              .field('Body', "jumpcon")
+              .get('/twilio?From=%2B15551234&Body=jumpcon')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences!</Message></Response>', done);
           });
       });
@@ -814,9 +768,7 @@ describe('twilio', function() {
               .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .post('/twilio')
-                  .field('From', "+15551234")
-                  .field('Body', "jumpcon")
+                  .get('/twilio?From=%2B15551234&Body=jumpcon')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>', done);
               });
           });
@@ -874,9 +826,7 @@ describe('twilio', function() {
                           .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                           .end(function() {
                             request(server)
-                              .post('/twilio')
-                              .field('From', "+15551234")
-                              .field('Body', "jumpcon")
+                              .get('/twilio?From=%2B15551234&Body=jumpcon')
                               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Date jumped.</Message></Response>', done);
                           });
                       });
@@ -901,10 +851,8 @@ describe('twilio', function() {
           .send('{"phone": "+15551234"}')
           .end(function() {
             request(server)
-              .post('/twilio')
-              .field('From', "+15551234")
-              .field('Body', "namemedia newname")
-              .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No media!</Message></Response>', done);
+              .get('/twilio?From=%2B15551234&Body=namemeda%20newname')
+              .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences!</Message></Response>', done);
           });
       });
   });
@@ -930,15 +878,10 @@ describe('twilio', function() {
               .send('{"title": "My Title", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .post('/twilio')
-                  .field('From', "+15551234")
-                  .field('NumMedia', 1)
-                  .field('MediaUrl0', "https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150&fm=jpg")
+                  .get('/twilio?From=%2B15551234&NumMedia=1&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
                   .end(function() {
                     request(server)
-                      .post('/twilio')
-                      .field('From', "+15551234")
-                      .field('Body', "namemedia newname")
+                      .get('/twilio?From=%2B15551234&Body=namemeda%20newname')
                       .expect(200)
                       .expect(mediaHasNewName)
                       .end(done);
@@ -963,9 +906,7 @@ describe('twilio', function() {
           .send('{"phone": "+15551234"}')
           .end(function() {
             request(server)
-              .post('/twilio')
-              .field('From', "+15551234")
-              .field('Body', "newnote")
+              .get('/twilio?From=%2B15551234&Body=newnote')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences!</Message></Response>', done);
           });
       });
@@ -993,9 +934,7 @@ describe('twilio', function() {
               .send('{"title": "My Title", "location": "My Location", "date": 1445543583}')
               .end(function() {
                 request(server)
-                  .post('/twilio')
-                  .field('From', "+15551234")
-                  .field('Body', "My Great note")
+                  .get('/twilio?From=%2B15551234&Body=newnote')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Note added.</Message></Response>', done);
               });
           });
