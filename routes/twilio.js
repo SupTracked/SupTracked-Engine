@@ -4,12 +4,9 @@
 
 var express = require('express');
 var router = express.Router();
-var multer = require('multer');
 var crypto = require('crypto');
 var Download = require('download');
 var config = require('../config');
-
-var formData = multer();
 
 // make a case insensitive startsWith
 if (typeof String.prototype.startsWithCI !== 'function') {
@@ -25,7 +22,7 @@ if (process.env.NODE_ENV === "test") {
   var uploadLocation = config.media.location;
 }
 
-router.post('/', formData.array(), function(req, res, next) {
+router.post('/', function(req, res, next) {
   if (req.body === undefined || req.body.From === undefined) {
     res.status(400).send();
     return;
