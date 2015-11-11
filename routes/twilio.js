@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === "test") {
   var uploadLocation = config.media.location;
 }
 
-router.post('/', function(req, res, next) {
+router.get('/', function(req, res, next) {
   if (req.body === undefined || req.body.From === undefined) {
     res.status(400).send();
     return;

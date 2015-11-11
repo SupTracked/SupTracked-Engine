@@ -60,21 +60,21 @@ describe('twilio', function() {
 
   it('rejects with no body', function testTwilioNoBody(done) {
     request(server)
-      .post('/twilio')
+      .get('/twilio')
       .expect(400, done);
   });
 
   it('rejects with no from field', function testTwilioNoFrom(done) {
     request(server)
-      .post('/twilio')
-      .field('notphone', 0)
+      .get('/twilio')
+      .field('notphone', '0')
       .expect(400, done);
   });
 
   it('denies with no matching number', function testTwilioBadNumber(done) {
     request(server)
-      .post('/twilio')
-      .field('From', "+15551234")
+      .get('/twilio')
+      .send({'From': "+15551234", 'Body': "commands"})
       .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Ambiguous or no such user</Message></Response>', done);
   });
 
@@ -93,9 +93,8 @@ describe('twilio', function() {
           .send('{"phone": "+15551234"}')
           .end(function() {
             request(server)
-              .post('/twilio')
-              .field('From', "+15551234")
-              .field('Body', "commands")
+              .get('/twilio')
+              .send({'From': '+15551234', 'Body': 'commands'})
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>listcon, setcount, dupcon, jumpcon, namemedia</Message></Response>', done);
           });
       });

@@ -94,7 +94,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 // body parsing goodness
 app.use(bodyParser.json()); // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // protect routes
 app.use('/user', auth);
