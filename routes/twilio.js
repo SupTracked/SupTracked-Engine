@@ -23,6 +23,7 @@ if (process.env.NODE_ENV === "test") {
 }
 
 router.get('/', function(req, res, next) {
+  req.body = req.query;
   if (req.body === undefined || req.body.From === undefined) {
     res.status(400).send();
     return;
