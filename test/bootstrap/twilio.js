@@ -93,7 +93,7 @@ describe('twilio', function() {
           .end(function() {
             request(server)
               .get('/twilio?From=%2B15551234&Body=commands')
-              .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>listcon, setcount, dupcon, jumpcon, namemedia</Message></Response>', done);
+              .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>[quicknote], [image file], listcon, setcount [id] [count], dupcon [id], jumpcon [id], namemedia [name]</Message></Response>', done);
           });
       });
   });
@@ -476,7 +476,7 @@ describe('twilio', function() {
                           .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                           .end(function() {
                             request(server)
-                              .get('/twilio?From=%2B15551234&Body=setcount%205')
+                              .get('/twilio?From=%2B15551234&Body=setcount%201%205')
                               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Updated from 2 to 5 </Message></Response>', done);
                           });
                       });
@@ -537,7 +537,7 @@ describe('twilio', function() {
                           .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                           .end(function() {
                             request(server)
-                              .get('/twilio?From=%2B15551234&Body=setcount%205')
+                              .get('/twilio?From=%2B15551234&Body=setcount%201%205')
                               .end(function() {
                                 request(server)
                                   .get('/twilio?From=%2B15551234&Body=listcon')
@@ -651,7 +651,7 @@ describe('twilio', function() {
                           .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                           .end(function() {
                             request(server)
-                              .get('/twilio?From=%2B15551234&Body=dupcon')
+                              .get('/twilio?From=%2B15551234&Body=dupcon%201')
                               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Duplicated consumption.</Message></Response>', done);
                           });
                       });
@@ -712,11 +712,11 @@ describe('twilio', function() {
                           .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                           .end(function() {
                             request(server)
-                              .get('/twilio?From=%2B15551234&Body=dupcon')
+                              .get('/twilio?From=%2B15551234&Body=dupcon%201')
                               .end(function() {
                                 request(server)
                                   .get('/twilio?From=%2B15551234&Body=listcon')
-                                  .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>1: 2 mg Phenylpiracetam, 2: 2 mg Phenylpiracetam</Message></Response>', done);
+                                  .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>2: 2 mg Phenylpiracetam, 1: 2 mg Phenylpiracetam</Message></Response>', done);
                               });
                           });
                       });
@@ -826,7 +826,7 @@ describe('twilio', function() {
                           .send('{"count": 2, "experience_id": 1, "date": 1445648036, "location": "San Juan", "drug_id": 1, "method_id": 1}')
                           .end(function() {
                             request(server)
-                              .get('/twilio?From=%2B15551234&Body=jumpcon')
+                              .get('/twilio?From=%2B15551234&Body=jumpcon%201')
                               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Date jumped.</Message></Response>', done);
                           });
                       });
