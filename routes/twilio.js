@@ -5,8 +5,9 @@
 var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
-var Download = require('download');
 var config = require('../config');
+var request = require('request');
+var fs = require('fs');
 
 // make a case insensitive startsWith
 if (typeof String.prototype.startsWithCI !== 'function') {
@@ -60,46 +61,40 @@ router.get('/', function(req, res, next) {
           // array of filenames to use
           var loadedCount = 0;
           for (var mediaIndex = 0; mediaIndex < req.body.NumMedia; mediaIndex += 1) {
-            crypto.randomBytes(16, function(ex, buf) {
-              var filename = buf.toString('hex');
-              new Download()
-                .get(req.body['MediaUrl' + mediaIndex])
-                .dest(uploadLocation)
-                .rename(filename)
-                .run(function(err, files) {
-                  db.run("INSERT INTO media (filename, title, date, association_type, association, explicit, favorite, owner)" +
-                    " VALUES ($filename, $title, $date, $association_type, $association, $explicit, $favorite, $owner)", {
-                      $filename: uploadLocation + filename,
-                      $title: "SMS Upload " + crypto.randomBytes(8).toString('hex'),
-                      $date: Math.floor(Date.now() / 1000),
-                      $association_type: "experience",
-                      $association: experiences[0].id,
-                      $owner: users[0].id
-                    },
-                    function(err) {
-                      // BEWARE mediaIndex is one more than it should be... why? WHO KNOWS
-                      loadedCount += 1;
-                      if (loadedCount === parseInt(req.body.NumMedia)) {
-                        var plural = '';
-                        if (req.body.NumMedia > 1) {
-                          plural = 's';
-                        }
+            var filename = crypto.randomBytes(16).toString('hex');
+            request(req.body['MediaUrl' + mediaIndex]).pipe(fs.createWriteStream(uploadLocation + '/' + filename));
 
-                        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Processed ' + req.body.NumMedia + ' object' + plural + '.</Message></Response>';
+            db.run("INSERT INTO media (filename, title, date, association_type, association, explicit, favorite, owner)" +
+              " VALUES ($filename, $title, $date, $association_type, $association, $explicit, $favorite, $owner)", {
+                $filename: uploadLocation + filename,
+                $title: "SMS Upload " + crypto.randomBytes(8).toString('hex'),
+                $date: Math.floor(new Date().getTime() / 1000) - (new Date().getTimezoneOffset() * 60),
+                $association_type: "experience",
+                $association: experiences[0].id,
+                $owner: users[0].id
+              },
+              function(err) {
+                // BEWARE mediaIndex is one more than it should be... why? WHO KNOWS
+                loadedCount += 1;
+                if (loadedCount === parseInt(req.body.NumMedia)) {
+                  var plural = '';
+                  if (req.body.NumMedia > 1) {
+                    plural = 's';
+                  }
 
-                        res.setHeader('Content-Type', 'text/xml');
-                        res.status(200).send(twiml);
-                        return;
-                      }
-                    });
-                });
-            });
+                  twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Processed ' + req.body.NumMedia + ' object' + plural + '.</Message></Response>';
+
+                  res.setHeader('Content-Type', 'text/xml');
+                  res.status(200).send(twiml);
+                  return;
+                }
+              });
           }
         }
       });
     } else {
       if (req.body.Body.startsWithCI("commands")) {
-        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>listcon, setcount, dupcon, jumpcon, namemedia</Message></Response>';
+        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>[quicknote], [image file], listcon, setcount [id] [count], dupcon [id], jumpcon [id], namemedia [name]</Message></Response>';
         res.setHeader('Content-Type', 'text/xml');
         res.status(200).send(twiml);
         return;
@@ -113,9 +108,9 @@ router.get('/', function(req, res, next) {
             res.status(200).send(twiml);
             return;
           } else {
-            db.all("SELECT * from consumptions WHERE owner = $owner AND experience_id = $experience_id ORDER BY date DESC LIMIT 1", {
+            db.all("SELECT * from consumptions WHERE owner = $owner AND id = $consumption_id ORDER BY date DESC LIMIT 1", {
               $owner: users[0].id,
-              $experience_id: experiences[0].id,
+              $consumption_id: req.body.Body.split(' ')[1],
             }, function(err, consumptions) {
               if (consumptions.length === 0) {
                 twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>';
@@ -125,10 +120,10 @@ router.get('/', function(req, res, next) {
               }
 
               db.run('UPDATE consumptions SET count = $count WHERE id = $id', {
-                $count: req.body.Body.split(' ')[1],
-                $id: consumptions[0].id
+                $count: req.body.Body.split(' ')[2],
+                $id: req.body.Body.split(' ')[1]
               }, function(err) {
-                twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Updated from ' + consumptions[0].count + ' to ' + req.body.Body.split(' ')[1] + ' </Message></Response>';
+                twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Updated from ' + consumptions[0].count + ' to ' + req.body.Body.split(' ')[2] + ' </Message></Response>';
                 res.setHeader('Content-Type', 'text/xml');
                 res.status(200).send(twiml);
                 return;
@@ -179,9 +174,9 @@ router.get('/', function(req, res, next) {
             res.status(200).send(twiml);
             return;
           } else {
-            db.all("SELECT * from consumptions WHERE owner = $owner AND experience_id = $experience_id ORDER BY date DESC LIMIT 1", {
+            db.all("SELECT * from consumptions WHERE owner = $owner AND id = $consumption_id ORDER BY date DESC LIMIT 1", {
               $owner: users[0].id,
-              $experience_id: experiences[0].id,
+              $consumption_id: req.body.Body.split(' ')[1],
             }, function(err, consumptions) {
               if (consumptions.length === 0) {
                 twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>';
@@ -192,7 +187,7 @@ router.get('/', function(req, res, next) {
 
               db.run("INSERT INTO consumptions (date, experience_id, count, drug_id, method_id, location, owner)" +
                 " VALUES ($date, $experience_id, $count, $drug_id, $method_id, $location, $owner)", {
-                  $date: consumptions[0].date,
+                  $date: Math.floor((new Date().getTime() - (new Date().getTimezoneOffset()) * 60000) / 1000),
                   $experience_id: consumptions[0].experience_id,
                   $count: consumptions[0].count,
                   $drug_id: consumptions[0].drug_id,
@@ -219,9 +214,9 @@ router.get('/', function(req, res, next) {
             res.status(200).send(twiml);
             return;
           } else {
-            db.all("SELECT * from consumptions WHERE owner = $owner AND experience_id = $experience_id ORDER BY date DESC LIMIT 1", {
+            db.all("SELECT * from consumptions WHERE owner = $owner AND id = $consumption_id ORDER BY date DESC LIMIT 1", {
               $owner: users[0].id,
-              $experience_id: experiences[0].id,
+              $consumption_id: req.body.Body.split(' ')[1],
             }, function(err, consumptions) {
               if (consumptions.length === 0) {
                 twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>';
@@ -231,7 +226,7 @@ router.get('/', function(req, res, next) {
               }
 
               db.run("UPDATE consumptions SET date = $date WHERE id = $id", {
-                  $date: Math.floor(Date.now() / 1000),
+                  $date: Math.floor((new Date().getTime() - (new Date().getTimezoneOffset()) * 60000) / 1000),
                   $id: consumptions[0].id
                 },
                 function(err) {
@@ -265,7 +260,7 @@ router.get('/', function(req, res, next) {
                   }
                 });
 
-                twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Media renamed from ' + media[0].title + ' to ' + fullName.join(" ") + '.</Message></Response>';
+                twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Media renamed from ' + media[0].title + ' to' + fullName.join(" ") + '.</Message></Response>';
                 res.setHeader('Content-Type', 'text/xml');
                 res.status(200).send(twiml);
                 return;
@@ -283,26 +278,60 @@ router.get('/', function(req, res, next) {
             res.status(200).send(twiml);
             return;
           } else {
-            if(experiences[0].notes === null){
+            if (experiences[0].notes === null) {
               // set as empty so it doesn't go in as null
               experiences[0].notes = "";
             }
-            var time = new Date();
-            db.run("UPDATE experiences SET notes = $notes WHERE id = $id", {
-                $notes: experiences[0].notes + "\n" + time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds() + " -- " + req.body.Body,
-                $id: experiences[0].id
-              },
-              function(err) {
-                twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Note added.</Message></Response>';
-                res.setHeader('Content-Type', 'text/xml');
-                res.status(200).send(twiml);
-                return;
+
+            var newNotes;
+            if (experiences[0].ttime) {
+              db.all("SELECT * from consumptions WHERE owner = $owner AND id = $consumption_id ORDER BY date DESC LIMIT 1", {
+                $owner: users[0].id,
+                $consumption_id: experiences[0].ttime,
+              }, function(err, consumptions) {
+                var conDate = Math.floor(new Date(consumptions[0].date * 1000).getTime() / 1000);
+                var now = Math.floor(new Date().getTime() / 1000) - (new Date().getTimezoneOffset() * 60);
+
+                var sign = '+';
+                if (conDate > now) {
+                  sign = '-';
+                }
+
+                var diff = Math.abs(now - conDate);
+                var hours = Math.floor(diff / 60 / 60);
+                diff -= hours * 60 * 60;
+                var minutes = Math.floor(diff / 60);
+
+                newNotes = experiences[0].notes + '\nT' + sign + ('0' + hours).slice(-2) + ':' + ('0' + minutes).slice(-2) + ' -- ' + req.body.Body;
+
+                db.run("UPDATE experiences SET notes = $notes WHERE id = $id", {
+                    $notes: newNotes,
+                    $id: experiences[0].id
+                  },
+                  function(err) {
+                    twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Note added.</Message></Response>';
+                    res.setHeader('Content-Type', 'text/xml');
+                    res.status(200).send(twiml);
+                    return;
+                  });
               });
+            } else {
+              newNotes = experiences[0].notes + '\n' + ('0' + new Date().getHours()).slice(-2) + ('0' + new Date().getMinutes()).slice(-2) + ' -- ' + req.body.Body;
+              db.run("UPDATE experiences SET notes = $notes WHERE id = $id", {
+                  $notes: newNotes,
+                  $id: experiences[0].id
+                },
+                function(err) {
+                  twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Note added.</Message></Response>';
+                  res.setHeader('Content-Type', 'text/xml');
+                  res.status(200).send(twiml);
+                  return;
+                });
+            }
           }
         });
       }
     }
-
   });
 });
 
