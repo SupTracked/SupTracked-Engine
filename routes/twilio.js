@@ -5,7 +5,7 @@
 var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
-var config = require('../config');
+var config = require('../data/config');
 var request = require('request');
 var fs = require('fs');
 

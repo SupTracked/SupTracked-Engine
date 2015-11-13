@@ -1,6 +1,6 @@
 /* globals db */
 "use strict";
-var config = require('../config');
+var config = require('../data/config');
 var multer = require('multer');
 var rimraf = require('rimraf');
 var fs = require('fs');

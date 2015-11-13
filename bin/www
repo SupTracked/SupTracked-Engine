@@ -8,7 +8,7 @@
 
 var app = require('../app');
 var http = require('http');
-var config = require('../config');
+var config = require('../data/config');
 var sqlite3 = require('sqlite3').verbose();
 var q = require('q');
 var startTime = new Date();

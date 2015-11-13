@@ -3,7 +3,7 @@
 
 var express = require('express');
 var router = express.Router();
-var config = require('../config');
+var config = require('../data/config');
 var client = require('twilio')(config.twilio.sid, config.twilio.auth_token);
 
 /**

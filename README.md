@@ -5,3 +5,5 @@ Main SupTracked engine. Please refer to `/doc/index.html` for documentation and 
 Please test with `npm test` and lint with `npm run lint` before PRing.
 
 Point twilio at `host.com/twilio` with `GET` requests.
+
+Set configuration in `data\config.js`.

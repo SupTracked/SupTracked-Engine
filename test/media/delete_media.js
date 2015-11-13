@@ -8,7 +8,7 @@ process.env.NODE_ENV = 'test';
 var request = require('supertest');
 require = require('really-need');
 var rimraf = require('rimraf');
-var config = require('../../config');
+var config = require('../../data/config');
 var mkdirp = require('mkdirp');
 
 describe('media delete', function() {
