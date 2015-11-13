@@ -19,6 +19,7 @@ var drug = require('./routes/drug');
 var method = require('./routes/method');
 var media = require('./routes/media');
 var twilio = require('./routes/twilio');
+var sms = require('./routes/sms');
 
 var app = express();
 app.use(cors());
@@ -103,6 +104,7 @@ app.use('/consumption', auth);
 app.use('/drug', auth);
 app.use('/method', auth);
 app.use('/media', auth);
+app.use('/sms', auth);
 
 // route to controllers
 app.use('/register', register);
@@ -114,6 +116,7 @@ app.use('/drug', drug);
 app.use('/method', method);
 app.use('/media', media);
 app.use('/twilio', twilio);
+app.use('/sms', sms);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

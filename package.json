@@ -27,7 +27,8 @@
     "q": "^1.4.1",
     "request": "^2.65.0",
     "rimraf": "^2.4.3",
-    "sqlite3": "^3.1.0"
+    "sqlite3": "^3.1.0",
+    "twilio": "^2.5.2"
   },
   "devDependencies": {
     "jshint": "^2.8.0",

@@ -892,7 +892,7 @@ router.post('/search', function(req, res, next) {
 /**
  * @api {get} /consumption/locations Get a unique list of all locations used in consumptions owned by the user, ordered from most used to least used
  * @apiName GetAllConsumptionLocations
- * @apiGroup Location
+ * @apiGroup Consumption
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
