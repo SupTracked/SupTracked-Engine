@@ -12,7 +12,7 @@ define({ "api": [
             "group": "Parameter",
             "type": "<p>Number</p> ",
             "optional": false,
-            "field": "id",
+            "field": "consumption_id",
             "description": "<p>id of the consumption</p> "
           },
           {
@@ -366,6 +366,69 @@ define({ "api": [
         {
           "title": "Error-Response:",
           "content": "HTTP/1.1 404 Not Found",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/consumption.js",
+    "groupTitle": "Consumption"
+  },
+  {
+    "type": "get",
+    "url": "/consumption/locations",
+    "title": "Get a unique list of all locations used in consumptions owned by the user, ordered from most used to least used",
+    "name": "GetAllConsumptionLocations",
+    "group": "Consumption",
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "<p>Number</p> ",
+            "optional": false,
+            "field": "locationcount",
+            "description": "<p>number of unique locations</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "locations",
+            "description": "<p>json array of locations.</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>Object[]</p> ",
+            "optional": false,
+            "field": "locations.location",
+            "description": "<p>JSON array for individual locations</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "locations.location.name",
+            "description": "<p>location name</p> "
+          },
+          {
+            "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "locations.location.use_count",
+            "description": "<p>number of times that the location has been used in consumptions</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[{\n  location: 'Maine',\n  use_count: 1\n}, {\n  location: 'San Juan',\n  use_count: 1\n}]",
           "type": "json"
         }
       ]
@@ -2590,69 +2653,6 @@ define({ "api": [
     "groupTitle": "Experience"
   },
   {
-    "type": "get",
-    "url": "/consumption/locations",
-    "title": "Get a unique list of all locations used in consumptions owned by the user, ordered from most used to least used",
-    "name": "GetAllConsumptionLocations",
-    "group": "Location",
-    "permission": [
-      {
-        "name": "ValidUserBasicAuthRequired"
-      }
-    ],
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "<p>Number</p> ",
-            "optional": false,
-            "field": "locationcount",
-            "description": "<p>number of unique locations</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>Object[]</p> ",
-            "optional": false,
-            "field": "locations",
-            "description": "<p>json array of locations.</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>Object[]</p> ",
-            "optional": false,
-            "field": "locations.location",
-            "description": "<p>JSON array for individual locations</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>String</p> ",
-            "optional": false,
-            "field": "locations.location.name",
-            "description": "<p>location name</p> "
-          },
-          {
-            "group": "Success 200",
-            "type": "<p>String</p> ",
-            "optional": false,
-            "field": "locations.location.use_count",
-            "description": "<p>number of times that the location has been used in consumptions</p> "
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n[{\n  location: 'Maine',\n  use_count: 1\n}, {\n  location: 'San Juan',\n  use_count: 1\n}]",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "routes/consumption.js",
-    "groupTitle": "Location"
-  },
-  {
     "type": "post",
     "url": "/media",
     "title": "Create a media entry (must use multipart form)",
@@ -3247,12 +3247,6 @@ define({ "api": [
             "optional": false,
             "field": "noResults",
             "description": "<p>no experiences or consumptions match the provided criteria</p> "
-          },
-          {
-            "group": "Error 4xx",
-            "optional": false,
-            "field": "needCriteria",
-            "description": "<p>no experiences match the provided criteria (at least one must be provided)</p> "
           }
         ]
       },
@@ -3260,11 +3254,6 @@ define({ "api": [
         {
           "title": "Error-Response:",
           "content": "HTTP/1.1 404 Not Found Bad Request",
-          "type": "json"
-        },
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 400 Bad Request\n{\n  \"media\": \"at least one field must be provided\"\n}",
           "type": "json"
         }
       ]
@@ -3870,6 +3859,73 @@ define({ "api": [
     "groupTitle": "Registration"
   },
   {
+    "type": "post",
+    "url": "/sms",
+    "title": "Send an SMS to all emergency contacts",
+    "name": "SMS",
+    "group": "SMS",
+    "permission": [
+      {
+        "name": "ValidUserBasicAuthRequired"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "message",
+            "description": "<p>message to send</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "noContacts",
+            "description": "<p>no emergency contacts provided</p> "
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "general",
+            "description": "<p>unspecified twilio error</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 request error\n{\n  \"sms\": \"no emergency contacts provided\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 500 server error\n{\n  \"sms\": '[twilio error]'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "routes/sms.js",
+    "groupTitle": "SMS"
+  },
+  {
     "type": "get",
     "url": "/status/db",
     "title": "View DB status",
@@ -4065,7 +4121,7 @@ define({ "api": [
     "groupTitle": "User"
   },
   {
-    "type": "get",
+    "type": "post",
     "url": "/user/audit",
     "title": "Get user audit data",
     "name": "GetUserAudit",
@@ -4083,7 +4139,7 @@ define({ "api": [
             "type": "<p>Number</p> ",
             "optional": true,
             "field": "limit",
-            "description": "<p>limit of entries to return (defaults to 100)</p> "
+            "description": "<p>limit of entries to return (defaults to 1000)</p> "
           }
         ]
       }
