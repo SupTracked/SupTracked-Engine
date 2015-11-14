@@ -129,7 +129,7 @@ q.fcall(
     ' ' +
     'CREATE TABLE IF NOT EXISTS "consumptions" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-    'date TEXT, ' +
+    'date INTEGER, ' +
     'experience_id INTEGER, ' +
     'count REAL, ' +
     'drug_id INTEGER, ' +
@@ -158,7 +158,7 @@ q.fcall(
     'filename TEXT, ' +
     'title TEXT, ' +
     'tags TEXT, ' +
-    'date TEXT, ' +
+    'date INTEGER, ' +
     'association_type TEXT, ' +
     'association INTEGER, ' +
     'explicit INTEGER, ' +
