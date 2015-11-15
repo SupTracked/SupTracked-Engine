@@ -12,8 +12,8 @@ config.media.location = 'data/media/'; // must have trailing slash
 config.media.test_location = 'data/media_test/'; // this location will be created if it doesn't exist and deleted after testing
 
 config.twilio = {};
-config.twilio.sid = '';
-config.twilio.auth_token = '';
-config.twilio.number = '';
+config.twilio.sid = 'mySID';
+config.twilio.auth_token = 'myAuthToken';
+config.twilio.number = '+1415555123456';
 
 module.exports = config;
