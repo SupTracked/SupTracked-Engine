@@ -15,5 +15,7 @@ config.twilio = {};
 config.twilio.sid = 'mySID';
 config.twilio.auth_token = 'myAuthToken';
 config.twilio.number = '+1415555123456';
+config.twilio.username = 'twilioUser';
+config.twilio.password = 'twilioPassword';
 
 module.exports = config;
