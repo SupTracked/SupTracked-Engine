@@ -11,7 +11,7 @@
   },
   "scripts": {
     "start": "node ./bin/www",
-    "test": "cp -n ./data/config.js.example ./data/config.js && mocha --recursive && jshint .",
+    "test": "cp -n ./data/config.js.example ./data/config.js && mocha --recursive",
     "lint": "jshint ."
   },
   "dependencies": {
