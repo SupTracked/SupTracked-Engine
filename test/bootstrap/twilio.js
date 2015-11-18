@@ -58,15 +58,30 @@ describe('twilio', function() {
     }
   }
 
+  it('rejects without basic auth', function testTwilioNoAuth(done) {
+    request(server)
+      .get('/twilio')
+      .expect(401, done);
+  });
+
+  it('rejects with bad basic auth', function testTwilioBadAuth(done) {
+    request(server)
+      .get('/twilio')
+      .auth('notme', 'testpass')
+      .expect(401, done);
+  });
+
   it('rejects with no body', function testTwilioNoBody(done) {
     request(server)
       .get('/twilio')
+      .auth('testuser', 'testpass')
       .expect(400, done);
   });
 
   it('rejects with no from field', function testTwilioNoFrom(done) {
     request(server)
       .get('/twilio')
+      .auth('testuser', 'testpass')
       .field('notphone', '0')
       .expect(400, done);
   });
@@ -74,6 +89,7 @@ describe('twilio', function() {
   it('denies with no matching number', function testTwilioBadNumber(done) {
     request(server)
       .get('/twilio?From=%2B15551234&Body=commands')
+      .auth('testuser', 'testpass')
       .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Ambiguous or no such user</Message></Response>', done);
   });
 
@@ -93,6 +109,7 @@ describe('twilio', function() {
           .end(function() {
             request(server)
               .get('/twilio?From=%2B15551234&Body=commands')
+              .auth('testuser', 'testpass')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>[quicknote], [image file], listcon, setcount [id] [count], dupcon [id], jumpcon [id], namemedia [name]</Message></Response>', done);
           });
       });
@@ -114,6 +131,7 @@ describe('twilio', function() {
           .end(function() {
             request(server)
               .get('/twilio?From=%2B15551234&NumMedia=1&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
+              .auth('testuser', 'testpass')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences to add to!</Message></Response>', done);
           });
       });
@@ -141,6 +159,7 @@ describe('twilio', function() {
               .end(function() {
                 request(server)
                   .get('/twilio?From=%2B15551234&NumMedia=1&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
+                  .auth('testuser', 'testpass')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Processed 1 object.</Message></Response>', done);
               });
           });
@@ -169,6 +188,7 @@ describe('twilio', function() {
               .end(function() {
                 request(server)
                   .get('/twilio?From=%2B15551234&NumMedia=1&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
+                  .auth('testuser', 'testpass')
                   .end(function() {
                     request(server)
                       .get('/media/1')
@@ -203,6 +223,7 @@ describe('twilio', function() {
               .end(function() {
                 request(server)
                   .get('/twilio?From=%2B15551234&NumMedia=1&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
+                  .auth('testuser', 'testpass')
                   .end(function() {
                     request(server)
                       .get('/media/1')
@@ -237,6 +258,7 @@ describe('twilio', function() {
               .end(function() {
                 request(server)
                   .get('/twilio?From=%2B15551234&NumMedia=2&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg&MediaUrl1=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
+                  .auth('testuser', 'testpass')
                   .end(function() {
                     request(server)
                       .get('/media/1')
@@ -272,6 +294,7 @@ describe('twilio', function() {
           .end(function() {
             request(server)
               .get('/twilio?From=%2B15551234&Body=listcon')
+              .auth('testuser', 'testpass')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences to add to!</Message></Response>', done);
           });
       });
@@ -300,6 +323,7 @@ describe('twilio', function() {
               .end(function() {
                 request(server)
                   .get('/twilio?From=%2B15551234&Body=listcon')
+                  .auth('testuser', 'testpass')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>', done);
               });
           });
@@ -366,6 +390,7 @@ describe('twilio', function() {
                               .end(function() {
                                 request(server)
                                   .get('/twilio?From=%2B15551234&Body=listcon')
+                                  .auth('testuser', 'testpass')
                                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>1: 2 mg Phenylpiracetam, 2: 6 mg Phenylpiracetam</Message></Response>', done);
                               });
                           });
@@ -392,6 +417,7 @@ describe('twilio', function() {
           .end(function() {
             request(server)
               .get('/twilio?From=%2B15551234&Body=setcount%201%205')
+              .auth('testuser', 'testpass')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences!</Message></Response>', done);
           });
       });
@@ -419,6 +445,7 @@ describe('twilio', function() {
               .end(function() {
                 request(server)
                   .get('/twilio?From=%2B15551234&Body=setcount%205')
+                  .auth('testuser', 'testpass')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>', done);
               });
           });
@@ -477,6 +504,7 @@ describe('twilio', function() {
                           .end(function() {
                             request(server)
                               .get('/twilio?From=%2B15551234&Body=setcount%201%205')
+                              .auth('testuser', 'testpass')
                               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Updated from 2 to 5 </Message></Response>', done);
                           });
                       });
@@ -538,9 +566,11 @@ describe('twilio', function() {
                           .end(function() {
                             request(server)
                               .get('/twilio?From=%2B15551234&Body=setcount%201%205')
+                              .auth('testuser', 'testpass')
                               .end(function() {
                                 request(server)
                                   .get('/twilio?From=%2B15551234&Body=listcon')
+                                  .auth('testuser', 'testpass')
                                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>1: 5 mg Phenylpiracetam</Message></Response>', done);
                               });
                           });
@@ -567,6 +597,7 @@ describe('twilio', function() {
           .end(function() {
             request(server)
               .get('/twilio?From=%2B15551234&Body=dupcon')
+              .auth('testuser', 'testpass')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences!</Message></Response>', done);
           });
       });
@@ -594,6 +625,7 @@ describe('twilio', function() {
               .end(function() {
                 request(server)
                   .get('/twilio?From=%2B15551234&Body=dupcon')
+                  .auth('testuser', 'testpass')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>', done);
               });
           });
@@ -652,6 +684,7 @@ describe('twilio', function() {
                           .end(function() {
                             request(server)
                               .get('/twilio?From=%2B15551234&Body=dupcon%201')
+                              .auth('testuser', 'testpass')
                               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Duplicated consumption.</Message></Response>', done);
                           });
                       });
@@ -713,9 +746,11 @@ describe('twilio', function() {
                           .end(function() {
                             request(server)
                               .get('/twilio?From=%2B15551234&Body=dupcon%201')
+                              .auth('testuser', 'testpass')
                               .end(function() {
                                 request(server)
                                   .get('/twilio?From=%2B15551234&Body=listcon')
+                                  .auth('testuser', 'testpass')
                                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>2: 2 mg Phenylpiracetam, 1: 2 mg Phenylpiracetam</Message></Response>', done);
                               });
                           });
@@ -742,6 +777,7 @@ describe('twilio', function() {
           .end(function() {
             request(server)
               .get('/twilio?From=%2B15551234&Body=jumpcon')
+              .auth('testuser', 'testpass')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences!</Message></Response>', done);
           });
       });
@@ -769,6 +805,7 @@ describe('twilio', function() {
               .end(function() {
                 request(server)
                   .get('/twilio?From=%2B15551234&Body=jumpcon')
+                  .auth('testuser', 'testpass')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No consumptions!</Message></Response>', done);
               });
           });
@@ -827,6 +864,7 @@ describe('twilio', function() {
                           .end(function() {
                             request(server)
                               .get('/twilio?From=%2B15551234&Body=jumpcon%201')
+                              .auth('testuser', 'testpass')
                               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Date jumped.</Message></Response>', done);
                           });
                       });
@@ -852,6 +890,7 @@ describe('twilio', function() {
           .end(function() {
             request(server)
               .get('/twilio?From=%2B15551234&Body=namemeda%20newname')
+              .auth('testuser', 'testpass')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences!</Message></Response>', done);
           });
       });
@@ -879,9 +918,11 @@ describe('twilio', function() {
               .end(function() {
                 request(server)
                   .get('/twilio?From=%2B15551234&NumMedia=1&MediaUrl0=https%3A%2F%2Fplaceholdit.imgix.net%2F~text%3Ftxtsize%3D33%26txt%3D350%25C3%2597150%26w%3D350%26h%3D150%26fm%3Djpg')
+                  .auth('testuser', 'testpass')
                   .end(function() {
                     request(server)
                       .get('/twilio?From=%2B15551234&Body=namemeda%20newname')
+                      .auth('testuser', 'testpass')
                       .expect(200)
                       .expect(mediaHasNewName)
                       .end(done);
@@ -907,6 +948,7 @@ describe('twilio', function() {
           .end(function() {
             request(server)
               .get('/twilio?From=%2B15551234&Body=newnote')
+              .auth('testuser', 'testpass')
               .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>No experiences!</Message></Response>', done);
           });
       });
@@ -935,6 +977,7 @@ describe('twilio', function() {
               .end(function() {
                 request(server)
                   .get('/twilio?From=%2B15551234&Body=newnote')
+                  .auth('testuser', 'testpass')
                   .expect(200, '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Note added.</Message></Response>', done);
               });
           });

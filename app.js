@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var basicAuth = require('basic-auth');
 var bcrypt = require('bcrypt');
 var cors = require('cors');
+var config = require('./data/config');
 
 // route loading
 var status = require('./routes/status');
@@ -25,8 +26,8 @@ var app = express();
 app.use(cors());
 
 /**
-* Basic Auth/DB auth system
-*/
+ * Basic Auth/DB auth system
+ */
 function auth(req, res, next) {
   function unauthorized(res) {
     res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
@@ -49,7 +50,7 @@ function auth(req, res, next) {
     }
 
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress ||
-    req.socket.remoteAddress || req.connection.socket.remoteAddress;
+      req.socket.remoteAddress || req.connection.socket.remoteAddress;
 
     // we've heard of them; is the password correct?
     bcrypt.compare(user.pass, row.password, function(err, result) {
@@ -59,34 +60,61 @@ function auth(req, res, next) {
         req.supUser = user.name;
 
         // make an eudit entry if this isn't a standard user check
-        if(req.originalUrl !== '/user'){
+        if (req.originalUrl !== '/user') {
           db.run("INSERT INTO audit (date, ip, useragent, action, owner)" +
-          " VALUES ($date, $ip, $useragent, $action, $owner)", {
-            $date: Math.floor(Date.now() / 1000),
-            $ip: ip,
-            $useragent: req.headers['user-agent'],
-            $action: req.originalUrl,
-            $owner: row.id
-          });
+            " VALUES ($date, $ip, $useragent, $action, $owner)", {
+              $date: Math.floor(Date.now() / 1000),
+              $ip: ip,
+              $useragent: req.headers['user-agent'],
+              $action: req.originalUrl,
+              $owner: row.id
+            });
         }
 
         next();
       } else {
         // build and insert the audit entry
         db.run("INSERT INTO audit (date, ip, useragent, action, owner)" +
-        " VALUES ($date, $ip, $useragent, $action, $owner)", {
-          $date: Math.floor(Date.now() / 1000),
-          $ip: ip,
-          $useragent: req.headers['user-agent'],
-          $action: req.originalUrl + '(bad auth)',
-          $owner: row.id
-        });
+          " VALUES ($date, $ip, $useragent, $action, $owner)", {
+            $date: Math.floor(Date.now() / 1000),
+            $ip: ip,
+            $useragent: req.headers['user-agent'],
+            $action: req.originalUrl + '(bad auth)',
+            $owner: row.id
+          });
 
         return unauthorized(res);
       }
     });
   });
 }
+
+function twilioAuth(req, res, next) {
+  function unauthorized(res) {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+    res.status(401).send();
+    return;
+  }
+
+  var user = basicAuth(req);
+
+  if (!user || !user.name || !user.pass) {
+    return unauthorized(res);
+  }
+
+  if (process.env.NODE_ENV === 'test' &&
+    user.name === 'testuser' &&
+    user.pass === 'testpass') {
+    next();
+  } else if (process.env.NODE_ENV !== 'test' &&
+    user.name === config.twilio.username &&
+    user.pass === config.twilio.password) {
+    next();
+  } else {
+    return unauthorized(res);
+  }
+}
+
 
 // logging
 if (process.env.NODE_ENV !== 'test') {
@@ -95,7 +123,9 @@ if (process.env.NODE_ENV !== 'test') {
 
 // body parsing goodness
 app.use(bodyParser.json()); // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 // protect routes
 app.use('/user', auth);
@@ -105,6 +135,7 @@ app.use('/drug', auth);
 app.use('/method', auth);
 app.use('/media', auth);
 app.use('/sms', auth);
+app.use('/twilio', twilioAuth);
 
 // route to controllers
 app.use('/register', register);
