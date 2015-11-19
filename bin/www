@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /* globals db */
 "use strict";
 
@@ -8,9 +9,11 @@
 
 var app = require('../app');
 var http = require('http');
+var https = require('https');
 var config = require('../data/config');
 var sqlite3 = require('sqlite3').verbose();
 var q = require('q');
+var fs = require('fs');
 var startTime = new Date();
 
 /**
@@ -100,8 +103,15 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
-
+if (process.env.NODE_ENV === "test") {
+  var server = http.createServer(app);
+} else {
+  var server = https.createServer({
+    key: fs.readFileSync('data/ssl/key.key'),
+    cert: fs.readFileSync('data/ssl/cert.crt'),
+    ca: fs.readFileSync('data/ssl/bundle.ca-bundle')
+  }, app);
+}
 /**
  * Set up listeners, then promise through database initialization and launch
  */
