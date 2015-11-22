@@ -187,7 +187,7 @@ router.get('/', function(req, res, next) {
 
               db.run("INSERT INTO consumptions (date, experience_id, count, drug_id, method_id, location, owner)" +
                 " VALUES ($date, $experience_id, $count, $drug_id, $method_id, $location, $owner)", {
-                  $date: Math.floor((new Date().getTime() - (new Date().getTimezoneOffset()) * 60000) / 1000),
+                  $date: Math.floor(new Date().getTime() / 1000),
                   $experience_id: consumptions[0].experience_id,
                   $count: consumptions[0].count,
                   $drug_id: consumptions[0].drug_id,
