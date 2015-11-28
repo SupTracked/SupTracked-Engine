@@ -763,7 +763,7 @@ router.post('/search', function(req, res, next) {
     });
 
     // get all our experiences
-    db.all("SELECT * FROM experiences WHERE id IN (" + experienceIDs.join() + ") ORDER BY date DESC, id DESC",
+    db.all("SELECT * FROM experiences WHERE id IN (" + experienceIDs.join() + ") ORDER BY id DESC, date DESC",
       function(err, experiences) {
         if (err) {
           res.setHeader('Content-Type', 'application/json');
