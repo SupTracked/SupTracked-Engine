@@ -186,10 +186,10 @@ describe('experience search', function() {
                   .set('Content-Type', 'application/json')
                   .send('{"limit": 1}')
                   .expect(200, [{
-                    id: 1,
+                    id: 2,
                     date: 1445543583,
                     ttime: null,
-                    title: 'My Title',
+                    title: 'Cows',
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
@@ -228,10 +228,10 @@ describe('experience search', function() {
                   .set('Content-Type', 'application/json')
                   .send('{"limit": 1, "offset": 1}')
                   .expect(200, [{
-                    id: 2,
+                    id: 1,
                     date: 1445543583,
                     ttime: null,
-                    title: 'Cows',
+                    title: 'My Title',
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
