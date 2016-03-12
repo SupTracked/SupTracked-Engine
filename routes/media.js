@@ -436,6 +436,7 @@ router.put('/', function(req, res, next) {
  * @apiSuccess {String} media.date  date the image was taken
  * @apiSuccess {String} media.association_type  what type of object the media should be associated with; "drug" or "experience"
  * @apiSuccess {Number} media.association  id of the associated drug or experience (requires association type)
+ * @apiSuccess {String} media.exp_title  title of associated experience (empty if associated with a drug)
  * @apiSuccess {Number} media.explicit  1 indicates that the content is explicit
  * @apiSuccess {Number} media.favorite  1 indicates that the content is a favorite piece of content
  * @apiSuccess {Number} media.owner   id of the owner
@@ -449,6 +450,7 @@ router.put('/', function(req, res, next) {
  *        "date": 1445995224,
  *        "association_type": "experience",
  *        "association": "1",
+ *        "exp_title": "My Cool Experience",
  *        "explicit": 0,
  *        "favorite": 1,
  *        "owner": 1
@@ -498,64 +500,64 @@ router.post('/search', function(req, res, next) {
 
     // get date range
     if ("startdate" in req.body && "enddate" in req.body) {
-      searchCriteria.push("date BETWEEN $startdate AND $enddate");
+      searchCriteria.push("m.date BETWEEN $startdate AND $enddate");
       queryData.$startdate = req.body.startdate;
       queryData.$enddate = req.body.enddate;
     }
 
     // get title
     if ("title" in req.body) {
-      searchCriteria.push("title LIKE '%' || $title || '%'");
+      searchCriteria.push("m.title LIKE '%' || $title || '%'");
       queryData.$title = req.body.title;
     }
 
     // get tags
     if ("tags" in req.body) {
-      searchCriteria.push("tags LIKE '%' || $tags || '%'");
+      searchCriteria.push("m.tags LIKE '%' || $tags || '%'");
       queryData.$tags = req.body.tags;
     }
 
     // get association_type
     if ("association_type" in req.body) {
-      searchCriteria.push("association_type = $association_type");
+      searchCriteria.push("m.association_type = $association_type");
       queryData.$association_type = req.body.association_type;
     }
 
     // get association
     if ("association" in req.body) {
-      searchCriteria.push("association = $association");
+      searchCriteria.push("m.association = $association");
       queryData.$association = req.body.association;
     }
 
     // get explicit
     if ("explicit" in req.body) {
-      searchCriteria.push("explicit = $explicit");
+      searchCriteria.push("m.explicit = $explicit");
       queryData.$explicit = req.body.explicit;
     }
 
     // get favorite
     if ("favorite" in req.body) {
-      searchCriteria.push("favorite = $favorite");
+      searchCriteria.push("m.favorite = $favorite");
       queryData.$favorite = req.body.favorite;
     }
   }
 
   // slap the limit and offset
-  query = "SELECT id, title, tags, date, association_type, association, explicit, favorite, owner FROM media";
+  query = "SELECT m.*, CASE WHEN m.association_type = 'experience' then e.title else '' end as exp_title FROM media m LEFT JOIN experiences e ON m.association = e.id ";
 
   query += " WHERE";
 
   if (searchCriteria.length > 0) {
     // we know we have search criteria; add it
     query += " " + searchCriteria.join(" AND ");
-    query += " AND owner = $owner";
+    query += " AND m.owner = $owner";
     queryData.$owner = req.supID;
   } else {
-    query += " owner = $owner";
+    query += " m.owner = $owner";
     queryData.$owner = req.supID;
   }
 
-  query += " ORDER BY date desc";
+  query += " ORDER BY m.date desc";
   query += limitOffset;
 
   // get the media
@@ -567,6 +569,17 @@ router.post('/search', function(req, res, next) {
       }));
       return;
     }
+
+    // clean out the filename
+    media.forEach(function(entry, index, originalArray) {
+      originalArray[index].filename = undefined;
+    });
+
+    // fix numerical listings since date comes out funny -- KLUDGE ALERT
+    // clean out the filename
+    media.forEach(function(entry, index, originalArray) {
+      originalArray[index].date = originalArray[index].date.toString();
+    });
 
     // no media returned
     if (media.length === 0) {
@@ -595,6 +608,7 @@ router.post('/search', function(req, res, next) {
  * @apiSuccess {String} date  date the image was taken
  * @apiSuccess {String} association_type  what type of object the media should be associated with; "drug" or "experience"
  * @apiSuccess {Number} association  id of the associated drug or experience
+ * @apiSuccess {String} exp_title  title of associated experience (empty if associated with a drug)
  * @apiSuccess {Number} explicit  1 indicates that the content is explicit
  * @apiSuccess {Number} favorite  1 indicates that the content is a favorite piece of content
  * @apiSuccess {Number} owner   id of the owner
@@ -637,7 +651,7 @@ router.get('/:id', function(req, res, next) {
   }
 
   // get the entry
-  db.all("SELECT * FROM media WHERE id = $id AND owner = $owner", {
+  db.all("SELECT m.*, CASE WHEN m.association_type = 'experience' then e.title else '' end as exp_title FROM media m LEFT JOIN experiences e ON m.association = e.id WHERE m.id = $id AND m.owner = $owner", {
     $id: req.params.id,
     $owner: req.supID
   }, function(err, media) {

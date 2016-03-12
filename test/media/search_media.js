@@ -51,78 +51,88 @@ describe('media search', function() {
       .set('Content-Type', 'application/json')
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
-        // make a drug
+        // make an experience
         request(server)
-          .post('/drug')
+          .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"name": "Phenylpiracetam",' +
-            '"unit": "mg",' +
-            '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
-            '"classification": "AMPA modulator",' +
-            '"family": "*racetam",' +
-            '"rarity": "Common"' +
-            '}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
-            // make another drug
+            // make a drug
             request(server)
               .post('/drug')
               .auth('myusername', 'MyPassword')
               .set('Content-Type', 'application/json')
-              .send('{"name": "Aspirin",' +
+              .send('{"name": "Phenylpiracetam",' +
                 '"unit": "mg",' +
-                '"notes": "Painkiller",' +
-                '"classification": "COXi",' +
-                '"family": "NSAID",' +
+                '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
+                '"classification": "AMPA modulator",' +
+                '"family": "*racetam",' +
                 '"rarity": "Common"' +
                 '}')
               .end(function() {
-                // associate it with drug 1
+                // make another drug
                 request(server)
-                  .post('/media')
+                  .post('/drug')
                   .auth('myusername', 'MyPassword')
-                  .attach('image', 'test/test_img.jpg') // supertest is weird; it works from the relative dir of test launch
-                  .field('title', 'My Pic')
-                  .field('association_type', 'drug')
-                  .field('association', '1')
-                  .field('tags', 'test tag')
-                  .field('date', 1445985224)
+                  .set('Content-Type', 'application/json')
+                  .send('{"name": "Aspirin",' +
+                    '"unit": "mg",' +
+                    '"notes": "Painkiller",' +
+                    '"classification": "COXi",' +
+                    '"family": "NSAID",' +
+                    '"rarity": "Common"' +
+                    '}')
                   .end(function() {
-                    // associate it with drug 2
+                    // associate it with drug 1
                     request(server)
                       .post('/media')
                       .auth('myusername', 'MyPassword')
                       .attach('image', 'test/test_img.jpg') // supertest is weird; it works from the relative dir of test launch
-                      .field('title', 'My Other Pic')
+                      .field('title', 'My Pic')
                       .field('association_type', 'drug')
-                      .field('association', '2')
+                      .field('association', '1')
                       .field('tags', 'test tag')
-                      .field('date', 1445995224)
+                      .field('date', 1445985224)
                       .end(function() {
+                        // associate it with drug 2
                         request(server)
-                          .post('/media/search')
+                          .post('/media')
                           .auth('myusername', 'MyPassword')
-                          .expect(200, [{
-                            id: 2,
-                            title: 'My Other Pic',
-                            tags: 'test tag',
-                            date: '1445995224',
-                            association_type: 'drug',
-                            association: 2,
-                            explicit: 0,
-                            favorite: 0,
-                            owner: 1
-                          }, {
-                            id: 1,
-                            title: 'My Pic',
-                            tags: 'test tag',
-                            date: '1445985224',
-                            association_type: 'drug',
-                            association: 1,
-                            explicit: 0,
-                            favorite: 0,
-                            owner: 1
-                          }], done);
+                          .attach('image', 'test/test_img.jpg') // supertest is weird; it works from the relative dir of test launch
+                          .field('title', 'My Other Pic')
+                          .field('association_type', 'experience')
+                          .field('association', '1')
+                          .field('tags', 'test tag')
+                          .field('date', 1445995224)
+                          .end(function() {
+                            request(server)
+                              .post('/media/search')
+                              .auth('myusername', 'MyPassword')
+                              .expect(200, [{
+                                id: 2,
+                                title: 'My Other Pic',
+                                tags: 'test tag',
+                                date: 1445995224,
+                                association_type: 'experience',
+                                association: 1,
+                                exp_title: 'My Title',
+                                explicit: 0,
+                                favorite: 0,
+                                owner: 1
+                              }, {
+                                id: 1,
+                                title: 'My Pic',
+                                tags: 'test tag',
+                                date: 1445985224,
+                                association_type: 'drug',
+                                association: 1,
+                                exp_title: '',
+                                explicit: 0,
+                                favorite: 0,
+                                owner: 1
+                              }], done);
+                          });
                       });
                   });
               });
@@ -182,7 +192,7 @@ describe('media search', function() {
                       .field('association_type', 'drug')
                       .field('association', '2')
                       .field('tags', 'test tag')
-                      .field('date', 1445995224)
+                      .field('date', '1445995224')
                       .end(function() {
                         request(server)
                           .post('/media/search')
@@ -196,6 +206,7 @@ describe('media search', function() {
                             date: '1445995224',
                             association_type: 'drug',
                             association: 1,
+                            exp_title: '',
                             explicit: 0,
                             favorite: 0,
                             owner: 1
@@ -261,6 +272,7 @@ describe('media search', function() {
                             date: '1445995224',
                             association_type: 'experience',
                             association: 1,
+                            exp_title: 'My First Title',
                             explicit: 0,
                             favorite: 0,
                             owner: 1
@@ -326,6 +338,7 @@ describe('media search', function() {
                         date: '1440000000',
                         association_type: 'drug',
                         association: 1,
+                        exp_title: '',
                         explicit: 1,
                         favorite: 0,
                         owner: 1
@@ -389,6 +402,7 @@ describe('media search', function() {
                         date: '1440000000',
                         association_type: 'drug',
                         association: 1,
+                        exp_title: '',
                         explicit: 1,
                         favorite: 0,
                         owner: 1
@@ -452,6 +466,7 @@ describe('media search', function() {
                         date: '1440000000',
                         association_type: 'drug',
                         association: 1,
+                        exp_title: '',
                         explicit: 0,
                         favorite: 1,
                         owner: 1
@@ -515,6 +530,7 @@ describe('media search', function() {
                         date: '1440000000',
                         association_type: 'drug',
                         association: 1,
+                        exp_title: '',
                         explicit: 0,
                         favorite: 1,
                         owner: 1
@@ -577,6 +593,7 @@ describe('media search', function() {
                         date: '1440000000',
                         association_type: 'drug',
                         association: 1,
+                        exp_title: '',
                         explicit: 0,
                         favorite: 1,
                         owner: 1
@@ -639,6 +656,7 @@ describe('media search', function() {
                         date: '1460000000',
                         association_type: 'drug',
                         association: 1,
+                        exp_title: '',
                         explicit: 0,
                         favorite: 0,
                         owner: 1
@@ -701,6 +719,7 @@ describe('media search', function() {
                         date: '1440000000',
                         association_type: 'drug',
                         association: 1,
+                        exp_title: '',
                         explicit: 0,
                         favorite: 1,
                         owner: 1

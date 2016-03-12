@@ -149,7 +149,7 @@ describe('media create', function() {
       });
   });
 
-  it('retrieves a valid media object', function testMediaRetrieval(done) {
+  it('retrieves a valid media object with drug assoc', function testMediaRetrievalDrugAssoc(done) {
     request(server)
       .post('/register')
       .set('Content-Type', 'application/json')
@@ -188,6 +188,49 @@ describe('media create', function() {
                     association_type: 'drug',
                     association: 1,
                     explicit: 0,
+                    exp_title: '',
+                    favorite: 0,
+                    owner: 1
+                  }, done);
+              });
+          });
+      });
+  });
+
+  it('retrieves a valid media object with exp assoc', function testMediaRetrievalExpAssoc(done) {
+    request(server)
+      .post('/register')
+      .set('Content-Type', 'application/json')
+      .send('{"username": "myusername", "password": "MyPassword"}')
+      .end(function() {
+        request(server)
+          .post('/experience')
+          .auth('myusername', 'MyPassword')
+          .set('Content-Type', 'application/json')
+          .send('{"title": "My Title", "date": 1445543583}')
+          .end(function() {
+            request(server)
+              .post('/media')
+              .auth('myusername', 'MyPassword')
+              .attach('image', 'test/test_img.jpg') // supertest is weird; it works from the relative dir of test launch
+              .field('title', 'My Pic')
+              .field('association_type', 'experience')
+              .field('association', '1')
+              .field('tags', 'test tag')
+              .field('date', 1445995224)
+              .end(function() {
+                request(server)
+                  .get('/media/1')
+                  .auth('myusername', 'MyPassword')
+                  .expect(200, {
+                    id: 1,
+                    title: 'My Pic',
+                    tags: 'test tag',
+                    date: '1445995224',
+                    association_type: 'experience',
+                    association: 1,
+                    explicit: 0,
+                    exp_title: 'My Title',
                     favorite: 0,
                     owner: 1
                   }, done);

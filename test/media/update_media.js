@@ -39,23 +39,17 @@ describe('media update', function() {
       .send('{"username": "myusername", "password": "MyPassword"}')
       .end(function() {
         request(server)
-          .post('/drug')
+          .post('/experience')
           .auth('myusername', 'MyPassword')
           .set('Content-Type', 'application/json')
-          .send('{"name": "Phenylpiracetam",' +
-            '"unit": "mg",' +
-            '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
-            '"classification": "AMPA modulator",' +
-            '"family": "*racetam",' +
-            '"rarity": "Common"' +
-            '}')
+          .send('{"title": "My Title", "date": 1445543583}')
           .end(function() {
             request(server)
               .post('/media')
               .auth('myusername', 'MyPassword')
               .attach('image', 'test/test_img.jpg') // supertest is weird; it works from the relative dir of test launch
               .field('title', 'My Pic')
-              .field('association_type', 'drug')
+              .field('association_type', 'experience')
               .field('association', '1')
               .field('tags', 'test tag')
               .field('date', 1445995224)
@@ -74,9 +68,10 @@ describe('media update', function() {
                         title: 'My Different Title',
                         tags: 'test tag',
                         date: '1445995224',
-                        association_type: 'drug',
+                        association_type: 'experience',
                         association: 1,
                         explicit: 0,
+                        exp_title: 'My Title',
                         favorite: 0,
                         owner: 1
                       }, done);

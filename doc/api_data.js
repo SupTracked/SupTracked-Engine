@@ -2928,6 +2928,13 @@ define({ "api": [
           },
           {
             "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "exp_title",
+            "description": "<p>title of associated experience (empty if associated with a drug)</p> "
+          },
+          {
+            "group": "Success 200",
             "type": "<p>Number</p> ",
             "optional": false,
             "field": "explicit",
@@ -3129,6 +3136,13 @@ define({ "api": [
           },
           {
             "group": "Success 200",
+            "type": "<p>String</p> ",
+            "optional": false,
+            "field": "media.exp_title",
+            "description": "<p>title of associated experience (empty if associated with a drug)</p> "
+          },
+          {
+            "group": "Success 200",
             "type": "<p>Number</p> ",
             "optional": false,
             "field": "media.explicit",
@@ -3153,7 +3167,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n   \"id\": 1,\n   \"title\": \"Me\",\n   \"tags\": \"selfie me\",\n   \"date\": 1445995224,\n   \"association_type\": \"experience\",\n   \"association\": \"1\",\n   \"explicit\": 0,\n   \"favorite\": 1,\n   \"owner\": 1\n}",
+          "content": "HTTP/1.1 200 OK\n{\n   \"id\": 1,\n   \"title\": \"Me\",\n   \"tags\": \"selfie me\",\n   \"date\": 1445995224,\n   \"association_type\": \"experience\",\n   \"association\": \"1\",\n   \"exp_title\": \"My Cool Experience\",\n   \"explicit\": 0,\n   \"favorite\": 1,\n   \"owner\": 1\n}",
           "type": "json"
         }
       ]
