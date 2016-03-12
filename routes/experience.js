@@ -438,7 +438,7 @@ router.post('/search', function(req, res, next) {
   }
 
   // slap the limit, offset, and sort on the enddate
-  query += " ORDER BY date DESC";
+  query += " ORDER BY id DESC, date DESC";
   query += limitOffset;
 
   // get the entries

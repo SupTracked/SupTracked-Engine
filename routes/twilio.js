@@ -316,7 +316,29 @@ router.get('/', function(req, res, next) {
                   });
               });
             } else {
-              newNotes = experiences[0].notes + '\n' + ('0' + new Date().getHours()).slice(-2) + ('0' + new Date().getMinutes()).slice(-2) + ' -- ' + req.body.Body;
+              var monthNames = [
+                "January", "February", "March",
+                "April", "May", "June", "July",
+                "August", "September", "October",
+                "November", "December"
+              ];
+
+              var date = new Date();
+              var day = date.getDate();
+              var monthIndex = date.getMonth();
+              var year = date.getFullYear();
+
+              var currentDateEpoch = Math.floor(Date.parse(day + ' ' + monthNames[monthIndex] + ', ' + year + ' 00:00:00 GMT') / 1000);
+
+              var dateBlock;
+              if (experiences[0].date === currentDateEpoch) {
+                // we're on the same day; procees as planned
+                dateBlock = ('0' + new Date().getHours()).slice(-2) + ('0' + new Date().getMinutes()).slice(-2);
+              } else {
+                dateBlock = new Date().getMonth() + '-' + new Date().getDate() + ' ' + ('0' + new Date().getHours()).slice(-2) + ('0' + new Date().getMinutes()).slice(-2);
+              }
+              
+              newNotes = experiences[0].notes + '\n' + dateBlock + ' -- ' + req.body.Body;
               db.run("UPDATE experiences SET notes = $notes WHERE id = $id", {
                   $notes: newNotes,
                   $id: experiences[0].id
