@@ -576,10 +576,9 @@ router.post('/search', function(req, res, next) {
     });
 
     // fix numerical listings since date comes out funny -- KLUDGE ALERT
-    // clean out the filename
-    media.forEach(function(entry, index, originalArray) {
-      originalArray[index].date = originalArray[index].date.toString();
-    });
+    // media.forEach(function(entry, index, originalArray) {
+    //   originalArray[index].date = originalArray[index].date.toString();
+    // });
 
     // no media returned
     if (media.length === 0) {
