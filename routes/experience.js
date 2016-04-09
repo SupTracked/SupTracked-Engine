@@ -202,6 +202,7 @@ router.delete('/', function(req, res, next) {
  * @apiParam {String} [notes]  notes for the experience
  * @apiParam {String} [panicmsg]  user's panic message for the created experience
  * @apiParam {Number} [rating_id]  rating of general experience quality
+ * @apiParam {String} [interactions]  array of possible interactions (e.g. '[1, 2]' OR null if empty)
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
@@ -225,7 +226,7 @@ router.delete('/', function(req, res, next) {
  *     }
  */
 router.put('/', function(req, res, next) {
-  var permittedFields = ['date', 'notes', 'panicmsg', 'rating_id', 'title', 'ttime', 'id'];
+  var permittedFields = ['date', 'notes', 'panicmsg', 'rating_id', 'title', 'ttime', 'id', 'interactions'];
 
   //no fields were provided
   if (Object.keys(req.body).length === 0 || req.body === undefined) {
@@ -315,6 +316,7 @@ router.put('/', function(req, res, next) {
  *  @apiSuccess {String} experiences.panicmsg  user's panic message for the created experience
  *  @apiSuccess {Number} experiences.rating_id  rating of general experience quality
  *  @apiSuccess {Number} experiences.owner  id of the owner of the experience
+ *  @apiSuccess {String} experiences.interactions  array of possible interactions (e.g. '[1, 2]' OR null if empty)
  *  @apiSuccess {Object[]} experiences.consumptions  array of consumptions for the experience
  *   @apiSuccess {Number} experiences.consumptions.id  id of the consumption
  *   @apiSuccess {Number} experiences.consumptions.date  Unix timestamp of the date and time of the consumption
@@ -356,6 +358,7 @@ router.put('/', function(req, res, next) {
  *       "rating_id": null,
  *       "title": "My Title",
  *       "ttime": null,
+ *       "interactions": "[1]",
  *       "consumptions": [{
  *         "id": 1,
  *         "date": "1445648036",
@@ -620,6 +623,7 @@ router.post('/search', function(req, res, next) {
  *        "id": 1,
  *        "notes": "This is great.",
  *        "owner": 1,
+ *        "interactions": "[1]",
  *        "panicmsg": "Oh snap help me!",
  *        "rating_id": 3,
  *        "title": "Great Time",
@@ -722,6 +726,7 @@ router.get('/:id', function(req, res, next) {
             rating_id: experience[0].rating_id,
             title: experience[0].title,
             ttime: experience[0].ttime,
+            interactions: experience[0].interactions,
             consumptions: []
           };
 
@@ -791,6 +796,7 @@ router.get('/:id', function(req, res, next) {
                 rating_id: experience[0].rating_id,
                 title: experience[0].title,
                 ttime: experience[0].ttime,
+                interactions: experience[0].interactions,
                 consumptions: allConsumptions
               };
 

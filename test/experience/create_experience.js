@@ -145,6 +145,7 @@ describe('experience create', function() {
                             "panicmsg": null,
                             "rating_id": null,
                             "title": "My Title",
+                            "interactions": null,
                             "ttime": null,
                             "consumptions": [{
                               "id": 1,
