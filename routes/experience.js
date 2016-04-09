@@ -556,6 +556,7 @@ router.post('/search', function(req, res, next) {
                   rating_id: singleExperience.rating_id,
                   title: singleExperience.title,
                   ttime: singleExperience.ttime,
+                  interactions: singleExperience.interactions,
                   consumptions: allConsumptions
                 };
 

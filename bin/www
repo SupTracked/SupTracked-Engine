@@ -135,7 +135,8 @@ q.fcall(
     'notes TEXT, ' +
     'panicmsg TEXT, ' +
     'rating_id INTEGER, ' +
-    'owner INTEGER);' +
+    'owner INTEGER, ' +
+    'interactions TEXT);' +
     ' ' +
     'CREATE TABLE IF NOT EXISTS "consumptions" ' +
     '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +

@@ -59,6 +59,7 @@ describe('experience search', function() {
                 notes: null,
                 panicmsg: null,
                 rating_id: null,
+                interactions: null,
                 owner: 1,
                 consumptions: []
               }], done);
@@ -124,13 +125,14 @@ describe('experience search', function() {
                                 "id": 1,
                                 "notes": null,
                                 "owner": 1,
+                                "interactions": null,
                                 "panicmsg": null,
                                 "rating_id": null,
                                 "title": "My Title",
                                 "ttime": null,
                                 "consumptions": [{
                                   "id": 1,
-                                  "date": "1445648036",
+                                  "date": 1445648036,
                                   "count": 2,
                                   "experience_id": 1,
                                   "drug": {
@@ -194,6 +196,7 @@ describe('experience search', function() {
                     panicmsg: null,
                     rating_id: null,
                     owner: 1,
+                    interactions: null,
                     consumptions: []
                   }], done);
               });
@@ -236,6 +239,7 @@ describe('experience search', function() {
                     panicmsg: null,
                     rating_id: null,
                     owner: 1,
+                    interactions: null,
                     consumptions: []
                   }], done);
               });
@@ -278,6 +282,7 @@ describe('experience search', function() {
                     panicmsg: null,
                     rating_id: null,
                     owner: 1,
+                    interactions: null,
                     consumptions: []
                   }], done);
               });
@@ -327,6 +332,7 @@ describe('experience search', function() {
                         panicmsg: null,
                         rating_id: null,
                         owner: 1,
+                        interactions: null,
                         consumptions: []
                       }], done);
                   });
@@ -377,6 +383,7 @@ describe('experience search', function() {
                         panicmsg: null,
                         rating_id: 2,
                         owner: 1,
+                        interactions: null,
                         consumptions: []
                       }], done);
                   });
@@ -419,6 +426,7 @@ describe('experience search', function() {
                     notes: null,
                     panicmsg: null,
                     rating_id: null,
+                    interactions: null,
                     owner: 1,
                     consumptions: []
                   }], done);
