@@ -70,7 +70,8 @@ describe('drug create', function() {
             '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
             '"classification": "AMPA modulator",' +
             '"family": "*racetam",' +
-            '"rarity": "Common"' +
+            '"rarity": "Common",' +
+            '"slang": "Something"' +
             '}')
           .expect(201, {
             "id": 1
@@ -93,7 +94,8 @@ describe('drug create', function() {
             '"notes": "Phenylpiracetam is a phenylated analog of the drug piracetam.",' +
             '"classification": "AMPA modulator",' +
             '"family": "*racetam",' +
-            '"rarity": "Common"' +
+            '"rarity": "Common",' +
+            '"slang": "Something"' +
             '}')
           .end(function() {
             request(server)
@@ -107,6 +109,7 @@ describe('drug create', function() {
                 "classification": "AMPA modulator",
                 "family": "*racetam",
                 "rarity": "Common",
+                "slang": "Something",
                 "owner": 1
               }, done);
           });

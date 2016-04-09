@@ -64,6 +64,7 @@ describe('drug list', function() {
                     "classification": "COX inhibitor",
                     "family": "NSAID",
                     "rarity": "Common",
+                    "slang": null,
                     "use_count": 0,
                     "owner": 1
                   }, {
@@ -74,6 +75,7 @@ describe('drug list', function() {
                     "classification": "AMPA modulator",
                     "family": "*racetam",
                     "rarity": "Common",
+                    "slang": null,
                     "use_count": 0,
                     "owner": 1
                   }], done);

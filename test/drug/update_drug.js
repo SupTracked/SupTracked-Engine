@@ -59,6 +59,7 @@ describe('drug update', function() {
                     "classification": "AMPA modulator",
                     "family": "*racetam",
                     "rarity": "Common",
+                    "slang": null,
                     "owner": 1
                   }, done);
               });

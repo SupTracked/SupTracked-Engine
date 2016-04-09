@@ -14,6 +14,7 @@ var router = express.Router();
  * @apiParam {String} classification  drug classification
  * @apiParam {String} family  drug's chemical family
  * @apiParam {String} rarity  drug rarity
+ * @apiParam {String} slang  slang name for a single dose
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
@@ -46,15 +47,20 @@ router.post('/', function(req, res, next) {
     return;
   }
 
+  if(!("slang" in req.body)){
+    req.body.slang = null;
+  }
+
   // stick it in
-  db.run("INSERT INTO drugs (name, unit, notes, classification, family, rarity, owner)" +
-    " VALUES ($name, $unit, $notes, $classification, $family, $rarity, $owner)", {
+  db.run("INSERT INTO drugs (name, unit, notes, classification, family, rarity, slang, owner)" +
+    " VALUES ($name, $unit, $notes, $classification, $family, $rarity, $slang, $owner)", {
       $name: req.body.name,
       $unit: req.body.unit,
       $notes: req.body.notes,
       $classification: req.body.classification,
       $family: req.body.family,
       $rarity: req.body.rarity,
+      $slang: req.body.slang,
       $owner: req.supID
     },
     function(err) {
@@ -86,6 +92,7 @@ router.post('/', function(req, res, next) {
  * @apiParam {String} [classification]  drug classification
  * @apiParam {String} [family]  drug's chemical family
  * @apiParam {String} [rarity]  drug rarity
+ * @apiParam {String} [slang]  slang name for single dose
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
@@ -109,7 +116,7 @@ router.post('/', function(req, res, next) {
  *     }
  */
 router.put('/', function(req, res, next) {
-  var permittedFields = ['name', 'unit', 'notes', 'classification', 'family', 'rarity', 'id'];
+  var permittedFields = ['name', 'unit', 'notes', 'classification', 'family', 'rarity', 'id', 'slang'];
 
   //no fields were provided
   if (Object.keys(req.body).length === 0 || req.body === undefined) {
@@ -305,6 +312,7 @@ router.delete('/', function(req, res, next) {
  *    @apiSuccess {String}   drugs.drug.classification  drug name
  *    @apiSuccess {String}   drugs.drug.family  drug family
  *    @apiSuccess {String}   drugs.drug.rarity  drug rarity
+ *    @apiSuccess {String}   drugs.drug.slang  slang for a single dose
  *    @apiSuccess {Number}   drugs.drug.use_count  number of times that the drug has been used in consumptions
  *    @apiSuccess {Number}   drugs.drug.owner  id of the owner of the drug
  *
@@ -318,6 +326,7 @@ router.delete('/', function(req, res, next) {
  *       "classification": "COX inhibitor",
  *       "family": "NSAID",
  *       "rarity": "Common",
+ *       "slang": '',
  *       "use_count": 0,
  *       "owner": 1
  *     }, {
@@ -329,6 +338,7 @@ router.delete('/', function(req, res, next) {
  *       "family": "*racetam",
  *       "rarity": "Common",
  *       "use_count": 0,
+ *       "slang": '',
  *       "owner": 1
  *     }]
  */
@@ -367,6 +377,7 @@ router.get('/all', function(req, res, next) {
  * @apiSuccess {String} classification  drug classification
  * @apiSuccess {String} family  drug's chemical family
  * @apiSuccess {String} rarity  drug rarity
+ * @apiSuccess {String} slang  slang for a single dose
  * @apiSuccess {Number} owner  id of the owner of the experience
  *
  * @apiSuccessExample Success-Response:
@@ -379,6 +390,7 @@ router.get('/all', function(req, res, next) {
  *        "classification": "AMPA modulator",
  *        "family": "*racetam",
  *        "rarity": "Common",
+ *        "slang": '',
  *        "owner" 1
  *     }
  *
