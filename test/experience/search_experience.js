@@ -54,6 +54,8 @@ describe('experience search', function() {
               .expect(200, [{
                 id: 1,
                 date: 1445543583,
+                groupCount: null,
+                groupDrug: null,
                 ttime: null,
                 title: 'My Title',
                 notes: null,
@@ -122,6 +124,8 @@ describe('experience search', function() {
                               .set('Content-Type', 'application/json')
                               .expect(200, [{
                                 "date": 1445543583,
+                                "groupCount": null,
+                                "groupDrug": null,
                                 "id": 1,
                                 "notes": null,
                                 "owner": 1,
@@ -190,6 +194,8 @@ describe('experience search', function() {
                   .expect(200, [{
                     id: 2,
                     date: 1445543583,
+                    groupCount: null,
+                    groupDrug: null,
                     ttime: null,
                     title: 'Cows',
                     notes: null,
@@ -233,6 +239,8 @@ describe('experience search', function() {
                   .expect(200, [{
                     id: 1,
                     date: 1445543583,
+                    groupCount: null,
+                    groupDrug: null,
                     ttime: null,
                     title: 'My Title',
                     notes: null,
@@ -276,6 +284,8 @@ describe('experience search', function() {
                   .expect(200, [{
                     id: 2,
                     date: 1445543583,
+                    groupCount: null,
+                    groupDrug: null,
                     ttime: null,
                     title: 'Cows',
                     notes: null,
@@ -326,6 +336,8 @@ describe('experience search', function() {
                       .expect(200, [{
                         id: 2,
                         date: 1445543583,
+                        groupCount: null,
+                        groupDrug: null,
                         ttime: null,
                         title: 'Cows',
                         notes: "Cool story, bro",
@@ -377,6 +389,8 @@ describe('experience search', function() {
                       .expect(200, [{
                         id: 2,
                         date: 1445543583,
+                        groupCount: null,
+                        groupDrug: null,
                         ttime: null,
                         title: 'Cows',
                         notes: null,
@@ -421,6 +435,8 @@ describe('experience search', function() {
                   .expect(200, [{
                     id: 2,
                     date: 1450000000,
+                    groupCount: null,
+                    groupDrug: null,
                     ttime: null,
                     title: 'Cows',
                     notes: null,

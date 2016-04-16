@@ -139,6 +139,8 @@ describe('experience create', function() {
                           .auth('myusername', 'MyPassword')
                           .expect(200, {
                             "date": 1445543583,
+                            "groupCount": null,
+                            "groupDrug": null,
                             "id": 1,
                             "notes": null,
                             "owner": 1,

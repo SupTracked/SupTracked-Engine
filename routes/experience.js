@@ -203,6 +203,8 @@ router.delete('/', function(req, res, next) {
  * @apiParam {String} [panicmsg]  user's panic message for the created experience
  * @apiParam {Number} [rating_id]  rating of general experience quality
  * @apiParam {String} [interactions]  array of possible interactions (e.g. '[1, 2]' OR null if empty)
+ * @apiParam {Number} [groupDrug]  drug ID to color code consumptions by batch of groupCount count
+ * @apiParam {Number} [groupCount]  amount to group drugs by
  *
  * @apiPermission ValidUserBasicAuthRequired
  *
@@ -226,7 +228,7 @@ router.delete('/', function(req, res, next) {
  *     }
  */
 router.put('/', function(req, res, next) {
-  var permittedFields = ['date', 'notes', 'panicmsg', 'rating_id', 'title', 'ttime', 'id', 'interactions'];
+  var permittedFields = ['date', 'notes', 'panicmsg', 'rating_id', 'title', 'ttime', 'id', 'interactions', 'groupDrug', 'groupCount'];
 
   //no fields were provided
   if (Object.keys(req.body).length === 0 || req.body === undefined) {
@@ -315,6 +317,8 @@ router.put('/', function(req, res, next) {
  *  @apiSuccess {String} experiences.notes  notes for the experience
  *  @apiSuccess {String} experiences.panicmsg  user's panic message for the created experience
  *  @apiSuccess {Number} experiences.rating_id  rating of general experience quality
+ *  @apiSuccess {Number} groupDrug  drug ID to color code consumptions by batch of groupCount count
+ *  @apiSuccess {Number} groupCount  amount to group drugs by
  *  @apiSuccess {Number} experiences.owner  id of the owner of the experience
  *  @apiSuccess {String} experiences.interactions  array of possible interactions (e.g. '[1, 2]' OR null if empty)
  *  @apiSuccess {Object[]} experiences.consumptions  array of consumptions for the experience
@@ -559,6 +563,8 @@ router.post('/search', function(req, res, next) {
                   rating_id: singleExperience.rating_id,
                   title: singleExperience.title,
                   ttime: singleExperience.ttime,
+                  groupDrug: singleExperience.groupDrug,
+                  groupCount: singleExperience.groupCount,
                   interactions: singleExperience.interactions,
                   consumptions: allConsumptions
                 };
@@ -595,6 +601,8 @@ router.post('/search', function(req, res, next) {
  * @apiSuccess {String} notes  notes for the experience
  * @apiSuccess {String} panicmsg  user's panic message for the created experience
  * @apiSuccess {Number} rating_id  rating of general experience quality
+ * @apiSuccess {Number} groupDrug  drug ID to color code consumptions by batch of groupCount count
+ * @apiSuccess {Number} groupCount  amount to group drugs by
  * @apiSuccess {Number} owner  id of the owner of the experience
  * @apiSuccess {Object[]} consumptions  array of consumptions for the experience
  *  @apiSuccess {Number} consumptions.id  id of the consumption
@@ -796,6 +804,8 @@ router.get('/:id', function(req, res, next) {
                 rating_id: experience[0].rating_id,
                 title: experience[0].title,
                 ttime: experience[0].ttime,
+                groupDrug: experience[0].groupDrug,
+                groupCount: experience[0].groupCount,
                 interactions: experience[0].interactions,
                 consumptions: allConsumptions
               };

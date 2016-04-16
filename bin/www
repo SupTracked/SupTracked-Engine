@@ -135,6 +135,8 @@ q.fcall(
     'notes TEXT, ' +
     'panicmsg TEXT, ' +
     'rating_id INTEGER, ' +
+    'groupDrug INTEGER, ' +
+    'groupCount INTEGER, ' +
     'owner INTEGER, ' +
     'interactions TEXT);' +
     ' ' +
