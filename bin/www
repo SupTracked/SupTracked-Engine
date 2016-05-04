@@ -147,6 +147,7 @@ q.fcall(
     'count REAL, ' +
     'drug_id INTEGER, ' +
     'method_id INTEGER, ' +
+    'grouping INTEGER, ' +
     'location TEXT, ' +
     'owner INTEGER);' +
     ' ' +
