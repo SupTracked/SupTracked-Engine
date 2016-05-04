@@ -162,6 +162,7 @@ describe('method delete', function() {
                           .expect(400, {
                             "consumptions": [{
                               "count": 2,
+                              "grouping": null,
                               "date": "1445648036",
                               "drug_id": 1,
                               "experience_id": 1,

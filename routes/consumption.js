@@ -192,6 +192,7 @@ router.post('/', function(req, res, next) {
  * @apiParam {Number} [experience_id]  ID of the experience the consumption is part of
  * @apiParam {Number} [drug_id]  ID of the drug consumed
  * @apiParam {Number} [method_id]  ID of the method used to consume the drug
+ * @apiParam {Number} [grouping]  numerical batch grouping
  * @apiParam {String} [location]  location of the consumption
  *
  * @apiPermission ValidUserBasicAuthRequired
@@ -216,7 +217,7 @@ router.post('/', function(req, res, next) {
  *     }
  */
 router.put('/', function(req, res, next) {
-  var permittedFields = ['date', 'count', 'experience_id', 'drug_id', 'method_id', 'location', 'id'];
+  var permittedFields = ['date', 'count', 'experience_id', 'drug_id', 'method_id', 'location', 'grouping', 'id'];
 
   //no fields were provided
   if (Object.keys(req.body).length === 0 || req.body === undefined) {
@@ -602,6 +603,7 @@ router.delete('/friend', function(req, res, next) {
  *    @apiSuccess {Number}   experiences.consumptions.method.id   ID of method
  *    @apiSuccess {String}   experiences.consumptions.method.name  name of method
  *   @apiSuccess {String} experiences.consumptions.location  location of the consumption
+ *   @apiSuccess {Number} experiences.consumptions.grouping  numerical batch grouping
  *   @apiSuccess {Object[]} experiences.consumptions.friends  array of JSON objects for friends associated with this consumption.
  *    @apiSuccess {Number}   experiences.consumptions.friends.id   ID of friend
  *    @apiSuccess {String}   experiences.consumptions.friends.name  name of friend
@@ -635,6 +637,7 @@ router.delete('/friend', function(req, res, next) {
  *         "date": "1445648036",
  *         "count": 2,
  *         "experience_id": 1,
+ *         "grouping": 1,
  *         "drug": {
  *           "id": 1,
  *           "name": "Aspirin",
@@ -847,6 +850,7 @@ router.post('/search', function(req, res, next) {
                     id: consumption.cid,
                     date: consumption.date,
                     count: consumption.count,
+                    grouping: consumption.grouping,
                     experience_id: consumption.experience_id,
                     drug: drugData,
                     method: methodData,
@@ -945,6 +949,7 @@ router.get('/locations', function(req, res, next) {
  *  @apiSuccess {Number} consumptions.date  Unix timestamp of the date and time of the consumption
  *  @apiSuccess {Number} consumptions.count  numerical quantity as measured by the drug's unit
  *  @apiSuccess {Number} consumptions.experience_id  ID of the experience the consumption is part of
+ *  @apiSuccess {Number} consumptions.grouping  numerical batch ID
  *  @apiSuccess {Object[]} consumptions.drug  JSON object of drug
  *    @apiSuccess {Number}   consumptions.drug.id   ID of friend
  *    @apiSuccess {String}   consumptions.drug.name  name of drug
@@ -965,6 +970,7 @@ router.get('/locations', function(req, res, next) {
  *     {
  *       "consumptions": [{
  *         "count": 2,
+ *         "grouping": 2,
  *         "date": "1445648036",
  *         "drug": {
  *           "id": 1,
@@ -1073,6 +1079,7 @@ router.get('/experience/:id', function(req, res, next) {
             id: consumption.cid,
             date: consumption.date,
             count: consumption.count,
+            grouping: consumption.grouping,
             experience_id: consumption.experience_id,
             drug: drugData,
             method: methodData,
@@ -1107,6 +1114,7 @@ router.get('/experience/:id', function(req, res, next) {
  * @apiSuccess {Number} date  Unix timestamp of the date and time of the consumption
  * @apiSuccess {Number} count  numerical quantity as measured by the drug's unit
  * @apiSuccess {Number} experience_id  ID of the experience the consumption is part of
+ * @apiSuccess {Number} grouping  numerical batch number
  * @apiSuccess {Object[]} drug  JSON object of drug
  *  @apiSuccess {Number}   drug.id   ID of friend
  *  @apiSuccess {String}   drug.name  name of drug
@@ -1128,6 +1136,7 @@ router.get('/experience/:id', function(req, res, next) {
  *        "id": 3,
  *        "date": 1445543583,
  *        "count": 3,
+ *        "grouping": 3,
  *        "experience_id": "1",
  *        "drug": [
  *            "id": 1,
@@ -1229,6 +1238,7 @@ router.get('/:id', function(req, res, next) {
           id: consumption[0].cid,
           date: consumption[0].date,
           count: consumption[0].count,
+          grouping: consumption[0].grouping,
           experience_id: consumption[0].experience_id,
           drug: drugData,
           method: methodData,

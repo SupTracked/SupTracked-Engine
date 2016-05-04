@@ -154,6 +154,7 @@ describe('consumption search', function() {
                                                   "id": 1,
                                                   "date": "1440000000",
                                                   "count": 1,
+                                                  "grouping": null,
                                                   "experience_id": 1,
                                                   "drug": {
                                                     "id": 1,
@@ -288,6 +289,7 @@ describe('consumption search', function() {
                                                   "id": 1,
                                                   "date": "1440000000",
                                                   "count": 1,
+                                                  "grouping": null,
                                                   "experience_id": 1,
                                                   "drug": {
                                                     "id": 1,
@@ -422,6 +424,7 @@ describe('consumption search', function() {
                                                   "id": 1,
                                                   "date": "1440000000",
                                                   "count": 1,
+                                                  "grouping": null,
                                                   "experience_id": 1,
                                                   "drug": {
                                                     "id": 1,
@@ -555,6 +558,7 @@ describe('consumption search', function() {
                                                   "id": 1,
                                                   "date": "1440000000",
                                                   "count": 1,
+                                                  "grouping": null,
                                                   "experience_id": 1,
                                                   "drug": {
                                                     "id": 1,
@@ -688,6 +692,7 @@ describe('consumption search', function() {
                                                   "id": 2,
                                                   "date": "1460000000",
                                                   "count": 2,
+                                                  "grouping": null,
                                                   "experience_id": 2,
                                                   "drug": {
                                                     "id": 2,
@@ -817,6 +822,7 @@ describe('consumption search', function() {
                                                   "id": 1,
                                                   "date": "1440000000",
                                                   "count": 1,
+                                                  "grouping": null,
                                                   "experience_id": 1,
                                                   "drug": {
                                                     "id": 1,

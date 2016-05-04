@@ -121,7 +121,7 @@ describe('consumption update', function() {
                           .put('/consumption')
                           .auth('myusername', 'MyPassword')
                           .set('Content-Type', 'application/json')
-                          .send('{"id": 1, "count": 17}')
+                          .send('{"id": 1, "count": 17, "grouping": 12}')
                           .end(function() {
                             request(server)
                               .get('/consumption/1')
@@ -131,6 +131,7 @@ describe('consumption update', function() {
                                 "id": 1,
                                 "date": "1445648036",
                                 "count": 17,
+                                "grouping": 12,
                                 "experience_id": 1,
                                 "drug": {
                                   "id": 1,

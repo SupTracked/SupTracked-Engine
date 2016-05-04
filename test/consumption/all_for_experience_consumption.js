@@ -118,6 +118,7 @@ describe('consumptions for experience', function() {
                                 "id": 1,
                                 "date": "1445648036",
                                 "count": 2,
+                                "grouping": null,
                                 "experience_id": 1,
                                 "drug": {
                                   "id": 1,
